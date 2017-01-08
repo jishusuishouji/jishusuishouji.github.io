@@ -4,8 +4,34 @@
 
     
   <url>
+    <loc>http://jishusuishouji.github.io/2017/01/08/java/jta/java%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1_spring_JTA_jotm/</loc>
+    <lastmod>2017-01-08T08:18:52.796Z</lastmod>
+    <data>
+        <display>
+        <title>java分布式事务:spring+JTA+jotm</title>
+        <pubTime>2017-01-08T01:23:24.000Z</pubTime>
+        
+        <tag>java</tag>
+         
+        <tag>jta</tag>
+         
+        <tag>jotm</tag>
+         
+        <tag>spring</tag>
+         
+         
+           
+             
+              <breadCrumb title="java" url="http://jishusuishouji.github.io/categories/java/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://jishusuishouji.github.io/2017/01/08/java/jta/java%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1_JTA_%E5%AE%9E%E7%8E%B0%20jotm%E5%92%8Catomikos/</loc>
-    <lastmod>2017-01-08T02:10:38.427Z</lastmod>
+    <lastmod>2017-01-08T08:17:24.019Z</lastmod>
     <data>
         <display>
         <title>java分布式事务(JTA)实现 jotm和atomikos</title>
@@ -28,32 +54,6 @@
           
              
               <breadCrumb title="jta" url="http://jishusuishouji.github.io/categories/java/jta/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>http://jishusuishouji.github.io/2017/01/08/java/jta/java%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1_spring_JTA_jotm/</loc>
-    <lastmod>2017-01-08T01:59:05.471Z</lastmod>
-    <data>
-        <display>
-        <title>java分布式事务:spring+JTA+jotm</title>
-        <pubTime>2017-01-08T01:23:24.000Z</pubTime>
-        
-        <tag>java</tag>
-         
-        <tag>jta</tag>
-         
-        <tag>jotm</tag>
-         
-        <tag>spring</tag>
-         
-         
-           
-             
-              <breadCrumb title="java" url="http://jishusuishouji.github.io/categories/java/"/>
           
         </display>
     </data>
