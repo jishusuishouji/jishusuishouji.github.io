@@ -4,8 +4,30 @@
 
     
   <url>
+    <loc>http://jishusuishouji.github.io/2017/01/09/java/spring/%E6%98%AF%E8%AF%A5%E6%8A%9B%E5%BC%83Spring_HibernateTemplate%E7%9A%84%E6%97%B6%E5%80%99%E4%BA%86/</loc>
+    <lastmod>2017-01-09T14:30:09.247Z</lastmod>
+    <data>
+        <display>
+        <title>是该抛弃Spring HibernateTemplate的时候了</title>
+        <pubTime>2017-01-09T14:26:48.000Z</pubTime>
+        
+        <tag>java</tag>
+         
+        <tag>spring</tag>
+         
+         
+           
+             
+              <breadCrumb title="java" url="http://jishusuishouji.github.io/categories/java/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://jishusuishouji.github.io/2017/01/09/java/spring/So_should_you_still_use_Spring_s_HibernateTemplate_and_or_JpaTemplate__/</loc>
-    <lastmod>2017-01-09T14:22:38.825Z</lastmod>
+    <lastmod>2017-01-09T14:25:34.194Z</lastmod>
     <data>
         <display>
         <title>So should you still use Spring's HibernateTemplate and/or JpaTemplate??</title>
