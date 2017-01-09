@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://jishusuishouji.github.io/"/>
-  <updated>2017-01-09T14:34:52.368Z</updated>
+  <updated>2017-01-09T14:36:01.677Z</updated>
   <id>http://jishusuishouji.github.io/</id>
   
   <author>
@@ -14,6 +14,22 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Spring MVC事务配置</title>
+    <link href="http://jishusuishouji.github.io/2017/01/09/java/spring/Spring_MVC%E4%BA%8B%E5%8A%A1%E9%85%8D%E7%BD%AE/"/>
+    <id>http://jishusuishouji.github.io/2017/01/09/java/spring/Spring_MVC事务配置/</id>
+    <published>2017-01-09T14:36:01.000Z</published>
+    <updated>2017-01-09T14:36:01.677Z</updated>
+    
+    <summary type="html">
+    
+      Spring MVC事务配置
+    
+    </summary>
+    
+    
+  </entry>
   
   <entry>
     <title>是该抛弃Spring HibernateTemplate的时候了</title>
@@ -49,11 +65,12 @@
     <link href="http://jishusuishouji.github.io/2017/01/09/java/spring/So_should_you_still_use_Spring_s_HibernateTemplate_and_or_JpaTemplate__/"/>
     <id>http://jishusuishouji.github.io/2017/01/09/java/spring/So_should_you_still_use_Spring_s_HibernateTemplate_and_or_JpaTemplate__/</id>
     <published>2017-01-09T14:20:51.000Z</published>
-    <updated>2017-01-09T14:25:34.194Z</updated>
+    <updated>2017-01-09T14:36:54.486Z</updated>
     
     <content type="html"><![CDATA[<p>I was reading <a href="http://www.infoq.com/articles/dynamic-routing-using-spring" target="_blank" rel="external">an article by Vigil Bose</a> on TSS the other day and saw the usage of the <code>HibernateDaoSupport</code> class. Since this is no longer a recommended way of using Hibernate from Spring, I thought I might as well just blog about it another time.   </p>
 <p>不建议使用<code>HibernateDaoSupport</code>。   </p>
 <p>With the advent(n. 到来；出现；) of Spring 2.0, it has become possible to start using the Hibernate Session API directly again. The question is whether or not it is wise to abandon the use of the <code>HibernateTemplate</code> when working with Hibernate, or any other template-based approaches Spring features.  </p>
+<h2 id="Using-Spring-XxxTemplates"><a href="#Using-Spring-XxxTemplates" class="headerlink" title="Using Spring XxxTemplates"></a>Using Spring XxxTemplates</h2><p>In Spring 1.0, we introduced a revolutionary way of working with data access APIs that threw checked exceptions. The template approach Spring features along with its transaction synchronization manager and the extensive use of runtime exceptions makes any TCFTC (short for try/catch-finally-try/catch as we coined it back in 2005) often found in data access code entirely obsolete. Below you can see (a simplified version and not entirely precise version of) what Spring’s template approach does for you (with specific code snippets that you would otherwise have to write).</p>
 ]]></content>
     
     <summary type="html">
