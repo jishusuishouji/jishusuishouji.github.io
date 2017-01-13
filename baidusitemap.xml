@@ -4,6 +4,26 @@
 
     
   <url>
+    <loc>http://jishusuishouji.github.io/2017/01/14/nodejs/nodejs%E7%9A%84require%E6%A8%A1%E5%9D%97%E5%8F%8A%E8%B7%AF%E5%BE%84/</loc>
+    <lastmod>2017-01-13T17:38:42.287Z</lastmod>
+    <data>
+        <display>
+        <title>nodejs的require模块及路径</title>
+        <pubTime>2017-01-13T17:30:53.000Z</pubTime>
+        
+        <tag>nodejs</tag>
+         
+         
+           
+             
+              <breadCrumb title="nodejs" url="http://jishusuishouji.github.io/categories/nodejs/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://jishusuishouji.github.io/2017/01/09/java/spring/So_should_you_still_use_Spring_s_HibernateTemplate_and_or_JpaTemplate__/</loc>
     <lastmod>2017-01-09T14:46:04.037Z</lastmod>
     <data>
