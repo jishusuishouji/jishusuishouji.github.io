@@ -4,6 +4,26 @@
 
     
   <url>
+    <loc>http://jishusuishouji.github.io/2017/03/23/nginx/%E7%94%A8Nginx%E6%90%AD%E5%BB%BACDN%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%96%B9%E6%B3%95-%E5%BC%80%E5%90%AFNginx%E7%BC%93%E5%AD%98%E4%B8%8E%E9%95%9C%E5%83%8F,%E8%87%AA%E5%BB%BA%E5%9B%BE%E7%89%87%E6%9C%8D%E5%8A%A1%E5%99%A8/</loc>
+    <lastmod>2017-03-23T15:30:49.116Z</lastmod>
+    <data>
+        <display>
+        <title>用Nginx搭建CDN服务器方法-开启Nginx缓存与镜像,自建图片服务器</title>
+        <pubTime>2017-03-23T15:06:20.000Z</pubTime>
+        
+        <tag>Nginx</tag>
+         
+         
+           
+             
+              <breadCrumb title="Nginx" url="http://jishusuishouji.github.io/categories/Nginx/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://jishusuishouji.github.io/2017/03/23/druid/druid_%E9%85%8D%E7%BD%AEWebStatFilter_%E7%BD%91%E7%BB%9Curl%E7%BB%9F%E8%AE%A1/</loc>
     <lastmod>2017-03-23T15:01:52.687Z</lastmod>
     <data>
