@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://jishusuishouji.github.io/"/>
-  <updated>2017-03-21T15:09:25.722Z</updated>
+  <updated>2017-03-23T14:00:02.235Z</updated>
   <id>http://jishusuishouji.github.io/</id>
   
   <author>
@@ -14,6 +14,22 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Druid：一个用于大数据实时处理的开源分布式系统</title>
+    <link href="http://jishusuishouji.github.io/2017/03/23/druid/Druid%EF%BC%9A%E4%B8%80%E4%B8%AA%E7%94%A8%E4%BA%8E%E5%A4%A7%E6%95%B0%E6%8D%AE%E5%AE%9E%E6%97%B6%E5%A4%84%E7%90%86%E7%9A%84%E5%BC%80%E6%BA%90%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/"/>
+    <id>http://jishusuishouji.github.io/2017/03/23/druid/Druid：一个用于大数据实时处理的开源分布式系统/</id>
+    <published>2017-03-23T14:00:02.000Z</published>
+    <updated>2017-03-23T14:00:02.235Z</updated>
+    
+    <summary type="html">
+    
+      Druid：一个用于大数据实时处理的开源分布式系统
+    
+    </summary>
+    
+    
+  </entry>
   
   <entry>
     <title>架构师必看 京东咚咚架构演进</title>
@@ -326,9 +342,9 @@
     
       <category term="jta" scheme="http://jishusuishouji.github.io/tags/jta/"/>
     
-      <category term="分布式事务" scheme="http://jishusuishouji.github.io/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/"/>
-    
       <category term="jotm" scheme="http://jishusuishouji.github.io/tags/jotm/"/>
+    
+      <category term="分布式事务" scheme="http://jishusuishouji.github.io/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/"/>
     
       <category term="atomikos" scheme="http://jishusuishouji.github.io/tags/atomikos/"/>
     
