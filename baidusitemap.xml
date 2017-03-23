@@ -5,7 +5,7 @@
     
   <url>
     <loc>http://jishusuishouji.github.io/2017/03/23/druid/DRUID%E8%BF%9E%E6%8E%A5%E6%B1%A0%E7%9A%84%E5%AE%9E%E7%94%A8_%E9%85%8D%E7%BD%AE%E8%AF%A6%E8%A7%A3/</loc>
-    <lastmod>2017-03-23T14:51:29.156Z</lastmod>
+    <lastmod>2017-03-23T14:57:31.301Z</lastmod>
     <data>
         <display>
         <title>DRUID连接池的实用 配置详解</title>
@@ -17,6 +17,26 @@
            
              
               <breadCrumb title="Druid" url="http://jishusuishouji.github.io/categories/Druid/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://jishusuishouji.github.io/2017/03/23/druid/druid_%E9%85%8D%E7%BD%AEWebStatFilter_%E7%BD%91%E7%BB%9Curl%E7%BB%9F%E8%AE%A1/</loc>
+    <lastmod>2017-03-23T14:56:11.658Z</lastmod>
+    <data>
+        <display>
+        <title>druid 配置WebStatFilter 网络url统计</title>
+        <pubTime>2017-03-23T14:54:59.000Z</pubTime>
+        
+        <tag>druid</tag>
+         
+         
+           
+             
+              <breadCrumb title="druid" url="http://jishusuishouji.github.io/categories/druid/"/>
           
         </display>
     </data>
@@ -247,9 +267,9 @@
          
         <tag>jta</tag>
          
-        <tag>jotm</tag>
-         
         <tag>分布式事务</tag>
+         
+        <tag>jotm</tag>
          
         <tag>atomikos</tag>
          
