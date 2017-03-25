@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://jishusuishouji.github.io/"/>
-  <updated>2017-03-25T15:47:48.237Z</updated>
+  <updated>2017-03-25T15:48:51.593Z</updated>
   <id>http://jishusuishouji.github.io/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://jishusuishouji.github.io/2017/03/25/hanshushi/Pointfree_%E7%BC%96%E7%A8%8B%E9%A3%8E%E6%A0%BC%E6%8C%87%E5%8D%97/"/>
     <id>http://jishusuishouji.github.io/2017/03/25/hanshushi/Pointfree_编程风格指南/</id>
     <published>2017-03-25T15:21:00.000Z</published>
-    <updated>2017-03-25T15:47:48.237Z</updated>
+    <updated>2017-03-25T15:48:51.593Z</updated>
     
     <content type="html"><![CDATA[<h2 id="函数式编程有什么用？"><a href="#函数式编程有什么用？" class="headerlink" title="函数式编程有什么用？"></a>函数式编程有什么用？</h2><p>Pointfree就是如何使用函数式编程的答案。</p>
 <h3 id="一、程序的本质"><a href="#一、程序的本质" class="headerlink" title="一、程序的本质"></a>一、程序的本质</h3><p><img src="/img/程序的本质.png" alt=""><br>左侧是数据输入（input），中间是一系列的运算步骤，对数据进行加工，右侧是最后的数据输出（output）。一个或多个这样的任务，就组成了程序。<br>输入和输出（统称为 I/O）与键盘、屏幕、文件、数据库等相关。这里的关键是，中间的运算部分不能有 I/O 操作，应该是纯运算，即通过纯粹的数学运算来求值。否则，就应该拆分出另一个任务。<br>I/O 操作往往有现成命令，大多数时候，编程主要就是写中间的那部分运算逻辑。现在，主流写法是过程式编程和面向对象编程，但是我觉得，最合适纯运算的是函数式编程。<br><a id="more"></a></p>
@@ -45,6 +45,7 @@
 <p>过程式编程的代码如下:<br><img src="/img/过程式编程的代码.png" alt=""><br>上面代码不易读，出错的可能性很大。<br>现在使用 Pointfree 风格改写。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">var getIncompleteTaskSummaries = function(membername) &#123;</div><div class="line">  return fetchData()</div><div class="line">    .then(R.prop(&apos;tasks&apos;))</div><div class="line">    .then(R.filter(R.propEq(&apos;username&apos;, membername)))</div><div class="line">    .then(R.reject(R.propEq(&apos;complete&apos;, true)))</div><div class="line">    .then(R.map(R.pick([&apos;id&apos;, &apos;dueDate&apos;, &apos;title&apos;, &apos;priority&apos;])))</div><div class="line">    .then(R.sortBy(R.prop(&apos;dueDate&apos;)));</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
 <p>上面代码已经清晰很多了。<br>另一种写法是，把各个then里面的函数合成起来。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line">// 提取 tasks 属性</div><div class="line">var SelectTasks = R.prop(&apos;tasks&apos;);</div><div class="line"></div><div class="line">// 过滤出指定的用户</div><div class="line">var filterMember = member =&gt; R.filter(</div><div class="line">  R.propEq(&apos;username&apos;, member)</div><div class="line">);</div><div class="line"></div><div class="line">// 排除已经完成的任务</div><div class="line">var excludeCompletedTasks = R.reject(R.propEq(&apos;complete&apos;, true));</div><div class="line"></div><div class="line">// 选取指定属性</div><div class="line">var selectFields = R.map(</div><div class="line">  R.pick([&apos;id&apos;, &apos;dueDate&apos;, &apos;title&apos;, &apos;priority&apos;])</div><div class="line">);</div><div class="line"></div><div class="line">// 按照到期日期排序</div><div class="line">var sortByDueDate = R.sortBy(R.prop(&apos;dueDate&apos;));</div><div class="line"></div><div class="line">// 合成函数</div><div class="line">var getIncompleteTaskSummaries = function(membername) &#123;</div><div class="line">  return fetchData().then(</div><div class="line">    R.pipe(</div><div class="line">      SelectTasks,</div><div class="line">      filterMember(membername),</div><div class="line">      excludeCompletedTasks,</div><div class="line">      selectFields,</div><div class="line">      sortByDueDate,</div><div class="line">    )</div><div class="line">  );</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
 <p>上面的代码跟过程式的写法一比较，孰优孰劣一目了然。</p>
+<h2 id="函数式编程"><a href="#函数式编程" class="headerlink" title="函数式编程"></a>函数式编程</h2><p>函数式编程是一种编程的模式，在这种编程模式中最常用的函数和表达式。它强调在编程的时候用函数的方式思考问题，函数也与其他数据类型一样，处于平等地位。可以将函数作为参数传入另一个函数，也可以作为别的函数的返回值。函数式编程倾向于用一系列嵌套的函数来描述运算过程。</p>
 ]]></content>
     
     <summary type="html">
