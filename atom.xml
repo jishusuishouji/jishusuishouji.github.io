@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://jishusuishouji.github.io/"/>
-  <updated>2017-03-25T16:25:00.412Z</updated>
+  <updated>2017-03-26T11:29:33.693Z</updated>
   <id>http://jishusuishouji.github.io/</id>
   
   <author>
@@ -14,6 +14,104 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>mongodb最大连接数修改</title>
+    <link href="http://jishusuishouji.github.io/2017/03/26/mongodb/mongodb%E6%9C%80%E5%A4%A7%E8%BF%9E%E6%8E%A5%E6%95%B0%E4%BF%AE%E6%94%B9/"/>
+    <id>http://jishusuishouji.github.io/2017/03/26/mongodb/mongodb最大连接数修改/</id>
+    <published>2017-03-26T11:22:25.000Z</published>
+    <updated>2017-03-26T11:29:33.693Z</updated>
+    
+    <content type="html"><![CDATA[<p>在nodejs启动时一次性开了200个Mongodb连接，目的是为了高并发时减少数据库连接耗时。如果做cluster开10个实例就有2000个连接了，这样就有些节点连接不到数据库的情况。</p>
+<p>原因是Mongodb默认最大连接数只有819个，于是通过在启动里面加参数<code>--maxConns=3000</code>来提高最大连接数。然后重启服务，但悲剧的是通过<code>db.serverStatus().connections;</code>查看到最大连接数还是<code>819</code>。原因是linux系统的限制，Linux系统默认一个进程最大文件打开数目为1024。需要在Mongodb开启前修改这个限制。在运行数据前运行<code>ulimit -n</code>命令 。如果已经加入开机脚本，就要在脚本中启动前增加这行了。比如：</p>
+<pre><code>ulimit -n 20000
+/usr/mongodb/bin/mongod --dbpath=/usr/mongodb/data/ --logpath=/usr/mongodb/log/mongodb.log  --maxConns=3000  --fork
+</code></pre><p>再查看就可以看到最大连接数增加了。</p>
+<h2 id="重启机器后仍有问题"><a href="#重启机器后仍有问题" class="headerlink" title="重启机器后仍有问题"></a>重启机器后仍有问题</h2><p>解决问题：<code>Invariant failure: ret resulted in status UnknownError 24: Too many open files at src/mongo/db/storage/wiredtiger/wiredtiger_session_cache.cpp 73</code></p>
+<p>按照官方的建议<a href="https://docs.mongodb.com/manual/reference/ulimit/#recommended-ulimit-settings，" target="_blank" rel="external">https://docs.mongodb.com/manual/reference/ulimit/#recommended-ulimit-settings，</a> 由于centos 6的最大进程连接数为1024，我们就增加一个限制设定的配置</p>
+<blockquote>
+<p>Red Hat Enterprise Linux and CentOS 6 place a max process limitation of 1024 which overridesulimit settings. Create a file named /etc/security/limits.d/99-mongodb-nproc.conf with new soft nproc and hard nproc values to increase the process limit. See /etc/security/limits.d/90-nproc.conf file as an example.</p>
+</blockquote>
+<p>按照官方推荐的设置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">-f (file size): unlimited</div><div class="line">-t (cpu time): unlimited</div><div class="line">-v (virtual memory): unlimited [1]</div><div class="line">-n (open files): 64000</div><div class="line">-m (memory size): unlimited [1] [2]</div><div class="line">-u (processes/threads): 64000</div></pre></td></tr></table></figure></p>
+<p>由于服务器只有openfiles不匹配且比推荐的小，另外process/threads比较大， 所以其中99-mongodb-nproc.conf的内容如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"># Default limit for number of user&apos;s processes to prevent</div><div class="line"># accidental fork bombs.</div><div class="line"># See rhbz #432903 for reasoning.</div><div class="line"> </div><div class="line">root       soft    nproc     unlimited</div><div class="line">root       hard    nproc     unlimited</div><div class="line">root       soft    nofile    64000</div><div class="line">root       hard    nofile    64000</div></pre></td></tr></table></figure></p>
+<p>设计后重启机器，可用<code>ulimit -a</code>看到值已经更改，问题解决。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      mongodb最大连接数修改
+    
+    </summary>
+    
+      <category term="mongodb" scheme="http://jishusuishouji.github.io/categories/mongodb/"/>
+    
+    
+      <category term="mongodb" scheme="http://jishusuishouji.github.io/tags/mongodb/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Spring Cloud Netflix构建微服务入门实践</title>
+    <link href="http://jishusuishouji.github.io/2017/03/26/spring/Spring_Cloud_Netflix%E6%9E%84%E5%BB%BA%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%85%A5%E9%97%A8%E5%AE%9E%E8%B7%B5/"/>
+    <id>http://jishusuishouji.github.io/2017/03/26/spring/Spring_Cloud_Netflix构建微服务入门实践/</id>
+    <published>2017-03-26T09:57:46.000Z</published>
+    <updated>2017-03-26T10:47:46.910Z</updated>
+    
+    <content type="html"><![CDATA[<p>在使用Spring Cloud Netflix构建微服务之前，我们先了解一下Spring Cloud集成的Netflix OSS的基础组件Eureka，对于Netflix的其他微服务组件，像Hystrix、Zuul、Ribbon等等本文暂不涉及，感兴趣可以参考官网文档。这里，我们用最基础的Eureka来构建一个最基础的微服务应用，来演示如何构建微服务，了解微服务的基本特点。</p>
+<h2 id="Eureka"><a href="#Eureka" class="headerlink" title="Eureka"></a>Eureka</h2><p>Eureka是Netflix开源的一个微服务注册组件，提供服务发现特性，它是一个基于REST的服务，主要具有如下功能：</p>
+<ul>
+<li>支持服务注册和发现</li>
+<li>具有Load Balance和Failover的功能</li>
+<li>在进行服务调用过程中，无需知道目标服务的主机（IP）和端口，只要知道服务名就可以实现调用</li>
+</ul>
+<p>通过Netfix在Github上的文档，我们看一下Eureka的基本架构，如下图所示：<br><img src="/img/Eureka的基本架构.png" alt="eureka_architecture"><br>Eureka主要包含如下两个核心组件：</p>
+<h3 id="Eureka-Server"><a href="#Eureka-Server" class="headerlink" title="Eureka Server"></a>Eureka Server</h3><p>Eureka Server是服务注册的服务端组件，负责管理Eureka Client注册的服务，提供服务发现的功能。它支持集群模式部署，集群部署模式中，多个Eureka Server之间会同步服务注册数据，能够保证某一个Eureka Server因为故障挂掉，仍能对外提供注册服务的能力。因为最初在Netflix，Eureka主要用在AWS Cloud上，用作定位服务、Load Balance和Failover，在AWS Cloud上，Eureka支持在多个Region中部署Eureka Server而构建一个注册中心集群，从而实现了服务注册中心的高可用性。</p>
+<h3 id="Eureka-Client"><a href="#Eureka-Client" class="headerlink" title="Eureka Client"></a>Eureka Client</h3><p>Eureka Client是Eureka Server客户端组件库，可以基于它向Eureka Server注册服务，供服务调用方调用；也可以是一个服务调用方，通过检索服务并调用已经注册的服务。如上图所示，Application Service和Application Client都是基于Eureka Client开发的使用Eureka Server的服务。另外，Eureka Client提供了内置的Load Balancer，实现了基本的Round-robin模式的负载均衡。</p>
+<h2 id="Spring-Cloud-Netflix"><a href="#Spring-Cloud-Netflix" class="headerlink" title="Spring Cloud Netflix"></a>Spring Cloud Netflix</h2><p>Spring Cloud Netflix提供了对Netflix OSS的集成，同时还使用了Spring Boot，能够极大地简化微服务程序的开发。使用Spring Cloud提供的基本注解，就能非常方便的使用Netfix OSS基本组件。<br>要想使用Spring Cloud Eureka，只需要在Maven POM文件中加入如下依赖管理配置即可：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">&lt;dependencyManagement&gt;</div><div class="line">    &lt;dependencies&gt;</div><div class="line">        &lt;dependency&gt;</div><div class="line">            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;</div><div class="line">            &lt;artifactId&gt;spring-cloud-netflix&lt;/artifactId&gt;</div><div class="line">            &lt;version&gt;1.0.7.RELEASE&lt;/version&gt;</div><div class="line">            &lt;type&gt;pom&lt;/type&gt;</div><div class="line">            &lt;scope&gt;import&lt;/scope&gt;</div><div class="line">        &lt;/dependency&gt;</div><div class="line">    &lt;/dependencies&gt;</div><div class="line">&lt;/dependencyManagement&gt;</div></pre></td></tr></table></figure></p>
+<p>关于如何使用注解，我们会在下面的实践中，详细说明。</p>
+<h2 id="构建微服务实践"><a href="#构建微服务实践" class="headerlink" title="构建微服务实践"></a>构建微服务实践</h2><p>我们构建一个简单的微服务应用，能够实现服务注册，服务调用的基本功能。计划实现的微服务应用，交互流程如下图所示：<br><img src="/img/eureka-service-interaction.png" alt="eureka-service-interaction"><br>上图中，我们假设Eureka Client并没有缓存Eureka Server中注册的服务，而是每次都需要通过Eureka Server来查找并映射目标服务。上图所示的微服务应用，具有如下服务组件：</p>
+<p>两个Eureka Server实例组成的服务发现集群<br>通过Spring Cloud实现，只需要使用注解配置即可，代码如下所示：</p>
+<p>01<br>package org.shirdrn.springcloud.eureka.server;<br>02</p>
+<p>03<br>import org.springframework.boot.autoconfigure.SpringBootApplication;<br>04<br>import org.springframework.boot.builder.SpringApplicationBuilder;<br>05<br>import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;<br>06</p>
+<p>07<br>@EnableEurekaServer<br>08<br>@SpringBootApplication<br>09<br>public class MyEurekaServer {<br>10</p>
+<p>11<br>    public static void main(String[] args) {<br>12<br>        new SpringApplicationBuilder(MyEurekaServer.class).web(true).run(args);<br>13<br>    }<br>14<br>}<br>部署两个Eureka Server的代码是相同的，其中，对应的配置文件application.yml内容不同，示例如下所示：</p>
+<p>01<br>server:<br>02<br>  port: 3300<br>03<br>spring:<br>04<br>  application:<br>05<br>    name: my-eureka-server<br>06<br>eureka:<br>07<br>  client:<br>08<br>    serviceUrl:<br>09<br>      defaultZone: <a href="http://localhost:3300/eureka/,http://localhost:3301/eureka/" target="_blank" rel="external">http://localhost:3300/eureka/,http://localhost:3301/eureka/</a><br>10<br>  instance:<br>11<br>    metadataMap:<br>12<br>      instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}<br>另一个只需要改一下server.port为3301即可。</p>
+<p>具有两个实例的Greeting Service服务<br>该示例服务，只是提供一个接口，能够给调用方返回调用结果，实现代码，如下所示：</p>
+<p>01<br>package org.shirdrn.springcloud.eureka.applicationservice.greeting;<br>02</p>
+<p>03<br>import org.springframework.boot.autoconfigure.EnableAutoConfiguration;<br>04<br>import org.springframework.boot.autoconfigure.SpringBootApplication;<br>05<br>import org.springframework.boot.builder.SpringApplicationBuilder;<br>06<br>import org.springframework.cloud.netflix.eureka.EnableEurekaClient;<br>07<br>import org.springframework.web.bind.annotation.PathVariable;<br>08<br>import org.springframework.web.bind.annotation.RequestMapping;<br>09<br>import org.springframework.web.bind.annotation.RequestMethod;<br>10<br>import org.springframework.web.bind.annotation.RestController;<br>11</p>
+<p>12<br>@SpringBootApplication<br>13<br>@EnableEurekaClient<br>14<br>@RestController<br>15<br>@EnableAutoConfiguration<br>16<br>public class GreeingService {<br>17</p>
+<p>18<br>    @RequestMapping(method = RequestMethod.GET, value = “/greeting/{name}”)<br>19<br>    public String greet(@PathVariable(“name”) String name) {<br>20<br>        return “::01:: Hello, “ + name + “!”;<br>21<br>    }<br>22</p>
+<p>23<br>    public static void main(String[] args) {<br>24<br>        new SpringApplicationBuilder(GreeingService.class).web(true).run(args);<br>25<br>    }<br>26<br>}<br>为了能够观察，Greeting Service的两个实例，能够在调用的时候实现Round-robin风格的负载均衡，特别在返回的结果中增加了标识来区分。<br>对应的配置文件application.properties内容，除了对应的端口和服务实例名称不同，其它都相同，示例如下所示：</p>
+<p>1<br>server.port=9901<br>2<br>spring.application.name = greeting.service<br>3<br>eureka.instance.metadataMap.instanceId = ${spring.application.name}:instance-9901<br>4<br>eureka.client.serviceUrl.defaultZone = <a href="http://localhost:3300/eureka/,http://localhost:3301/eureka/" target="_blank" rel="external">http://localhost:3300/eureka/,http://localhost:3301/eureka/</a><br>这样就可以在启动时注册到Eureka Server中。</p>
+<p>一个名称为Application Caller的服务，需要调用Greeting Service服务<br>该服务和上面的服务类似，只是在其内部实现了对远程服务的调用，我们的实现代码如下所示：</p>
+<p>01<br>package org.shirdrn.springcloud.eureka.applicationclient.caller;<br>02</p>
+<p>03<br>import org.springframework.beans.factory.annotation.Autowired;<br>04<br>import org.springframework.boot.CommandLineRunner;<br>05<br>import org.springframework.boot.autoconfigure.SpringBootApplication;<br>06<br>import org.springframework.boot.builder.SpringApplicationBuilder;<br>07<br>import org.springframework.cloud.netflix.eureka.EnableEurekaClient;<br>08<br>import org.springframework.cloud.netflix.feign.EnableFeignClients;<br>09<br>import org.springframework.stereotype.Component;<br>10<br>import org.springframework.web.client.RestTemplate;<br>11</p>
+<p>12<br>@SpringBootApplication<br>13<br>@EnableEurekaClient<br>14<br>@EnableFeignClients<br>15<br>public class Application {<br>16</p>
+<p>17<br>    public static void main(String[] args) {<br>18<br>        new SpringApplicationBuilder(Application.class)<br>19<br>                .web(false)<br>20<br>                .run(args);<br>21<br>    }<br>22<br>}<br>23</p>
+<p>24<br>@Component<br>25<br>class RestTemplateExample implements CommandLineRunner {<br>26</p>
+<p>27<br>    @Autowired<br>28<br>    private RestTemplate restTemplate;<br>29<br>    private static final String GREETING_SERVICE_URI = “<a href="http://greeting.service/greeting/{name}" target="_blank" rel="external">http://greeting.service/greeting/{name}</a>“;  // 通过服务名称来调用，而不需要知道目标服务的IP和端口<br>30</p>
+<p>31<br>    @Override<br>32<br>    public void run(String… strings) throws Exception {<br>33<br>        while(true) {<br>34<br>            String greetingSentence = this.restTemplate.getForObject(<br>35<br>                    GREETING_SERVICE_URI,<br>36<br>                    String.class,<br>37<br>                    “Dean Shi”); // 透明调用远程服务<br>38<br>            System.out.println(“Response result: “ + greetingSentence);<br>39</p>
+<p>40<br>            Thread.sleep(5000);<br>41<br>        }<br>42<br>    }<br>43<br>}<br>对应的配置文件application.properties内容，如下所示：</p>
+<p>1<br>server.port=9999<br>2<br>spring.application.name = application.client.caller<br>3<br>eureka.instance.metadataMap.instanceId = ${spring.application.name}:instance-9999<br>4<br>eureka.client.serviceUrl.defaultZone = <a href="http://localhost:3300/eureka/,http://localhost:3301/eureka/" target="_blank" rel="external">http://localhost:3300/eureka/,http://localhost:3301/eureka/</a><br>启动并验证微服务应用</p>
+<p>上面已经实现了该示例微服务应用的全部组件，先可以启动各个服务组件了。启动顺序如下所示：</p>
+<p>启动两个Eureka Server<br>启动两个Greeting Service<br>启动服务消费应用Application Call<br>可以通过Web页面查看Eureka Server控制台，如下图所示：<br>eureka-web-console<br>多次启动Application Call应用，就可以通过查看Greeting Service服务的日志，可以看到服务被调用，而且实现了基础的Round-robin负载均衡，日志如下所示：</p>
+<p>1<br>Response result: ::02:: Hello, Dean Shi!<br>2<br>Response result: ::01:: Hello, Dean Shi!<br>3<br>Response result: ::02:: Hello, Dean Shi!<br>4<br>Response result: ::01:: Hello, Dean Shi!<br>5<br>Response result: ::02:: Hello, Dean Shi!<br>6<br>Response result: ::01:: Hello, Dean Shi!<br>我们实现示例微服务应用，验证后符合我们的期望。<br>上面微服务应用的实现代码及其配置，可以查看我的Github：<a href="https://github.com/shirdrn/springcloud-eureka-demo.git" target="_blank" rel="external">https://github.com/shirdrn/springcloud-eureka-demo.git</a></p>
+<p>参考链接</p>
+<p><a href="https://github.com/Netflix/eureka/wiki/Eureka-at-a-glance" target="_blank" rel="external">https://github.com/Netflix/eureka/wiki/Eureka-at-a-glance</a><br><a href="http://cloud.spring.io/spring-cloud-netflix/" target="_blank" rel="external">http://cloud.spring.io/spring-cloud-netflix/</a><br><a href="http://cloud.spring.io/spring-cloud-netflix/1.0.x/" target="_blank" rel="external">http://cloud.spring.io/spring-cloud-netflix/1.0.x/</a><br><a href="https://spring.io/blog/2015/01/20/microservice-registration-and-discovery-with-spring-cloud-and-netflix-s-eureka" target="_blank" rel="external">https://spring.io/blog/2015/01/20/microservice-registration-and-discovery-with-spring-cloud-and-netflix-s-eureka</a><br><a href="http://itmuch.com/spring-cloud-sum-eureka/" target="_blank" rel="external">http://itmuch.com/spring-cloud-sum-eureka/</a><br><a href="http://blog.abhijitsarkar.org/technical/netflix-eureka/" target="_blank" rel="external">http://blog.abhijitsarkar.org/technical/netflix-eureka/</a><br>Creative Commons License<br>本文基于署名-非商业性使用-相同方式共享 4.0许可协议发布，欢迎转载、使用、重新发布，但务必保留文章署名时延军（包含链接：<a href="http://shiyanjun.cn），不得用于商业目的，基于本文修改后的作品务必以相同的许可发布。如有任何疑问，请与我联系。" target="_blank" rel="external">http://shiyanjun.cn），不得用于商业目的，基于本文修改后的作品务必以相同的许可发布。如有任何疑问，请与我联系。</a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      Spring Cloud Netflix构建微服务入门实践
+    
+    </summary>
+    
+      <category term="spring" scheme="http://jishusuishouji.github.io/categories/spring/"/>
+    
+    
+      <category term="spring" scheme="http://jishusuishouji.github.io/tags/spring/"/>
+    
+  </entry>
   
   <entry>
     <title>ZooKeeper 基础知识、部署和应用程序</title>
@@ -678,9 +776,9 @@ location ~ .*\.(gif|jpg|jpeg|png|bmp|swf|js|html|htm|css)$ {
     
       <category term="jta" scheme="http://jishusuishouji.github.io/tags/jta/"/>
     
-      <category term="jotm" scheme="http://jishusuishouji.github.io/tags/jotm/"/>
-    
       <category term="分布式事务" scheme="http://jishusuishouji.github.io/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/"/>
+    
+      <category term="jotm" scheme="http://jishusuishouji.github.io/tags/jotm/"/>
     
       <category term="atomikos" scheme="http://jishusuishouji.github.io/tags/atomikos/"/>
     
