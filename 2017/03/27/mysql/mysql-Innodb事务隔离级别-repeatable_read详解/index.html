@@ -1,0 +1,109 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="java,ruby,python,scala,sql,db,并发,协程"><title>mysql-Innodb事务隔离级别-repeatable read详解 | 技术随手记</title><link rel="stylesheet" type="text/css" href="//fonts.css.network/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/css/style.css?v=1.2.0"><link rel="stylesheet" type="text/css" href="/css/highlight.css?v=1.2.0"><link rel="Shortcut Icon" href="/favicon.ico"><link rel="bookmark" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">mysql-Innodb事务隔离级别-repeatable read详解</h1><a id="logo" href="/.">技术随手记</a><p class="description"></p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">mysql-Innodb事务隔离级别-repeatable read详解</h1><div class="post-meta">Mar 27, 2017<span> | </span><span class="category"><a href="/categories/mysql/">mysql</a></span><script src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js" async></script><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> Hits</span></span></div><a data-thread-key="2017/03/27/mysql/mysql-Innodb事务隔离级别-repeatable_read详解/" href="/2017/03/27/mysql/mysql-Innodb事务隔离级别-repeatable_read详解/#comments" class="ds-thread-count"></a><div class="post-content"><h2 id="一、事务隔离级别"><a href="#一、事务隔离级别" class="headerlink" title="一、事务隔离级别"></a>一、事务隔离级别</h2><p>ANSI/ISO SQL标准定义了4中事务隔离级别：未提交读（read uncommitted），提交读（read committed），重复读（repeatable read），串行读（serializable）。</p>
+<p>对于不同的事务，采用不同的隔离级别分别有不同的结果。不同的隔离级别有不同的现象。主要有下面3种现在：</p>
+<p>1、脏读（dirty read）：一个事务可以读取另一个尚未提交事务的修改数据。</p>
+<p>2、非重复读（nonrepeatable read）：在同一个事务中，同一个查询在T1时间读取某一行，在T2时间重新读取这一行时候，这一行的数据已经发生修改(T1和T2都在同一个事务里面)，可能被更新了（update），也可能被删除了（delete）。</p>
+<p>3、幻像读（phantom read）：在同一事务中，同一查询多次进行时候，由于其他插入操作（insert）的事务提交，导致每次返回不同的结果集。</p>
+<p>不同的隔离级别有不同的现象，并有不同的锁定/并发机制，隔离级别越高，数据库的并发性就越差，4种事务隔离级别分别表现的现象如下表：</p>
+<table>
+<thead>
+<tr>
+<th>隔离级别</th>
+<th>脏读</th>
+<th>非重复读</th>
+<th>幻像读</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>read uncommitted</td>
+<td>允许</td>
+<td>允许</td>
+<td>允许</td>
+</tr>
+<tr>
+<td>read committed</td>
+<td></td>
+<td>允许</td>
+<td>允许</td>
+</tr>
+<tr>
+<td>repeatable read</td>
+<td></td>
+<td></td>
+<td>允许</td>
+</tr>
+<tr>
+<td>serializable</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="二、数据库中的默认事务隔离级别"><a href="#二、数据库中的默认事务隔离级别" class="headerlink" title="二、数据库中的默认事务隔离级别"></a>二、数据库中的默认事务隔离级别</h2><p>在Oracle中默认的事务隔离级别是提交读（read committed）。</p>
+<p>对于MySQL的Innodb的默认事务隔离级别是重复读（repeatable read）。可以通过下面的命令查看：</p>
+<p>mysql&gt; SELECT @@GLOBAL.tx_isolation, @@tx_isolation;</p>
+<p>+———————–+—————–+</p>
+<p>| @@GLOBAL.tx_isolation | @@tx_isolation  |</p>
+<p>+———————–+—————–+</p>
+<p>| REPEATABLE-READ | REPEATABLE-READ |</p>
+<p>+———————–+—————–+</p>
+<p>1 row in set (0.00 sec)</p>
+<p>下面进行一下测试：</p>
+<p>Time    Session 1   Session 2<br>T1  set autocommit=0;   set autocommit=0;<br>T2  mysql&gt; select * from tmp_test;</p>
+<p>+——+———+<br>| id   | version |<br>+——+———+<br>|    1 |       1 |<br>+——+———+</p>
+<p>1 row in set (0.00 sec)</p>
+<p>T3      mysql&gt; update tmp_test set version=2 where id=1;</p>
+<p>Query OK, 1 row affected (0.02 sec)</p>
+<p>Rows matched: 1  Changed: 1  Warnings: 0</p>
+<p>mysql&gt; select * from tmp_test;</p>
+<p>+——+———+<br>| id   | version |<br>+——+———+<br>|    1 |       2 |<br>+——+———+</p>
+<p>1 row in set (0.00 sec)</p>
+<p>T4  mysql&gt; select * from tmp_test;</p>
+<p>+——+———+<br>| id   | version |<br>+——+———+<br>|    1 |       1 |<br>+——+———+</p>
+<p>1 row in set (0.00 sec)</p>
+<p>【说明】<br>Session 2未提交，看到数据不变，无脏读。</p>
+<p>T5      commit;<br>T6  mysql&gt; select * from tmp_test;</p>
+<p>+——+———+<br>| id   | version |<br>+——+———+<br>|    1 |       1 |<br>+——+———+</p>
+<p>1 row in set (0.00 sec)</p>
+<p>【说明】<br>Session 2已经提交，还是看到数据不变，即可以重复读。</p>
+<p>T7  commit;<br>T8  mysql&gt; select * from tmp_test;</p>
+<p>+——+———+<br>| id   | version |<br>+——+———+<br>|    1 |       2 |<br>+——+———+</p>
+<p>1 row in set (0.00 sec)</p>
+<p>【说明】<br>提交事务，看到最新数据。</p>
+<p>T9      mysql&gt; insert into tmp_test values(2,1);</p>
+<p>Query OK, 1 row affected (0.00 sec)</p>
+<p>mysql&gt; select * from tmp_test;</p>
+<p>+——+———+<br>| id   | version |<br>+——+———+<br>|    1 |       2 |<br>|    2 |       1 |<br>+——+———+</p>
+<p>2 rows in set (0.00 sec)</p>
+<p>mysql&gt; commit;</p>
+<p>Query OK, 0 rows affected (0.00 sec)</p>
+<p>T10 mysql&gt; select * from tmp_test;</p>
+<p>+——+———+<br>| id   | version |<br>+——+———+<br>|    1 |       2 |<br>+——+———+</p>
+<p>1 row in set (0.00 sec)</p>
+<p>【说明】<br>Session 2的insert事务已经提交，看到的数据和T8的时候一样，即未发生幻象读。</p>
+<p>T11 mysql&gt; commit;</p>
+<p>Query OK, 0 rows affected (0.00 sec)</p>
+<p>mysql&gt; select * from tmp_test;</p>
+<p>+——+———+<br>| id   | version |<br>+——+———+<br>|    1 |       2 |<br>|    2 |       1 |<br>+——+———+</p>
+<p>2 rows in set (0.00 sec)</p>
+<p>【说明】<br>事务提交，看到最新数据。</p>
+<p>上面的结果可以看到Innodb的重复读（repeatable read）不允许脏读，不允许非重复读（即可以重复读，Innodb使用多版本一致性读来实现）和不允许幻象读（这点和ANSI/ISO SQL标准定义的有所区别）。</p>
+<p>另外，同样的测试：</p>
+<p>1、当session 2进行truncate表的时候，这个时候session 1再次查询就看不到数据。</p>
+<p>2、当session 2进行alter表的时候，这个时候session 1再次查询就看不到数据。</p>
+<p>造成以上的原因是因为 mysql的持续非锁定读，在repeatable read级别下，读采用的是持续非锁定读。相关介绍见下面：</p>
+<p>持续读意味着InnoDB使用它的多版本化来给一个查询展示某个时间点处数据库的快照。查询看到在那个时间点之前被提交的那些确切事务做的更改，并且没有其后的事务或未提交事务做的改变。这个规则的例外是，查询看到发布该查询的事务本身所做的改变。</p>
+<p>如果你运行在默认的REPEATABLE READ隔离级别，则在同一事务内的所有持续读读取由该事务中第一个这样的读所确立的快照。你可以通过提交当前事务并在发布新查询的事务之后，为你的查询获得一个更新鲜的快照。</p>
+<p>持续读是默认模式，在其中InnoDBzai在READ COMMITTED和REPEATABLE READ隔离级别处理SELECT语句。持续读不在任何它访问的表上设置锁定，因此，其它用户可自由地在持续读在一个表上执行的同一时间修改这些表。</p>
+<p>注意，持续读不在DROP TABLE和ALTER TABLE上作用。持续读不在DROP TABLE上作用，因为MySQL不能使用已经被移除的表，并且InnoDB 破坏了该表。持续读不在ALTER TABLE上作用，因为它在某事务内执行，该事务创建一个新表，并且从旧表往新表中插入行。现在，当你重新发出持续读之时，它不能在新表中看见任何行，因为它们被插入到一个在持续读读取的快照中不可见的事务 里。</p>
+<p>MySQL官方文档中的多版本一致性读中说明了原因：Consistent read does not work over certain DDL statements。</p>
+</div><div class="tags"><a href="/tags/mysql/">mysql</a></div><div class="post-nav"><a href="/2017/03/27/mysql/说说MySQL中的事务/" class="next">说说MySQL中的事务</a></div><div data-thread-key="2017/03/27/mysql/mysql-Innodb事务隔离级别-repeatable_read详解/" data-title="mysql-Innodb事务隔离级别-repeatable read详解" data-url="http://jishusuishouji.github.io/2017/03/27/mysql/mysql-Innodb事务隔离级别-repeatable_read详解/" class="ds-share flat"><div class="ds-share-inline"><ul class="ds-share-icons-16"><li data-toggle="ds-share-icons-more"><a href="javascript:void(0);" class="ds-more">分享到:</a></li><li><a href="javascript:void(0);" data-service="weibo" class="ds-weibo">微博</a></li><li><a href="javascript:void(0);" data-service="qzone" class="ds-qzone">QQ空间</a></li><li><a href="javascript:void(0);" data-service="qqt" class="ds-qqt">腾讯微博</a></li><li><a href="javascript:void(0);" data-service="wechat" class="ds-wechat">微信</a></li></ul><div class="ds-share-icons-more"></div></div></div><div data-thread-key="2017/03/27/mysql/mysql-Innodb事务隔离级别-repeatable_read详解/" data-title="mysql-Innodb事务隔离级别-repeatable read详解" data-url="http://jishusuishouji.github.io/2017/03/27/mysql/mysql-Innodb事务隔离级别-repeatable_read详解/" data-author-key="1" class="ds-thread"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="widget"><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="请输入关键字..."/></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div class="widget"><div class="widget-title"><i class="fa fa-gui"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Druid/">Druid</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Nginx/">Nginx</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ORM/">ORM</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Velocity/">Velocity</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ZooKeeper/">ZooKeeper</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/druid/">druid</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/java/">java</a><span class="category-list-count">4</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/java/jta/">jta</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/java/spring/">spring</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/maven/">maven</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/mongodb/">mongodb</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/mysql/">mysql</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/nodejs/">nodejs</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/spring/">spring</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/函数式编程/">函数式编程</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/架构/">架构</a><span class="category-list-count">1</span></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/tags/spring/" style="font-size: 15px;">spring</a> <a href="/tags/ORM/" style="font-size: 15px;">ORM</a> <a href="/tags/druid/" style="font-size: 15px;">druid</a> <a href="/tags/函数式编程/" style="font-size: 15px;">函数式编程</a> <a href="/tags/maven/" style="font-size: 15px;">maven</a> <a href="/tags/架构/" style="font-size: 15px;">架构</a> <a href="/tags/mongodb/" style="font-size: 15px;">mongodb</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/Nginx/" style="font-size: 15px;">Nginx</a> <a href="/tags/nodejs/" style="font-size: 15px;">nodejs</a> <a href="/tags/Druid/" style="font-size: 15px;">Druid</a> <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/ZooKeeper/" style="font-size: 15px;">ZooKeeper</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/hibernate/" style="font-size: 15px;">hibernate</a> <a href="/tags/HibernateTemplate/" style="font-size: 15px;">HibernateTemplate</a> <a href="/tags/jta/" style="font-size: 15px;">jta</a> <a href="/tags/分布式事务/" style="font-size: 15px;">分布式事务</a> <a href="/tags/jotm/" style="font-size: 15px;">jotm</a> <a href="/tags/atomikos/" style="font-size: 15px;">atomikos</a> <a href="/tags/Velocity/" style="font-size: 15px;">Velocity</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-fei"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">三月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">一月 2017</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/03/27/mysql/mysql-Innodb事务隔离级别-repeatable_read详解/">mysql-Innodb事务隔离级别-repeatable read详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/27/mysql/说说MySQL中的事务/">说说MySQL中的事务</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/27/ORM/ORM到底是用还是不用？/">ORM到底是用还是不用？</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/27/maven/maven_多模块项目/">maven 多模块项目</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/27/maven/Maven最佳实践：划分模块/">Maven最佳实践：划分模块</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/26/mongodb/mongodb最大连接数修改/">mongodb最大连接数修改</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/26/spring/Spring_Cloud_Netflix构建微服务入门实践/">Spring Cloud Netflix构建微服务入门实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/26/zookeeper/ZooKeeper_基础知识、部署和应用程序/">ZooKeeper 基础知识、部署和应用程序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/25/hanshushi/Pointfree_编程风格指南/">Pointfree 编程风格指南</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/23/nginx/用Nginx搭建CDN服务器方法-开启Nginx缓存与镜像,自建图片服务器/">用Nginx搭建CDN服务器方法-开启Nginx缓存与镜像,自建图片服务器</a></li></ul></div><div class="widget"><div class="comments-title"><i class="fa fa-commt"> 最近评论</i></div><div data-num-items="5" data-show-avatars="0" data-show-time="1" data-show-admin="0" data-excerpt-length="32" data-show-title="1" class="ds-recent-comments"></div></div></div></div></div><a id="totop" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=1.2.0" async></script><div id="footer"><div class="footer-info"><p><a href="/baidusitemap.xml">网站地图</a> |<a href="/atom.xml">订阅本站</a> |<span>联系博主：<a href="mailto:null" target="_blank" class="fa fa-email"> </a><a href="null" target="_blank" class="fa fa-weibo"></a><a href="null" target="_blank" class="fa fa-github"> </a></span></p><p><span> Copyright &copy;<a href="/." rel="nofollow">技术随手记</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span><span><a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> Theme </a>by<a rel="nofollow" target="_blank" href="https://github.com/chaooo"> Charles.</a></span></p></div></div></div><script>var duoshuoQuery = {short_name:'jishusuishouji'};
+(function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    document.getElementsByTagName('body')[0].appendChild(ds);
+})();
+</script><script type="text/javascript" src="/js/search.json.js?v=1.2.0"></script></body></html>

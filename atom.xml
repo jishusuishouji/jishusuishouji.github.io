@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://jishusuishouji.github.io/"/>
-  <updated>2017-03-27T10:58:26.740Z</updated>
+  <updated>2017-03-27T11:08:52.373Z</updated>
   <id>http://jishusuishouji.github.io/</id>
   
   <author>
@@ -14,6 +14,128 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>mysql-Innodb事务隔离级别-repeatable read详解</title>
+    <link href="http://jishusuishouji.github.io/2017/03/27/mysql/mysql-Innodb%E4%BA%8B%E5%8A%A1%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB-repeatable_read%E8%AF%A6%E8%A7%A3/"/>
+    <id>http://jishusuishouji.github.io/2017/03/27/mysql/mysql-Innodb事务隔离级别-repeatable_read详解/</id>
+    <published>2017-03-27T11:04:08.000Z</published>
+    <updated>2017-03-27T11:08:52.373Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="一、事务隔离级别"><a href="#一、事务隔离级别" class="headerlink" title="一、事务隔离级别"></a>一、事务隔离级别</h2><p>ANSI/ISO SQL标准定义了4中事务隔离级别：未提交读（read uncommitted），提交读（read committed），重复读（repeatable read），串行读（serializable）。</p>
+<p>对于不同的事务，采用不同的隔离级别分别有不同的结果。不同的隔离级别有不同的现象。主要有下面3种现在：</p>
+<p>1、脏读（dirty read）：一个事务可以读取另一个尚未提交事务的修改数据。</p>
+<p>2、非重复读（nonrepeatable read）：在同一个事务中，同一个查询在T1时间读取某一行，在T2时间重新读取这一行时候，这一行的数据已经发生修改(T1和T2都在同一个事务里面)，可能被更新了（update），也可能被删除了（delete）。</p>
+<p>3、幻像读（phantom read）：在同一事务中，同一查询多次进行时候，由于其他插入操作（insert）的事务提交，导致每次返回不同的结果集。</p>
+<p>不同的隔离级别有不同的现象，并有不同的锁定/并发机制，隔离级别越高，数据库的并发性就越差，4种事务隔离级别分别表现的现象如下表：</p>
+<table>
+<thead>
+<tr>
+<th>隔离级别</th>
+<th>脏读</th>
+<th>非重复读</th>
+<th>幻像读</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>read uncommitted</td>
+<td>允许</td>
+<td>允许</td>
+<td>允许</td>
+</tr>
+<tr>
+<td>read committed</td>
+<td></td>
+<td>允许</td>
+<td>允许</td>
+</tr>
+<tr>
+<td>repeatable read</td>
+<td></td>
+<td></td>
+<td>允许</td>
+</tr>
+<tr>
+<td>serializable</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="二、数据库中的默认事务隔离级别"><a href="#二、数据库中的默认事务隔离级别" class="headerlink" title="二、数据库中的默认事务隔离级别"></a>二、数据库中的默认事务隔离级别</h2><p>在Oracle中默认的事务隔离级别是提交读（read committed）。</p>
+<p>对于MySQL的Innodb的默认事务隔离级别是重复读（repeatable read）。可以通过下面的命令查看：</p>
+<p>mysql&gt; SELECT @@GLOBAL.tx_isolation, @@tx_isolation;</p>
+<p>+———————–+—————–+</p>
+<p>| @@GLOBAL.tx_isolation | @@tx_isolation  |</p>
+<p>+———————–+—————–+</p>
+<p>| REPEATABLE-READ | REPEATABLE-READ |</p>
+<p>+———————–+—————–+</p>
+<p>1 row in set (0.00 sec)</p>
+<p>下面进行一下测试：</p>
+<p>Time    Session 1   Session 2<br>T1  set autocommit=0;   set autocommit=0;<br>T2  mysql&gt; select * from tmp_test;</p>
+<p>+——+———+<br>| id   | version |<br>+——+———+<br>|    1 |       1 |<br>+——+———+</p>
+<p>1 row in set (0.00 sec)</p>
+<p>T3      mysql&gt; update tmp_test set version=2 where id=1;</p>
+<p>Query OK, 1 row affected (0.02 sec)</p>
+<p>Rows matched: 1  Changed: 1  Warnings: 0</p>
+<p>mysql&gt; select * from tmp_test;</p>
+<p>+——+———+<br>| id   | version |<br>+——+———+<br>|    1 |       2 |<br>+——+———+</p>
+<p>1 row in set (0.00 sec)</p>
+<p>T4  mysql&gt; select * from tmp_test;</p>
+<p>+——+———+<br>| id   | version |<br>+——+———+<br>|    1 |       1 |<br>+——+———+</p>
+<p>1 row in set (0.00 sec)</p>
+<p>【说明】<br>Session 2未提交，看到数据不变，无脏读。</p>
+<p>T5      commit;<br>T6  mysql&gt; select * from tmp_test;</p>
+<p>+——+———+<br>| id   | version |<br>+——+———+<br>|    1 |       1 |<br>+——+———+</p>
+<p>1 row in set (0.00 sec)</p>
+<p>【说明】<br>Session 2已经提交，还是看到数据不变，即可以重复读。</p>
+<p>T7  commit;<br>T8  mysql&gt; select * from tmp_test;</p>
+<p>+——+———+<br>| id   | version |<br>+——+———+<br>|    1 |       2 |<br>+——+———+</p>
+<p>1 row in set (0.00 sec)</p>
+<p>【说明】<br>提交事务，看到最新数据。</p>
+<p>T9      mysql&gt; insert into tmp_test values(2,1);</p>
+<p>Query OK, 1 row affected (0.00 sec)</p>
+<p>mysql&gt; select * from tmp_test;</p>
+<p>+——+———+<br>| id   | version |<br>+——+———+<br>|    1 |       2 |<br>|    2 |       1 |<br>+——+———+</p>
+<p>2 rows in set (0.00 sec)</p>
+<p>mysql&gt; commit;</p>
+<p>Query OK, 0 rows affected (0.00 sec)</p>
+<p>T10 mysql&gt; select * from tmp_test;</p>
+<p>+——+———+<br>| id   | version |<br>+——+———+<br>|    1 |       2 |<br>+——+———+</p>
+<p>1 row in set (0.00 sec)</p>
+<p>【说明】<br>Session 2的insert事务已经提交，看到的数据和T8的时候一样，即未发生幻象读。</p>
+<p>T11 mysql&gt; commit;</p>
+<p>Query OK, 0 rows affected (0.00 sec)</p>
+<p>mysql&gt; select * from tmp_test;</p>
+<p>+——+———+<br>| id   | version |<br>+——+———+<br>|    1 |       2 |<br>|    2 |       1 |<br>+——+———+</p>
+<p>2 rows in set (0.00 sec)</p>
+<p>【说明】<br>事务提交，看到最新数据。</p>
+<p>上面的结果可以看到Innodb的重复读（repeatable read）不允许脏读，不允许非重复读（即可以重复读，Innodb使用多版本一致性读来实现）和不允许幻象读（这点和ANSI/ISO SQL标准定义的有所区别）。</p>
+<p>另外，同样的测试：</p>
+<p>1、当session 2进行truncate表的时候，这个时候session 1再次查询就看不到数据。</p>
+<p>2、当session 2进行alter表的时候，这个时候session 1再次查询就看不到数据。</p>
+<p>造成以上的原因是因为 mysql的持续非锁定读，在repeatable read级别下，读采用的是持续非锁定读。相关介绍见下面：</p>
+<p>持续读意味着InnoDB使用它的多版本化来给一个查询展示某个时间点处数据库的快照。查询看到在那个时间点之前被提交的那些确切事务做的更改，并且没有其后的事务或未提交事务做的改变。这个规则的例外是，查询看到发布该查询的事务本身所做的改变。</p>
+<p>如果你运行在默认的REPEATABLE READ隔离级别，则在同一事务内的所有持续读读取由该事务中第一个这样的读所确立的快照。你可以通过提交当前事务并在发布新查询的事务之后，为你的查询获得一个更新鲜的快照。</p>
+<p>持续读是默认模式，在其中InnoDBzai在READ COMMITTED和REPEATABLE READ隔离级别处理SELECT语句。持续读不在任何它访问的表上设置锁定，因此，其它用户可自由地在持续读在一个表上执行的同一时间修改这些表。</p>
+<p>注意，持续读不在DROP TABLE和ALTER TABLE上作用。持续读不在DROP TABLE上作用，因为MySQL不能使用已经被移除的表，并且InnoDB 破坏了该表。持续读不在ALTER TABLE上作用，因为它在某事务内执行，该事务创建一个新表，并且从旧表往新表中插入行。现在，当你重新发出持续读之时，它不能在新表中看见任何行，因为它们被插入到一个在持续读读取的快照中不可见的事务 里。</p>
+<p>MySQL官方文档中的多版本一致性读中说明了原因：Consistent read does not work over certain DDL statements。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      mysql-Innodb事务隔离级别-repeatable read详解
+    
+    </summary>
+    
+      <category term="mysql" scheme="http://jishusuishouji.github.io/categories/mysql/"/>
+    
+    
+      <category term="mysql" scheme="http://jishusuishouji.github.io/tags/mysql/"/>
+    
+  </entry>
   
   <entry>
     <title>说说MySQL中的事务</title>
@@ -924,60 +1046,6 @@ location ~ .*\.(gif|jpg|jpeg|png|bmp|swf|js|html|htm|css)$ {
       <category term="spring" scheme="http://jishusuishouji.github.io/tags/spring/"/>
     
       <category term="java" scheme="http://jishusuishouji.github.io/tags/java/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>So should you still use Spring&#39;s HibernateTemplate and/or JpaTemplate??</title>
-    <link href="http://jishusuishouji.github.io/2017/01/09/java/spring/So_should_you_still_use_Spring_s_HibernateTemplate_and_or_JpaTemplate__/"/>
-    <id>http://jishusuishouji.github.io/2017/01/09/java/spring/So_should_you_still_use_Spring_s_HibernateTemplate_and_or_JpaTemplate__/</id>
-    <published>2017-01-09T14:20:51.000Z</published>
-    <updated>2017-01-09T14:46:04.037Z</updated>
-    
-    <content type="html"><![CDATA[<p>I was reading <a href="http://www.infoq.com/articles/dynamic-routing-using-spring" target="_blank" rel="external">an article by Vigil Bose</a> on TSS the other day and saw the usage of the <code>HibernateDaoSupport</code> class. Since this is no longer a recommended way of using Hibernate from Spring, I thought I might as well just blog about it another time.   </p>
-<p>不建议使用<code>HibernateDaoSupport</code>。   </p>
-<p>With the advent(n. 到来；出现；) of Spring 2.0, it has become possible to start using the Hibernate Session API directly again. The question is whether or not it is wise to abandon the use of the <code>HibernateTemplate</code> when working with Hibernate, or any other template-based approaches Spring features.  </p>
-<h2 id="Using-Spring-XxxTemplates"><a href="#Using-Spring-XxxTemplates" class="headerlink" title="Using Spring XxxTemplates"></a>Using Spring XxxTemplates</h2><p>In Spring 1.0, we introduced a revolutionary way of working with data access APIs that threw checked exceptions. The template approach Spring features along with its transaction synchronization manager and the extensive(adj. 广泛的；大量的；广阔的) use of runtime exceptions makes any TCFTC (short for try/catch-finally-try/catch as we coined(杜撰) it back in 2005) often found in data access code entirely obsolete. Below you can see (a simplified version and not entirely precise version of) what Spring’s template approach does for you (with specific code snippets that you would otherwise have to write).</p>
-<p><strong>Acquisition of connection</strong>: If transaction synchronization is active (which it is, if you’re using Spring’s transaction management infrastructure), most of the times any of the Spring templates are using the same connection across the entire thread (things are actually a bit more complicated than that, but that would lead us too much into the gory details).   </p>
-<p><strong>Participation in a transaction</strong> Again, when using transaction management features, Spring will automatically associated any new connection with the current transaction. This again, all depends on the current propagations settings and so on, but whichever way you look at it, your core code is not affected by it.</p>
-<p><strong>Specification of the SQL</strong>: This is what you (obviously) have to do yourself. The SQL ideally uses bind parameters, to avoid any chances of SQL injection from happening. Parameters are passed to the JDBC template as arguments.</p>
-<p><strong>Creation / execution of statement and iterating over result set</strong>: After you’ve specified the SQL, Spring is going to create the statement for you, set any parameters you may have specified, execute it and loop over the result set for you.</p>
-<p><strong>Parse result from result set</strong>: You can opt for parsing the result set yourself if you like (or if you have complex parsing requirements), or you can have Spring result a list of primitives, or just one value from the result set.</p>
-<p><strong>Handling and translation of exceptions</strong>: This is where Spring translates any exceptions that might have occurred to Spring’s own DataAccessException hierarchy, automatically insulating calling code from the data access technology in use.</p>
-<p><strong>Releasing of connection</strong>: This is the last piece of the puzzle where Spring releases any resources used. Of course, if transaction synchronization is active, the resources might not be released immediately.</p>
-<p>Templates are available for several APIs such as:</p>
-<ul>
-<li>JDBC (JdbcTemplate)</li>
-<li>Hibernate (HibernateTemplate)</li>
-<li>iBatis (SqlMapClientTemplate)</li>
-<li>JDO (JdoTemplate)</li>
-<li>TopLink (TopLinkTemplate)</li>
-<li>Messaging (JmsTempate)</li>
-<li>Transaction management (TransactionTemplate)</li>
-<li>JNDI (JndiTemplate)</li>
-</ul>
-<h2 id="Are-templates-really-necessary"><a href="#Are-templates-really-necessary" class="headerlink" title="Are templates really necessary?"></a>Are templates really necessary?</h2><p>The templates add a lot of value when using an API that uses checked exceptions (as opposed to runtime exceptions or unchecked exceptions), but also add a lot of consistency to your code base. People having learnt Spring’s <code>JdbcTemplate</code> can pretty easily start using Spring’s <code>JdoTemplate</code> or Spring’s <code>HibernateTemplate</code>–the approach to using those is similar for each one of them.</p>
-<p>The most visible impact of the Spring template approach is the code reduction for for example JDBC. This is primarily because the checked exceptions are translated to runtime exceptions inside the template, removing the need to catch the exception in your mainline code. Other reasons are the transparent resource management and automatic synchronization with the currently running transaction. Of course it’s fairly easy to change a framework to use runtime exceptions natively instead of Spring having to do this and this is what for example Hibernate has started to do from version 3.0 onwards. Hibernate is not the only technology to do this–the Java Persistence API is also using runtime exceptions.</p>
-]]></content>
-    
-    <summary type="html">
-    
-      So should you still use Spring&#39;s HibernateTemplate and/or JpaTemplate??
-    
-    </summary>
-    
-      <category term="java" scheme="http://jishusuishouji.github.io/categories/java/"/>
-    
-      <category term="spring" scheme="http://jishusuishouji.github.io/categories/java/spring/"/>
-    
-    
-      <category term="spring" scheme="http://jishusuishouji.github.io/tags/spring/"/>
-    
-      <category term="java" scheme="http://jishusuishouji.github.io/tags/java/"/>
-    
-      <category term="hibernate" scheme="http://jishusuishouji.github.io/tags/hibernate/"/>
-    
-      <category term="HibernateTemplate" scheme="http://jishusuishouji.github.io/tags/HibernateTemplate/"/>
     
   </entry>
   
