@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://jishusuishouji.github.io/"/>
-  <updated>2017-03-27T05:26:18.258Z</updated>
+  <updated>2017-03-27T10:58:26.740Z</updated>
   <id>http://jishusuishouji.github.io/</id>
   
   <author>
@@ -14,6 +14,120 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>说说MySQL中的事务</title>
+    <link href="http://jishusuishouji.github.io/2017/03/27/mysql/%E8%AF%B4%E8%AF%B4MySQL%E4%B8%AD%E7%9A%84%E4%BA%8B%E5%8A%A1/"/>
+    <id>http://jishusuishouji.github.io/2017/03/27/mysql/说说MySQL中的事务/</id>
+    <published>2017-03-27T10:27:04.000Z</published>
+    <updated>2017-03-27T10:58:26.740Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="从一个问题开始"><a href="#从一个问题开始" class="headerlink" title="从一个问题开始"></a>从一个问题开始</h2><p>从ATM机取钱分为以下几个步骤：</p>
+<p>1.登陆ATM机，输入密码；<br>2.连接数据库，验证密码；<br>3.验证成功，获得用户信息，比如存款余额等；<br>4.用户输入需要取款的金额，按下确认键；<br>5.从后台数据库中减掉用户账户上的对应金额；<br>6.ATM吐出钱；<br>7.用户把钱拿走。</p>
+<p>一个简单的取钱，主要分为以上几步。不知道大家有没有“天真”的想过，如果在第5步中，后台数据库中已经把钱减掉了，但是ATM还就是没有吐出钱（虽然实际也发生过，但是毕竟是低概率事件），这该怎么办？</p>
+<p>关于这个问题，银行系统的开发人员早就想过了，那么他们是怎么来搞定这个问题的呢？这就要说到今天总结的事务这个概念了。</p>
+<h2 id="简单说说事务"><a href="#简单说说事务" class="headerlink" title="简单说说事务"></a>简单说说事务</h2><p>对于上面的取钱这个事情，如果有一步出现了错误，那么就取消整个取钱的动作；简单来说，就是取钱这7步，要么都完成，要么就啥也不做。在数据库中，事务也是这个道理。</p>
+<p>事务由一条或者多条sql语句组成，在事务中的操作，这些sql语句要么都执行，要么都不执行，这就是事务的目的。</p>
+<p>对于事务而言，它需要满足ACID特性，下面就简要的说说事务的ACID特性。</p>
+<p>A，表示原子性；原子性指整个数据库事务是不可分割的工作单位。只有使事务中所有的数据库操作都执行成功，整个事务的执行才算成功。事务中任何一个sql语句执行失败，那么已经执行成功的sql语句也必须撤销，数据库状态应该退回到执行事务前的状态；<br>C，表示一致性；也就是说一致性指事务将数据库从一种状态转变为另一种一致的状态，在事务开始之前和事务结束以后，数据库的完整性约束没有被破坏；<br>I，表示隔离性；隔离性也叫做并发控制、可串行化或者锁。事务的隔离性要求每个读写事务的对象与其它事务的操作对象能相互分离，即该事务提交前对其它事务都不可见，这通常使用锁来实现；<br>D，持久性，表示事务一旦提交了，其结果就是永久性的，也就是数据就已经写入到数据库了，如果发生了宕机等事故，数据库也能将数据恢复。</p>
+<p>总结了一些事务的基本概念，在MySQL中，事务还是分为很多中的，下面就来看看到底有哪些事务。</p>
+<h2 id="有哪些事务"><a href="#有哪些事务" class="headerlink" title="有哪些事务"></a>有哪些事务</h2><p>你能想象到吗？就这么个破事务还会分以下这么多种：</p>
+<ul>
+<li>扁平事务；</li>
+<li>带有保存点的扁平事务；</li>
+<li>链事务；</li>
+<li>嵌套事务；</li>
+<li>分布式事务。</li>
+</ul>
+<p>现在就来对这些事务从概念的层面上进行简单的总结一下。</p>
+<h3 id="扁平事务"><a href="#扁平事务" class="headerlink" title="扁平事务"></a>扁平事务</h3><p>扁平事务是最简单的一种，也是实际开发中使用的最多的一种事务。在这种事务中，所有操作都处于同一层次，最常见的方式如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">BEGIN WORK</div><div class="line">    Operation 1</div><div class="line">    Operation 2</div><div class="line">    Operation 3</div><div class="line">    ...</div><div class="line">    Operation N</div><div class="line">COMMIT WORK</div></pre></td></tr></table></figure></p>
+<p>或者是这种：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">BEGIN WORK</div><div class="line">    Operation 1</div><div class="line">    Operation 2</div><div class="line">    Operation 3</div><div class="line">    ...</div><div class="line">    Operation N</div><div class="line">    (Error Occured)</div><div class="line">ROLLBACK WORK</div></pre></td></tr></table></figure></p>
+<p>扁平事务的主要缺点是不能提交或回滚事务的某一部分，或者分几个独立的步骤去提交。比如有这样的一个例子，我从呼和浩特去深圳，为了便宜，我可能这么干：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">BEGIN WORK</div><div class="line">    Operation1:呼和浩特---火车---&gt;北京</div><div class="line">    Operation2:北京---飞机---&gt;深圳</div><div class="line">ROLLBACK WORK</div></pre></td></tr></table></figure></p>
+<p>但是，如果Operation1，从呼和浩特到北京的火车晚点了，错过了航班，怎么办？感觉扁平事务的特性，那我就需要回滚，我再回到呼和浩特，那么这样成本是不是也太高了啊，所以就有了下面的第二种事务——带有保存点的扁平事务。</p>
+<h3 id="带有保存点的扁平事务"><a href="#带有保存点的扁平事务" class="headerlink" title="带有保存点的扁平事务"></a>带有保存点的扁平事务</h3><p>这种事务除了支持扁平事务支持的操作外，允许在事务执行过程中回滚到同一事务中较早的一个状态，这是因为可能某些事务在执行过程中出现的错误并不会对所有的操作都无效，放弃整个事务不合乎要求，开销也太大。保存点用来通知系统应该记住事务当前的状态，以便以后发生错误时，事务能回到该状态。</p>
+<h3 id="链事务"><a href="#链事务" class="headerlink" title="链事务"></a>链事务</h3><p>链事务，就是指回滚时，只能恢复到最近一个保存点；而带有保存点的扁平事务则可以回滚到任意正确的保存点。</p>
+<h3 id="嵌套事务"><a href="#嵌套事务" class="headerlink" title="嵌套事务"></a>嵌套事务</h3><p>看下面这个，你就能明白了，啥是嵌套事务：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">BEGIN WORK</div><div class="line">    SubTransaction1:</div><div class="line">            BEGIN WORK</div><div class="line">                SubOperationX</div><div class="line">            COMMIT WORK</div><div class="line">    SubTransaction2:</div><div class="line">            BEGIN WORK</div><div class="line">                SubOperationY</div><div class="line">            COMMIT WORK</div><div class="line">    ...</div><div class="line">    SubTransactionN:</div><div class="line">            BEGIN WORK</div><div class="line">                SubOperationN</div><div class="line">            COMMIT WORK</div><div class="line">COMMIT WORK</div></pre></td></tr></table></figure></p>
+<p>这就是嵌套事务，在事务中再嵌套事务，位于根节点的事务称为顶层事务。事务的前驱称为父事务，其它事务称为子事务。事务的前驱称为父事务，事务的下一层称为子事务。</p>
+<p>子事务既可以提交也可以回滚，但是它的提交操作并不马上生效，除非由其父事务提交。因此就可以确定，任何子事务都在顶层事务提交后才真正的被提交了。同理，任意一个事务的回滚都会引起它的所有子事务一同回滚。</p>
+<h3 id="分布式事务"><a href="#分布式事务" class="headerlink" title="分布式事务"></a>分布式事务</h3><p>分布式事务通常是指在一个分布式环境下运行的扁平事务，因此需要根据数据所在位置访问网络中的不同节点，比如：通过建设银行向招商银行转账，建设银行和招商银行肯定用的不是同一个数据库，同时二者的数据库也不在一个网络节点上，那么当用户跨行转账，就是通过分布式事务来保证数据的ACID的。</p>
+<h2 id="MySQL中使用事务"><a href="#MySQL中使用事务" class="headerlink" title="MySQL中使用事务"></a>MySQL中使用事务</h2><p>理论总结的再好，终归都要通过实践来进行理解。下面就来说说MySQL中是如何使用事务的。</p>
+<p>在MySQL命令行的默认设置下，事务都是自动提交的，即执行SQL语句后就会马上执行COMMIT操作。因此要显示地开启一个事务须使用命令BEGIN或START TRANSACTION，或者执行命令<code>SET AUTOCOMMIT=0</code>，用来禁止使用当前会话的自动提交。</p>
+<p>来看看我们可以使用哪些事务控制语句。</p>
+<ul>
+<li><code>BEGIN</code>或<code>START TRANSACTION</code>；显示地开启一个事务；</li>
+<li><code>COMMIT</code>；也可以使用<code>COMMIT WORK</code>，不过二者是等价的。COMMIT会提交事务，并使已对数据库进行的所有修改称为永久性的；</li>
+<li>ROLLBACK；有可以使用ROLLBACK WORK，不过二者是等价的。回滚会结束用户的事务，并撤销正在进行的所有未提交的修改；</li>
+<li><code>SAVEPOINT identifier</code>；SAVEPOINT允许在事务中创建一个保存点，一个事务中可以有多个SAVEPOINT；</li>
+<li>RELEASE SAVEPOINT identifier；删除一个事务的保存点，当没有指定的保存点时，执行该语句会抛出一个异常；</li>
+<li><code>ROLLBACK TO identifier</code>；把事务回滚到标记点；</li>
+<li><code>SET RANSACTION</code>；用来设置事务的隔离级别。InnoDB存储引擎提供事务的隔离级别有<code>READ UNCOMMITTED</code>、<code>READ COMMITTED</code>、<code>REPEATABLE READ</code>和<code>SERIALIZABLE</code>。</li>
+</ul>
+<h2 id="这些不用你“管”"><a href="#这些不用你“管”" class="headerlink" title="这些不用你“管”"></a>这些不用你“管”</h2><p>有的时候有些SQL语句会产生一个隐式的提交操作，即执行完成这些语句后，会有一个隐式的<code>COMMIT</code>操作。有以下SQL语句，不用你去“管”：</p>
+<ul>
+<li>DDL语句，ALTER DATABASE、ALTER EVENT、ALTER PROCEDURE、ALTER TABLE、ALTER VIEW、CREATE TABLE、DROP TABLE、RENAME TABLE、TRUNCATE TABLE等；</li>
+<li>修改MYSQL架构的语句，CREATE USER、DROP USER、GRANT、RENAME USER、REVOKE、SET PASSWORD；</li>
+<li>管理语句，ANALYZE TABLE、CACHE INDEX、CHECK TABLE、LOAD INDEX INTO CACHE、OPTIMIZE TABLE、REPAIR TABLE等。</li>
+</ul>
+<p>以上的这些SQL操作都是隐式的提交操作，不需要手动显式提交。</p>
+<h2 id="事务的隔离级别"><a href="#事务的隔离级别" class="headerlink" title="事务的隔离级别"></a>事务的隔离级别</h2><p>上面也说到了<code>SET TRANSACTION</code>用来设置事务的隔离级别。那事务的隔离级别是什么东东？</p>
+<p>在数据库操作中，为了有效保证并发读取数据的正确性，提出的事务隔离级别。</p>
+<p>InnoDB存储引擎提供事务的隔离级别有READ UNCOMMITTED、READ COMMITTED、REPEATABLE READ和SERIALIZABLE。这些隔离级别之间的区别如下：</p>
+<table>
+<thead>
+<tr>
+<th>隔离级别</th>
+<th>脏读（Dirty Read）</th>
+<th>不可重复读（NonRepeatable Read）</th>
+<th>幻读（Phantom Read）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>未提交读（Read uncommitted）</td>
+<td>可能</td>
+<td>可能</td>
+<td>可能</td>
+</tr>
+<tr>
+<td>已提交读（Read committed）</td>
+<td>不可能</td>
+<td>可能</td>
+<td>可能</td>
+</tr>
+<tr>
+<td>可重复读（Repeatable read）</td>
+<td>不可能</td>
+<td>不可能</td>
+<td>可能</td>
+</tr>
+<tr>
+<td>可串行化（Serializable ）</td>
+<td>不可能</td>
+<td>不可能</td>
+<td>不可能</td>
+</tr>
+</tbody>
+</table>
+<p>脏读：一个事务读取到了另外一个事务没有提交的数据；比如：事务T1更新了一行记录的内容，但是并没有提交所做的修改。事务T2读取到了T1更新后的行，然后T1执行回滚操作，取消了刚才所做的修改。现在T2所读取的行就无效了；<br>不可重复读：在同一事务中，两次读取同一数据，得到内容不同；比如：事务T1读取一行记录，紧接着事务T2修改了T1刚才读取的那一行记录(T2的事务已经提交了)。然后T1又再次读取这行记录，发现与刚才读取的结果不同。这就称为“不可重复”读，因为T1原来读取的那行记录已经发生了变化；<br>幻读：同一事务中，用同样的操作读取两次，得到的记录数不相同；比如：事务T1读取一条指定的WHERE子句所返回的结果集。然后事务T2新插入一行记录，这行记录恰好可以满足T1所使用的查询条件中的WHERE子句的条件。然后T1又使用相同的查询再次对表进行检索，但是此时却看到了事务T2刚才插入的新行。这个新行就称为“幻像”，因为对T1来说这一行就像突然出现的一样。</p>
+<p>隔离级别越低，事务请求的锁越少或保持锁的时间就越短。InnoDB存储引擎默认的支持隔离级别是<code>REPEATABLE READ</code>；在这种默认的事务隔离级别下已经能完全保证事务的隔离性要求，即达到SQL标准的SERIALIZABLE级别隔离。</p>
+<p>我们可以可以用<code>SET TRANSACTION</code>语句改变单个会话或者所有新进连接的隔离级别。它的语法如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">SET [SESSION | GLOBAL] TRANSACTION ISOLATION LEVEL &#123;READ UNCOMMITTED | READ COMMITTED | REPEATABLE READ | SERIALIZABLE&#125;</div></pre></td></tr></table></figure></p>
+<p>注意：默认的行为（不带session和global）是为下一个（未开始）事务设置隔离级别。如果使用GLOBAL关键字，语句在全局对从那点开始创建的所有新连接（除了不存在的连接）设置默认事务级别。你需要SUPER权限来做这个。使用SESSION 关键字为将来在当前连接上执行的事务设置默认事务级别。 任何客户端都能自由改变会话隔离级别（甚至在事务的中间），或者为下一个事务设置隔离级别。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">mysql&gt; set session transaction isolation level repeatable read;</div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">mysql&gt; select @@tx_isolation;</div><div class="line">+-----------------+</div><div class="line">| @@tx_isolation  |</div><div class="line">+-----------------+</div><div class="line">| REPEATABLE-READ |</div><div class="line">+-----------------+</div><div class="line">1 row in set (0.00 sec)</div></pre></td></tr></table></figure></p>
+<h2 id="数据库的默认隔离级别"><a href="#数据库的默认隔离级别" class="headerlink" title="数据库的默认隔离级别"></a>数据库的默认隔离级别</h2><h3 id="mysql的默认隔离级别是可重复读："><a href="#mysql的默认隔离级别是可重复读：" class="headerlink" title="mysql的默认隔离级别是可重复读："></a>mysql的默认隔离级别是可重复读：</h3><p>要是读为主的业务场景，建议RC模式；若是非读为主的业务场景，则建议RR模式，考虑到MySQL5.1及以上版本二进制日志登记格式，建议优先考虑RR模式。</p>
+<h3 id="Oracle采用的也是-read-committed"><a href="#Oracle采用的也是-read-committed" class="headerlink" title="Oracle采用的也是 read committed"></a>Oracle采用的也是 read committed</h3><p>Oracle的RC 跟InnoDB存储引擎的RC不是一样的，属于综合了 RC + RR的折中版本。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      说说MySQL中的事务
+    
+    </summary>
+    
+      <category term="mysql" scheme="http://jishusuishouji.github.io/categories/mysql/"/>
+    
+    
+      <category term="mysql" scheme="http://jishusuishouji.github.io/tags/mysql/"/>
+    
+  </entry>
   
   <entry>
     <title>ORM到底是用还是不用？</title>
@@ -864,49 +978,6 @@ location ~ .*\.(gif|jpg|jpeg|png|bmp|swf|js|html|htm|css)$ {
       <category term="hibernate" scheme="http://jishusuishouji.github.io/tags/hibernate/"/>
     
       <category term="HibernateTemplate" scheme="http://jishusuishouji.github.io/tags/HibernateTemplate/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>java分布式事务(JTA)实现 jotm和atomikos</title>
-    <link href="http://jishusuishouji.github.io/2017/01/08/java/jta/java%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1_JTA_%E5%AE%9E%E7%8E%B0%20jotm%E5%92%8Catomikos/"/>
-    <id>http://jishusuishouji.github.io/2017/01/08/java/jta/java分布式事务_JTA_实现 jotm和atomikos/</id>
-    <published>2017-01-08T02:03:52.000Z</published>
-    <updated>2017-01-08T08:17:24.019Z</updated>
-    
-    <content type="html"><![CDATA[<p>本地事务：只对单一数据源(单个数据库)事务进行控制。<br>分布式事务：处理多种异构的数据源， 比如某个业务操作中同时包含JDBC和JMS或者某个操作需要访问多个不同的数据库，在不同数据库之间进行事务控制。</p>
-<p>在Java中，分布式事务主要的规范是JTA/XA。其中：JTA是Java的事务管理器规范，XA是工业标准的X/Open CAE规范，可被两阶段提交及回滚的事务资源定义。比如某数据库实现了XA规范，则不管是JTA，还是MSDTC，都可以基于同样的行为对该数据库进行事务处理。</p>
-<p>JTA全称为Java Transaction API，顾名思义JTA定义了一组统一的事务编程的接口，这些接口如下：</p>
-<p><code>XAResource</code>：XAResource接口是对实现了X/Open CAE规范的资源管理器 (Resource Manager，数据库就是典型的资源管理器) 的抽象，它由资源适配器 (Resource Apdater) 提供实现。<code>XAResource</code>是支持事务控制的核心。<br><code>Transaction</code>：<code>Transaction</code>接口是一个事务实例的抽象，通过它可以控制事务内多个资源的提交或者回滚。二阶段提交过程也是由<code>Transaction</code>接口的实现者来完成的。<br><code>TransactionManager</code>：托管模式 (managed mode)   下，<code>TransactionManager</code>接口是被应用服务器调用，以控制事务的边界的。<br><code>UserTransaction</code>：非托管模式 (non-managed mode) 下，应用程序可以通过<code>UserTransaction</code>接口控制事务的边界</p>
-<p>在tomcat下是没有分布式事务的，可以借助于第三方Jotm和Automikos实现，在spring中分布式事务是通过jta（jotm，atomikos）来进行实现。即：通过代码的方式来决定是否是分布式事务。</p>
-<p>注：推荐用服务器自己的数据源(也就是 lookup JNDI)，这样的话，是不是XA事务就由服务器的配置来定制，代码就不需要任何配置来决定是不是XA了。<br>事务本身是不是XA (分布式的）是服务器的事，服务器来管理“资源” （包括数据源，JMS 连接等，一个资源（JDBC连接）如何参与事务是“资源管理器”（驱动程序）的职责，跟程序无关），服务器提供事务管理并作为“事务协调者”来处理多个“资源管理器”（不同的数据库连接）之间的事务一致性。</p>
-<p>jotm和automikos网址：<br>1、<a href="http://jotm.objectweb.org/" target="_blank" rel="external">http://jotm.objectweb.org/</a><br>2、<a href="http://www.atomikos.com/Main/TransactionsEssentials" target="_blank" rel="external">http://www.atomikos.com/Main/TransactionsEssentials</a> </p>
-<p>Spring 通过AOP技术可以让我们在脱离EJB的情况下享受声明式事务的丰盛大餐。此外，通过配合使用ObjectWeb的JOTM开源项目，不需要Java EE应用服务器，Spring也可以提供JTA事务。 </p>
-<p>正因为AOP让Spring拥有了脱离EJB容器的声明式事务能力，而JOTM让我们在脱离Java EE应用服务器下拥有JTA事务能力。所以，人们将AOP和JOTM称为Java软件开发的两个圣杯。    </p>
-<p>JTA的实现框架有：<br>GeronimoTM/Jencks  官方文档比较少，不适合学习和维护。<br>SimpleJTA 没有实现JTS (Java Transaction Service)而且不是活跃的。<br>Atomikos  是一个另人钦佩的产品。有丰富的文档，而且有很好的支持。<br>JBossTS  是一个应用在JBOSS服务器上的，肯定是一个成熟的产品，也有好的支持，详细信息可以看这里：<a href="http://www.theserverside.com/news/thread.tss?thread_id=37941" target="_blank" rel="external">http://www.theserverside.com/news/thread.tss?thread_id=37941</a><br>最常见的二个如下：<br>JOTM<br>    JOTM(Java Open Transaction Manager)是ObjectWeb的一个开源JTA实现，它本身也是开源应用程序服务器JOnAS(Java Open Application Server)的一部分，为其提供JTA分布式事务的功能。<br>    存在的问题：使用中不能自动rollback，无论什么情况都commit。注：spring3开始已经不再支持jotm</p>
-<p>Atomikos<br>    大家推荐最多的。和JOTM相比Atomikos Transactions Essentials更加稳定，它原来是商业项目，现在开源了。象MySQL一样卖服务支持的。而且论坛页比较活跃，有问题很快可以解决。 </p>
-]]></content>
-    
-    <summary type="html">
-    
-      java分布式事务(JTA)实现 jotm和atomikos
-    
-    </summary>
-    
-      <category term="java" scheme="http://jishusuishouji.github.io/categories/java/"/>
-    
-      <category term="jta" scheme="http://jishusuishouji.github.io/categories/java/jta/"/>
-    
-    
-      <category term="java" scheme="http://jishusuishouji.github.io/tags/java/"/>
-    
-      <category term="jta" scheme="http://jishusuishouji.github.io/tags/jta/"/>
-    
-      <category term="jotm" scheme="http://jishusuishouji.github.io/tags/jotm/"/>
-    
-      <category term="分布式事务" scheme="http://jishusuishouji.github.io/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/"/>
-    
-      <category term="atomikos" scheme="http://jishusuishouji.github.io/tags/atomikos/"/>
     
   </entry>
   
