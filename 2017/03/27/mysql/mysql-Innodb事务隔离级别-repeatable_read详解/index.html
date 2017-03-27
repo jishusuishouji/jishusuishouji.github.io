@@ -40,54 +40,10 @@
 </tr>
 </tbody>
 </table>
-<h2 id="二、数据库中的默认事务隔离级别"><a href="#二、数据库中的默认事务隔离级别" class="headerlink" title="二、数据库中的默认事务隔离级别"></a>二、数据库中的默认事务隔离级别</h2><p>在Oracle中默认的事务隔离级别是提交读（read committed）。</p>
-<p>对于MySQL的Innodb的默认事务隔离级别是重复读（repeatable read）。可以通过下面的命令查看：</p>
-<p>mysql&gt; SELECT @@GLOBAL.tx_isolation, @@tx_isolation;</p>
-<p>+———————–+—————–+</p>
-<p>| @@GLOBAL.tx_isolation | @@tx_isolation  |</p>
-<p>+———————–+—————–+</p>
-<p>| REPEATABLE-READ | REPEATABLE-READ |</p>
-<p>+———————–+—————–+</p>
-<p>1 row in set (0.00 sec)</p>
+<h2 id="二、数据库中的默认事务隔离级别"><a href="#二、数据库中的默认事务隔离级别" class="headerlink" title="二、数据库中的默认事务隔离级别"></a>二、数据库中的默认事务隔离级别</h2><p>在Oracle中默认的事务隔离级别是提交读（read committed）。<br>对于MySQL的Innodb的默认事务隔离级别是重复读（repeatable read）。可以通过下面的命令查看：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">mysql&gt; SELECT @@GLOBAL.tx_isolation, @@tx_isolation;</div><div class="line"></div><div class="line">+———————–+—————–+</div><div class="line"></div><div class="line">| @@GLOBAL.tx_isolation | @@tx_isolation  |</div><div class="line"></div><div class="line">+———————–+—————–+</div><div class="line"></div><div class="line">| REPEATABLE-READ | REPEATABLE-READ |</div><div class="line"></div><div class="line">+———————–+—————–+</div><div class="line"></div><div class="line">1 row in set (0.00 sec)</div></pre></td></tr></table></figure>
 <p>下面进行一下测试：</p>
-<p>Time    Session 1   Session 2<br>T1  set autocommit=0;   set autocommit=0;<br>T2  mysql&gt; select * from tmp_test;</p>
-<p>+——+———+<br>| id   | version |<br>+——+———+<br>|    1 |       1 |<br>+——+———+</p>
-<p>1 row in set (0.00 sec)</p>
-<p>T3      mysql&gt; update tmp_test set version=2 where id=1;</p>
-<p>Query OK, 1 row affected (0.02 sec)</p>
-<p>Rows matched: 1  Changed: 1  Warnings: 0</p>
-<p>mysql&gt; select * from tmp_test;</p>
-<p>+——+———+<br>| id   | version |<br>+——+———+<br>|    1 |       2 |<br>+——+———+</p>
-<p>1 row in set (0.00 sec)</p>
-<p>T4  mysql&gt; select * from tmp_test;</p>
-<p>+——+———+<br>| id   | version |<br>+——+———+<br>|    1 |       1 |<br>+——+———+</p>
-<p>1 row in set (0.00 sec)</p>
-<p>【说明】<br>Session 2未提交，看到数据不变，无脏读。</p>
-<p>T5      commit;<br>T6  mysql&gt; select * from tmp_test;</p>
-<p>+——+———+<br>| id   | version |<br>+——+———+<br>|    1 |       1 |<br>+——+———+</p>
-<p>1 row in set (0.00 sec)</p>
-<p>【说明】<br>Session 2已经提交，还是看到数据不变，即可以重复读。</p>
-<p>T7  commit;<br>T8  mysql&gt; select * from tmp_test;</p>
-<p>+——+———+<br>| id   | version |<br>+——+———+<br>|    1 |       2 |<br>+——+———+</p>
-<p>1 row in set (0.00 sec)</p>
-<p>【说明】<br>提交事务，看到最新数据。</p>
-<p>T9      mysql&gt; insert into tmp_test values(2,1);</p>
-<p>Query OK, 1 row affected (0.00 sec)</p>
-<p>mysql&gt; select * from tmp_test;</p>
-<p>+——+———+<br>| id   | version |<br>+——+———+<br>|    1 |       2 |<br>|    2 |       1 |<br>+——+———+</p>
-<p>2 rows in set (0.00 sec)</p>
-<p>mysql&gt; commit;</p>
-<p>Query OK, 0 rows affected (0.00 sec)</p>
-<p>T10 mysql&gt; select * from tmp_test;</p>
-<p>+——+———+<br>| id   | version |<br>+——+———+<br>|    1 |       2 |<br>+——+———+</p>
-<p>1 row in set (0.00 sec)</p>
-<p>【说明】<br>Session 2的insert事务已经提交，看到的数据和T8的时候一样，即未发生幻象读。</p>
-<p>T11 mysql&gt; commit;</p>
-<p>Query OK, 0 rows affected (0.00 sec)</p>
-<p>mysql&gt; select * from tmp_test;</p>
-<p>+——+———+<br>| id   | version |<br>+——+———+<br>|    1 |       2 |<br>|    2 |       1 |<br>+——+———+</p>
-<p>2 rows in set (0.00 sec)</p>
-<p>【说明】<br>事务提交，看到最新数据。</p>
+<p><img src="/img/mysql Innodb repeatable read测试.png" alt=""><br>【说明】<br>事务提交，看到最新数据。</p>
 <p>上面的结果可以看到Innodb的重复读（repeatable read）不允许脏读，不允许非重复读（即可以重复读，Innodb使用多版本一致性读来实现）和不允许幻象读（这点和ANSI/ISO SQL标准定义的有所区别）。</p>
 <p>另外，同样的测试：</p>
 <p>1、当session 2进行truncate表的时候，这个时候session 1再次查询就看不到数据。</p>
