@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://jishusuishouji.github.io/"/>
-  <updated>2017-03-27T02:16:27.306Z</updated>
+  <updated>2017-03-27T05:26:18.258Z</updated>
   <id>http://jishusuishouji.github.io/</id>
   
   <author>
@@ -14,6 +14,57 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>ORM到底是用还是不用？</title>
+    <link href="http://jishusuishouji.github.io/2017/03/27/ORM/ORM%E5%88%B0%E5%BA%95%E6%98%AF%E7%94%A8%E8%BF%98%E6%98%AF%E4%B8%8D%E7%94%A8%EF%BC%9F/"/>
+    <id>http://jishusuishouji.github.io/2017/03/27/ORM/ORM到底是用还是不用？/</id>
+    <published>2017-03-27T05:22:54.000Z</published>
+    <updated>2017-03-27T05:26:18.258Z</updated>
+    
+    <content type="html"><![CDATA[<p>ORM即Object/Relation Mapping的简写，一般称作“对象关系映射”，在Web开发中最常出没于和关系型数据库交互的地方。接口、中间件、库、包，你都可以这么称呼它。<br><a id="more"></a><br>我们可以结合PHP和MySQL，从ORM的四个核心理念来认识它：</p>
+<ul>
+<li>简单：ORM以最基本的形式建模数据。比如ORM会将MySQL的一张表映射成一个PHP类（模型），表的字段就是这个类的成员变量</li>
+<li>精确：ORM使所有的MySQL数据表都按照统一的标准精确地映射成PHP类，使系统在代码层面保持准确统一</li>
+<li>易懂：ORM使数据库结构文档化。比如MySQL数据库就被ORM转换为了PHP程序员可以读懂的PHP类，PHP程序员可以只把注意力放在他擅长的PHP层面（当然能够熟练掌握MySQL更好）</li>
+<li>易用：ORM的避免了不规范、冗余、风格不统一的SQL语句，可以避免很多人为Bug，方便编码风格的统一和后期维护</li>
+</ul>
+<p>接下来再通过一个很基本的例子来说明一下ORM的使用，还以PHP和MySQL为例。</p>
+<p>user这个数据模型是再普遍不过的了。假设我们有一张user数据表。</p>
+<p>在OOP中通常我们需要写一个对应的class User来作为user数据表的数据模型:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">// 声明class User</div><div class="line">class User&#123;</div><div class="line">    $id;</div><div class="line">    $name;</div><div class="line"></div><div class="line">    function create()&#123;/*...*/&#125;</div><div class="line">    function load($id)&#123;/*...*/&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">// 使用class User</div><div class="line">$user = new User();</div><div class="line">$user-&gt;name = &apos;fancy&apos;;</div><div class="line">$user-&gt;create();</div></pre></td></tr></table></figure>
+<p>但是通过ORM，我们可以不用去声明class User，可以直接继承ORM提供的工厂类，比如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">// 直接使用！对于熟悉MVC的亲知道这个意义之所在！</div><div class="line">$user = new ORM(&apos;user&apos;);  // ORM都有自己的规则，这里直接使用了MySQL的表名</div><div class="line">$user-&gt;name = &apos;fancy&apos;;    // MySQL的表的字段就是$user对象的成员变量</div><div class="line">$user-&gt;save();            // 掉用ORM提供的接口函数</div></pre></td></tr></table></figure></p>
+<p>ORM一般都针对数据模型提供了一下常见的接口函数，比如：<code>create()</code>, <code>update()</code>, <code>save()</code>, <code>load()</code>, <code>find()</code>, <code>find_all()</code>, <code>where()</code>等，也就是讲sql查询全部封装成了编程语言中的函数，通过函数的链式组合生成最终的SQL语句。</p>
+<p>所以由这些来看，ORM对于敏捷开发和团队合作开发来说，好处是非常非常大的。这里就罗列一下我想到的ORM显著的优点：</p>
+<ul>
+<li>大大缩短了程序员的编码时间，减少甚至免除了对Model的编码</li>
+<li>良好的数据库操作接口，使编码难度降低，使团队成员的代码变得简洁易读、风格统一</li>
+<li>动态的数据表映射，在数据表结构甚至数据库发生改变时，减少了相应的代码修改</li>
+<li>减少了程序员对数据库的学习成本</li>
+<li>可以很方便地引入数据缓存之类的附加功能</li>
+</ul>
+<p>但是ORM并不是一个完美的东西，它同时也有其自身不可避免的缺点：</p>
+<ul>
+<li>自动化进行关系数据库的映射需要消耗系统性能。其实这里的性能消耗还好啦，一般来说都可以忽略之，特别是有cacha存在的时候</li>
+<li>在处理多表联查、where条件复杂之类的查询时，ORM的语法会变得复杂且猥琐</li>
+<li>越是功能强大的ORM越是消耗内存，因为一个ORM Object会带有很多成员变量和成员函数。有一次修复bug时就遇见，使用ORM查询的时候会占用12MB的内存，而使用SQL的查询时只占用了1.7MB……</li>
+</ul>
+<p>ORM就是这么一个让人又爱又恨的东西。回到我们开始的问题：“ORM到底是用还是不用？”</p>
+<p>Fancy个人的观点是：ORM要用！但关键部位不能用！<br>因为对于一般的Web应用开发来说，使用ORM确实能带来上述的诸多好处，而且在大部分情况下涉及不到ORM的不好的地方。但是在系统里面有大数据量、大运算量、复杂查询的地方，就不要用ORM。ORM的性能问题将给你带来灾难。在这些地方就可以使用纯SQL或者其他简单轻量的DB Helper库了。在详细了解ORM之后，你就可以扬长避短让ORM发挥其最大效用了。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      ORM到底是用还是不用？
+    
+    </summary>
+    
+      <category term="ORM" scheme="http://jishusuishouji.github.io/categories/ORM/"/>
+    
+    
+      <category term="ORM" scheme="http://jishusuishouji.github.io/tags/ORM/"/>
+    
+  </entry>
   
   <entry>
     <title>maven 多模块项目</title>
@@ -856,42 +907,6 @@ location ~ .*\.(gif|jpg|jpeg|png|bmp|swf|js|html|htm|css)$ {
       <category term="分布式事务" scheme="http://jishusuishouji.github.io/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/"/>
     
       <category term="atomikos" scheme="http://jishusuishouji.github.io/tags/atomikos/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>java分布式事务:spring+JTA+jotm</title>
-    <link href="http://jishusuishouji.github.io/2017/01/08/java/jta/java%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1_spring_JTA_jotm/"/>
-    <id>http://jishusuishouji.github.io/2017/01/08/java/jta/java分布式事务_spring_JTA_jotm/</id>
-    <published>2017-01-08T01:23:24.000Z</published>
-    <updated>2017-01-08T08:18:52.796Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="业务背景"><a href="#业务背景" class="headerlink" title="业务背景"></a>业务背景</h2><p>当新建用户时需插入一条用户记录，同时还需在另一个DB中记录日志。因为是不同的DB操作，所以及到分布式事务的处理。</p>
-<h3 id="1、代码结构："><a href="#1、代码结构：" class="headerlink" title="1、代码结构："></a>1、代码结构：</h3><p><img src="http://img.blog.csdn.net/20150209142444553?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbGl1eGlhbzcyMzg0Ng==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="项目在eclipse中"></p>
-<h3 id="2、建表语句："><a href="#2、建表语句：" class="headerlink" title="2、建表语句："></a>2、建表语句：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">create database log;  </div><div class="line">DROP TABLE IF EXISTS `log`;  </div><div class="line">CREATE TABLE `log` (  </div><div class="line">  `id` varchar(20) NOT NULL,  </div><div class="line">  `content` varchar(100) default NULL,  </div><div class="line">  PRIMARY KEY  (`id`)  </div><div class="line">);</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">create database user;  </div><div class="line">DROP TABLE IF EXISTS `user`;  </div><div class="line">CREATE TABLE `user` (  </div><div class="line">  `id` varchar(20) NOT NULL,  </div><div class="line">  `name` varchar(40) default NULL,  </div><div class="line">  PRIMARY KEY  (`id`)  </div><div class="line">);</div></pre></td></tr></table></figure>
-<h3 id="3、配置文件application-xml"><a href="#3、配置文件application-xml" class="headerlink" title="3、配置文件application.xml"></a>3、配置文件<code>application.xml</code></h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div></pre></td><td class="code"><pre><div class="line">&lt;!--?xml version=1.0 encoding=UTF-8?--&gt;  </div><div class="line">&lt;beans aop=&quot;&quot; beans=&quot;&quot; http:=&quot;&quot; schema=&quot;&quot; spring-aop.xsd=&quot;&quot; spring-beans.xsd=&quot;&quot; spring-tx.xsd=&quot;&quot; tx=&quot;&quot; www.springframework.org=&quot;&quot; xmlns=&quot;http://www.springframework.org/schema/beans&quot; xmlns:aop=&quot;http://www.springframework.org/schema/aop&quot; xmlns:tx=&quot;http://www.springframework.org/schema/tx&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xsi:schemalocation=&quot;http://www.springframework.org/schema/beans&quot;&gt;  </div><div class="line">       </div><div class="line">    &lt;!-- 引用Spring内部所提供的对JOTM支持的工厂类 --&gt;  </div><div class="line">    &lt;bean class=&quot;org.springframework.transaction.jta.JotmFactoryBean&quot; id=&quot;jotm&quot;/&gt;  </div><div class="line">       </div><div class="line">    &lt;!-- 配置JTA事务管理器, 并在管理器中使用上面所配置的JOTM --&gt;  </div><div class="line">    &lt;bean class=&quot;org.springframework.transaction.jta.JtaTransactionManager&quot; id=&quot;txManager&quot;&gt;  </div><div class="line">        &lt;property name=&quot;userTransaction&quot; ref=&quot;jotm&quot;/&gt;</div><div class="line">    &lt;/bean&gt;  </div><div class="line">       </div><div class="line">    &lt;!-- 配置多个数据源 --&gt;  </div><div class="line">    &lt;bean class=&quot;org.enhydra.jdbc.pool.StandardXAPoolDataSource&quot; destroy-method=&quot;shutdown&quot; id=&quot;db1&quot;&gt;  </div><div class="line">        &lt;property name=&quot;dataSource&quot;&gt;  </div><div class="line">            &lt;bean class=&quot;org.enhydra.jdbc.standard.StandardXADataSource&quot; destroy-method=&quot;shutdown&quot;&gt;  </div><div class="line">                &lt;property name=&quot;transactionManager&quot; ref=&quot;jotm&quot;/&gt;  </div><div class="line">                &lt;property name=&quot;driverName&quot; value=&quot;com.mysql.jdbc.Driver&quot;/&gt;  </div><div class="line">                &lt;property name=&quot;url&quot; value=&quot;jdbc:MySQL://localhost:3306/user&quot;/&gt;  </div><div class="line">            &lt;/bean&gt;  </div><div class="line">        &lt;/property&gt;  </div><div class="line">        &lt;property name=&quot;user&quot; value=&quot;root&quot;/&gt;  </div><div class="line">        &lt;property name=&quot;password&quot; value=&quot;root&quot;/&gt;  </div><div class="line">    &lt;/bean&gt;  </div><div class="line">   </div><div class="line">    &lt;bean class=&quot;org.enhydra.jdbc.pool.StandardXAPoolDataSource&quot; destroy-method=&quot;shutdown&quot; id=&quot;db2&quot;&gt;  </div><div class="line">        &lt;property name=&quot;dataSource&quot;&gt;  </div><div class="line">            &lt;bean class=&quot;org.enhydra.jdbc.standard.StandardXADataSource&quot; destroy-method=&quot;shutdown&quot;&gt;  </div><div class="line">                &lt;property name=&quot;transactionManager&quot; ref=&quot;jotm&quot;/&gt;  </div><div class="line">                &lt;property name=&quot;driverName&quot; value=&quot;com.mysql.jdbc.Driver&quot;/&gt;  </div><div class="line">                &lt;property name=&quot;url&quot; value=&quot;jdbc:MySQL://localhost:3306/log&quot;/&gt;  </div><div class="line">            &lt;/bean&gt;  </div><div class="line">        &lt;/property&gt;  </div><div class="line">        &lt;property name=&quot;user&quot; value=&quot;root&quot;/&gt;  </div><div class="line">        &lt;property name=&quot;password&quot; value=&quot;root&quot;/&gt;  </div><div class="line">    &lt;/bean&gt;  </div><div class="line">       </div><div class="line">    &lt;!-- 根据不同的数据源配置两个jdbcTemplate --&gt;  </div><div class="line">    &lt;bean class=&quot;org.springframework.jdbc.core.JdbcTemplate&quot; id=&quot;jdbcTemplate1&quot;&gt;  </div><div class="line">        &lt;property name=&quot;dataSource&quot; ref=&quot;db1&quot;/&gt;  </div><div class="line">    &lt;/bean&gt;  </div><div class="line">   </div><div class="line">    &lt;bean class=&quot;org.springframework.jdbc.core.JdbcTemplate&quot; id=&quot;jdbcTemplate2&quot;&gt;  </div><div class="line">        &lt;property name=&quot;dataSource&quot; ref=&quot;db2&quot;/&gt;  </div><div class="line">    &lt;/bean&gt;  </div><div class="line">   </div><div class="line">    &lt;bean class=&quot;com.zdp.dao.UserDao&quot; id=&quot;userDao&quot;&gt;  </div><div class="line">        &lt;property name=&quot;jdbcTemplate&quot; ref=&quot;jdbcTemplate1&quot;/&gt;  </div><div class="line">    &lt;/bean&gt;  </div><div class="line">   </div><div class="line">    &lt;bean class=&quot;com.zdp.dao.LogDao&quot; id=&quot;logDao&quot;&gt;  </div><div class="line">        &lt;property name=&quot;jdbcTemplate&quot; ref=&quot;jdbcTemplate2&quot;/&gt;  </div><div class="line">    &lt;/bean&gt;  </div><div class="line">   </div><div class="line">    &lt;bean class=&quot;com.zdp.service.UserService&quot; id=&quot;userService&quot;/&gt;  </div><div class="line">        &lt;property name=&quot;userDao&quot; ref=&quot;userDao&quot;/&gt;  </div><div class="line">        &lt;property name=&quot;logDao&quot; ref=&quot;logDao&quot;/&gt;  </div><div class="line">    &lt;/bean&gt;  </div><div class="line">       </div><div class="line">    &lt;!-- JTA事务传播特性 --&gt;  </div><div class="line">    &lt;tx:advice id=&quot;txAdviceJTA&quot; transaction-manager=&quot;txManager&quot;&gt;  </div><div class="line">        &lt;tx:attributes&gt;  </div><div class="line">            &lt;tx:method isolation=&quot;DEFAULT&quot; name=&quot;save*&quot; propagation=&quot;REQUIRED&quot; rollback-for=&quot;Exception/&quot;&gt;  </div><div class="line">            &lt;tx:method isolation=&quot;DEFAULT&quot; name=&quot;add*&quot; propagation=&quot;REQUIRED&quot; rollback-for=&quot;Exception/&quot;&gt;  </div><div class="line">            &lt;tx:method isolation=&quot;DEFAULT&quot; name=&quot;create*&quot; propagation=&quot;REQUIRED&quot; rollback-for=&quot;Exception/&quot;&gt;  </div><div class="line">            &lt;tx:method isolation=&quot;DEFAULT&quot; name=&quot;insert*&quot; propagation=&quot;REQUIRED&quot; rollback-for=&quot;Exception/&quot;&gt;  </div><div class="line">            &lt;tx:method isolation=&quot;DEFAULT&quot; name=&quot;del*&quot; propagation=&quot;REQUIRED&quot; rollback-for=&quot;Exception/&quot;&gt;  </div><div class="line">            &lt;tx:method isolation=&quot;DEFAULT&quot; name=&quot;update*&quot; propagation=&quot;REQUIRED&quot; rollback-for=&quot;Exception/&quot;&gt;  </div><div class="line">            &lt;tx:method name=&quot;*&quot; read-only=&quot;true/&quot;&gt;   </div><div class="line">        &lt;/tx:attributes&gt;  </div><div class="line">    &lt;/tx:advice&gt;  </div><div class="line">            </div><div class="line">           </div><div class="line">&lt;/beans&gt;</div></pre></td></tr></table></figure>
-<h3 id="4、service业务类："><a href="#4、service业务类：" class="headerlink" title="4、service业务类："></a>4、service业务类：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">public class UserService &#123;  </div><div class="line">    private UserDao userDao;  </div><div class="line">    private LogDao logDao;  </div><div class="line">   </div><div class="line">    public void saveUser(String id, String name) &#123;  </div><div class="line">        userDao.insertUser(id, name);  </div><div class="line">        // int i = 1 / 0;  // 制造异常  </div><div class="line">        logDao.insertLog(id, id + _ + name);  </div><div class="line">    &#125;  </div><div class="line">   </div><div class="line">    public UserDao getUserDao() &#123;  </div><div class="line">        return userDao;  </div><div class="line">    &#125;  </div><div class="line">   </div><div class="line">    public void setUserDao(UserDao userDao) &#123;  </div><div class="line">        this.userDao = userDao;  </div><div class="line">    &#125;  </div><div class="line">   </div><div class="line">    public LogDao getLogDao() &#123;  </div><div class="line">        return logDao;  </div><div class="line">    &#125;  </div><div class="line">   </div><div class="line">    public void setLogDao(LogDao logDao) &#123;  </div><div class="line">        this.logDao = logDao;  </div><div class="line">    &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h3 id="5、dao类："><a href="#5、dao类：" class="headerlink" title="5、dao类："></a>5、dao类：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">public class UserDao extends JdbcDaoSupport &#123;  </div><div class="line">    public void insertUser(String id, String name) &#123;  </div><div class="line">        JdbcTemplate template = getJdbcTemplate();  </div><div class="line">        template.execute(insert into user values(&apos; + id + &apos;,&apos; + name + &apos;));  </div><div class="line">    &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">public class LogDao extends JdbcDaoSupport &#123;  </div><div class="line">    public void insertLog(String id, String content) &#123;  </div><div class="line">        JdbcTemplate template = getJdbcTemplate();  </div><div class="line">        template.execute(insert into log values(&apos; + id + &apos;,&apos; + content + &apos;));  </div><div class="line">    &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h3 id="6、测试类："><a href="#6、测试类：" class="headerlink" title="6、测试类："></a>6、测试类：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">public class UserTest &#123;  </div><div class="line">    @Test  </div><div class="line">    public void testSave() &#123;  </div><div class="line">        ApplicationContext cxt = new ClassPathXmlApplicationContext(ApplicationContext.xml);  </div><div class="line">        UserService us = (UserService) cxt.getBean(userService);  </div><div class="line">        us.saveUser(1, zhangsan);  </div><div class="line">    &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>]]></content>
-    
-    <summary type="html">
-    
-      java分布式事务:spring+JTA+jotm
-    
-    </summary>
-    
-      <category term="java" scheme="http://jishusuishouji.github.io/categories/java/"/>
-    
-    
-      <category term="spring" scheme="http://jishusuishouji.github.io/tags/spring/"/>
-    
-      <category term="java" scheme="http://jishusuishouji.github.io/tags/java/"/>
-    
-      <category term="jta" scheme="http://jishusuishouji.github.io/tags/jta/"/>
-    
-      <category term="jotm" scheme="http://jishusuishouji.github.io/tags/jotm/"/>
     
   </entry>
   
