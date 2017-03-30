@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://jishusuishouji.github.io/"/>
-  <updated>2017-03-28T07:03:46.667Z</updated>
+  <updated>2017-03-30T05:59:23.196Z</updated>
   <id>http://jishusuishouji.github.io/</id>
   
   <author>
@@ -14,6 +14,238 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Hibernate缓存 查询缓存</title>
+    <link href="http://jishusuishouji.github.io/2017/03/30/hibernate/Hibernate%E7%BC%93%E5%AD%98_%E6%9F%A5%E8%AF%A2%E7%BC%93%E5%AD%98/"/>
+    <id>http://jishusuishouji.github.io/2017/03/30/hibernate/Hibernate缓存_查询缓存/</id>
+    <published>2017-03-30T05:58:14.000Z</published>
+    <updated>2017-03-30T05:59:23.196Z</updated>
+    
+    <content type="html"><![CDATA[<p>网上说<code>query.setCacheable(true)</code>或<code>criteria.setCacheable(true)`` 这两种方式的缓存命中率低，个人认为谈论这个“无卵用”；
+我在测试的时候发现，上面的操作会受配置的限制，必须在配置文件中打开</code>hibernate.cache.use_query_cache=true<code>，之后</code>setCacheable`才起作用；</p>
+<p>查询缓存可以解决二级缓存的不足；它的作用范围也是<code>SessionFactory</code>；</p>
+<p>可以缓存hql语句查询，也可以缓存query和criteria查询；</p>
+<p>下面针对query和criteria进行测试：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * 对查询缓存测试 &lt;br&gt;</div><div class="line"> * 1. 只有B处起作用，作用于session; &lt;br&gt;</div><div class="line"> * 2. 配置文件中打开query_cache的前提下，setCacheable 是起作用的</div><div class="line"> */</div><div class="line">@Test</div><div class="line">public void testCriteriaInCache() &#123;</div><div class="line"> System.out.println(&quot;=============&quot;);</div><div class="line"> Session session = hibernateTemplate.getSessionFactory().openSession();</div><div class="line"> Criteria criteria = session.createCriteria(UserModel.class);</div><div class="line"> criteria.setCacheable(true); // 这里仅对B处起作用</div><div class="line"> criteria.add(Restrictions.eq(&quot;name&quot;, &quot;Sucre&quot;));</div><div class="line"> System.out.println(&quot;=============A&quot; + criteria.list());</div><div class="line"> System.out.println(&quot;=============B&quot; + criteria.list()); // B</div><div class="line"> criteria.add(Restrictions.eq(&quot;id&quot;, 1));</div><div class="line"> System.out.println(&quot;=============C&quot; + criteria.list());</div><div class="line"> criteria = session.createCriteria(UserModel.class);</div><div class="line"> criteria.setCacheable(true);</div><div class="line"> criteria.add(Restrictions.eq(&quot;id&quot;, 1));</div><div class="line"> System.out.println(&quot;=============D&quot; + criteria.list());</div><div class="line"> session = hibernateTemplate.getSessionFactory().openSession();</div><div class="line"> criteria = session.createCriteria(UserModel.class);</div><div class="line"> criteria.setCacheable(true);</div><div class="line"> criteria.add(Restrictions.eq(&quot;id&quot;, 1));</div><div class="line"> System.out.println(&quot;=============E&quot; + criteria.list());</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * 测试查询缓存 &lt;br&gt;</div><div class="line"> * 1. BC两处都是使用的A产生的缓存，作用于SessionFactory &lt;br&gt;</div><div class="line"> * 2. 配置文件中打开query_cache的前提下，setCacheable 是起作用的</div><div class="line"> */</div><div class="line">@Test</div><div class="line">public void testQueryInCache() &#123;</div><div class="line"> System.out.println(&quot;=============&quot;);</div><div class="line"> Session session = hibernateTemplate.getSessionFactory().openSession();</div><div class="line"> Query query = session</div><div class="line">   .createQuery(&quot;select u.name from UserModel as u where u.id=?&quot;);</div><div class="line"> query.setParameter(0, 1);</div><div class="line"> query.setCacheable(true);</div><div class="line"> String name = (String) query.list().get(0);</div><div class="line"> System.out.println(&quot;=============A&quot; + name); // A</div><div class="line"> query = session</div><div class="line">   .createQuery(&quot;select u.name from UserModel as u where u.id=?&quot;);</div><div class="line"> query.setParameter(0, 1);</div><div class="line"> query.setCacheable(true);</div><div class="line"> name = (String) query.list().get(0);</div><div class="line"> System.out.println(&quot;=============B&quot; + name); // B</div><div class="line"> session = hibernateTemplate.getSessionFactory().openSession();</div><div class="line"> query = session</div><div class="line">   .createQuery(&quot;select u.name from UserModel as u where u.id=?&quot;);</div><div class="line"> query.setParameter(0, 1);</div><div class="line"> query.setCacheable(true);</div><div class="line"> name = (String) query.list().get(0);</div><div class="line"> System.out.println(&quot;=============C&quot; + name); // C</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+]]></content>
+    
+    <summary type="html">
+    
+      Hibernate缓存 查询缓存
+    
+    </summary>
+    
+      <category term="hibernate" scheme="http://jishusuishouji.github.io/categories/hibernate/"/>
+    
+    
+      <category term="hibernate" scheme="http://jishusuishouji.github.io/tags/hibernate/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>hibernate的查询缓存</title>
+    <link href="http://jishusuishouji.github.io/2017/03/30/hibernate/hibernate%E7%9A%84%E6%9F%A5%E8%AF%A2%E7%BC%93%E5%AD%98/"/>
+    <id>http://jishusuishouji.github.io/2017/03/30/hibernate/hibernate的查询缓存/</id>
+    <published>2017-03-30T05:47:52.000Z</published>
+    <updated>2017-03-30T05:56:50.612Z</updated>
+    
+    <content type="html"><![CDATA[<p>hibernate的查询缓存主要是针对普通属性结果集的缓存，而对于实体对象的结果集只缓存id。在一级缓存,二级缓存和查询缓存都打开的情况下做查询操作时这样的：查询普通属性，会先到查询缓存中取，如果没有，则查询数据库；查询实体，会先到查询缓存中取id，如果有，则根据id到缓存(一级/二级)中取实体，如果缓存中取不到实体，再查询数据库。<br> 和一级/二级缓存不同，查询缓存的生命周期是不确定的，当前关联的表发生改变时，查询缓存的生命周期结束。<br><a id="more"></a><br>查询缓存的配置和使用也是很简单的：<br>1&gt;查询缓存的启用不但要在配置文件中进行配置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;property name=&quot;hibernate.cache.use_query_cache&quot;&gt;true&lt;/property&gt;</div></pre></td></tr></table></figure></p>
+<p>2&gt;还要在程序中显示的进行启用<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">query.setCacheable(true);</div></pre></td></tr></table></figure></p>
+<p>1&gt;查询缓存的启用不但要在配置文件中进行配置 ——-换成spring配置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line">&lt;bean id=&quot;propertyConfigurer&quot; class=&quot;org.springframework.beans.factory.config.PropertyPlaceholderConfigurer&quot;&gt;</div><div class="line">    &lt;property name=&quot;locations&quot;&gt;</div><div class="line">        &lt;list&gt;</div><div class="line">            &lt;value&gt;/WEB-INF/config/jdbc.properties&lt;/value&gt;</div><div class="line">        &lt;/list&gt;</div><div class="line">    &lt;/property&gt;</div><div class="line">&lt;/bean&gt;</div><div class="line">&lt;bean id=&quot;dataSource&quot; class=&quot;com.mchange.v2.c3p0.ComboPooledDataSource&quot;&gt;</div><div class="line">    &lt;property name=&quot;driverClass&quot; value=&quot;$&#123;jdbc.driverClassName&#125;&quot; /&gt;</div><div class="line">    &lt;property name=&quot;jdbcUrl&quot; value=&quot;$&#123;jdbc.url&#125;&quot; /&gt;</div><div class="line">    &lt;property name=&quot;user&quot; value=&quot;$&#123;jdbc.username&#125;&quot; /&gt;</div><div class="line">    &lt;property name=&quot;password&quot; value=&quot;$&#123;jdbc.password&#125;&quot; /&gt;</div><div class="line">    &lt;property name=&quot;autoCommitOnClose&quot; value=&quot;true&quot;/&gt;</div><div class="line">    &lt;property name=&quot;checkoutTimeout&quot; value=&quot;$&#123;cpool.checkoutTimeout&#125;&quot;/&gt;</div><div class="line">    &lt;property name=&quot;initialPoolSize&quot; value=&quot;$&#123;cpool.minPoolSize&#125;&quot;/&gt;</div><div class="line">    &lt;property name=&quot;minPoolSize&quot; value=&quot;$&#123;cpool.minPoolSize&#125;&quot;/&gt;</div><div class="line">    &lt;property name=&quot;maxPoolSize&quot; value=&quot;$&#123;cpool.maxPoolSize&#125;&quot;/&gt;</div><div class="line">    &lt;property name=&quot;maxIdleTime&quot; value=&quot;$&#123;cpool.maxIdleTime&#125;&quot;/&gt;</div><div class="line">    &lt;property name=&quot;acquireIncrement&quot; value=&quot;$&#123;cpool.acquireIncrement&#125;&quot;/&gt;</div><div class="line">    &lt;property name=&quot;maxIdleTimeExcessConnections&quot; value=&quot;$&#123;cpool.maxIdleTimeExcessConnections&#125;&quot;/&gt;</div><div class="line">&lt;/bean&gt;</div><div class="line">&lt;bean id=&quot;sessionFactory&quot; class=&quot;org.springframework.orm.hibernate3.LocalSessionFactoryBean&quot;&gt;</div><div class="line">    &lt;property name=&quot;dataSource&quot; ref=&quot;dataSource&quot;/&gt;    </div><div class="line">    &lt;property name=&quot;mappingLocations&quot;&gt;</div><div class="line">        &lt;list&gt;</div><div class="line">            &lt;value&gt;classpath*:/com/jeecms/core/entity/hbm/*.hbm.xml&lt;/value&gt;</div><div class="line">            &lt;value&gt;classpath*:/com/jeecms/cms/entity/main/hbm/*.hbm.xml&lt;/value&gt;</div><div class="line">            &lt;value&gt;classpath*:/com/jeecms/cms/entity/assist/hbm/*.hbm.xml&lt;/value&gt;</div><div class="line">        &lt;/list&gt;</div><div class="line">    &lt;/property&gt;</div><div class="line">    &lt;property name=&quot;hibernateProperties&quot;&gt;</div><div class="line">        &lt;value&gt;</div><div class="line">        hibernate.dialect=org.hibernate.dialect.MySQLInnoDBDialect</div><div class="line">        hibernate.show_sql=false</div><div class="line">        hibernate.format_sql=false</div><div class="line">        hibernate.query.substitutions=true 1, false 0</div><div class="line">        hibernate.jdbc.batch_size=20</div><div class="line">        //查询缓存配置</div><div class="line">        hibernate.cache.use_query_cache=true</div><div class="line">        &lt;/value&gt;</div><div class="line">    &lt;/property&gt;</div><div class="line">    &lt;property name=&quot;entityInterceptor&quot;&gt;   </div><div class="line">        &lt;ref local=&quot;treeInterceptor&quot;/&gt;</div><div class="line">    &lt;/property&gt;</div><div class="line">    &lt;property name=&quot;cacheProvider&quot;&gt;</div><div class="line">        &lt;ref local=&quot;cacheProvider&quot;/&gt;</div><div class="line">    &lt;/property&gt;</div><div class="line">    &lt;property name=&quot;lobHandler&quot;&gt;</div><div class="line">        &lt;ref bean=&quot;lobHandler&quot; /&gt;</div><div class="line">    &lt;/property&gt;</div><div class="line">&lt;/bean&gt;</div></pre></td></tr></table></figure></p>
+<p>2&gt;还要在程序中显示的进行启用<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">public List&lt;CmsSite&gt; getList(boolean cacheable) &#123;</div><div class="line">        String hql = &quot;from CmsSite bean order by bean.id asc&quot;;</div><div class="line">        return getSession().createQuery(hql).setCacheable(cacheable).list();</div><div class="line">    &#125;</div></pre></td></tr></table></figure></p>
+<h2 id="1-实体类："><a href="#1-实体类：" class="headerlink" title="1.实体类："></a>1.实体类：</h2><pre><code>public class Student { 
+  private Integer id; 
+  private String name; 
+  //一系列的setter.getter方法 
+}
+</code></pre><p>##2.映射文件</p>
+<p>Student.hbm.xml<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">&lt;class name=&quot;com.sxt.hibernate.cache.entity.Student&quot; table=&quot;sxt_hibernate_student&quot;&gt; </div><div class="line">       </div><div class="line">  &lt;!-- 指定本类的对象使用二级缓存(这也可以放在hibernate.cfg.xml中统一指定) --&gt; </div><div class="line">  &lt;!-- </div><div class="line">  &lt;cache usage=&quot;read-only&quot;/&gt; </div><div class="line">   --&gt; </div><div class="line">  &lt;id name=&quot;id&quot; length=&quot;4&quot;&gt; </div><div class="line">    &lt;generator class=&quot;native&quot;&gt;&lt;/generator&gt; </div><div class="line">  &lt;/id&gt; </div><div class="line">  &lt;property name=&quot;name&quot; length=&quot;10&quot;&gt;&lt;/property&gt; </div><div class="line">&lt;/class&gt;</div></pre></td></tr></table></figure></p>
+<h2 id="3-hibernate配置文件："><a href="#3-hibernate配置文件：" class="headerlink" title="3.hibernate配置文件："></a>3.hibernate配置文件：</h2><p>hibernate.cfg.xml</p>
+<pre><code>&lt;hibernate-configuration&gt; 
+  &lt;session-factory&gt; 
+    &lt;property name=&quot;hibernate.connection.url&quot;&gt;jdbc:oracle:thin:@localhost:1521:ORCL10&lt;/property&gt;
+    &lt;property name=&quot;hibernate.connection.driver_class&quot;&gt;oracle.jdbc.driver.OracleDriver&lt;/property&gt; 
+    &lt;property name=&quot;hibernate.connection.username&quot;&gt;scott&lt;/property&gt; 
+    &lt;property name=&quot;hibernate.connection.password&quot;&gt;yf123&lt;/property&gt; 
+    &lt;property name=&quot;hibernate.dialect&quot;&gt;org.hibernate.dialect.Oracle9Dialect&lt;/property&gt; 
+    &lt;property name=&quot;hibernate.show_sql&quot;&gt;true&lt;/property&gt; 
+
+    &lt;!-- 开启二级缓存,其实hibernate默认就是开启的,这里显示的指定一下 --&gt; 
+    &lt;property name=&quot;hibernate.cache.use_second_level_cache&quot;&gt;true&lt;/property&gt; 
+    &lt;!-- 指定二级缓存产品的提供商 --&gt; 
+    &lt;property name=&quot;hibernate.cache.provider_class&quot;&gt;org.hibernate.cache.EhCacheProvider&lt;/property&gt; 
+
+    &lt;!-- 启用查询缓存 --&gt; 
+    &lt;property name=&quot;hibernate.cache.use_query_cache&quot;&gt;true&lt;/property&gt; 
+
+    &lt;mapping resource=&quot;com/sxt/hibernate/cache/entity/Student.hbm.xml&quot;/&gt; 
+
+    &lt;!-- 指定那些类使用二级缓存 --&gt; 
+    &lt;class-cache usage=&quot;read-only&quot; class=&quot;com.sxt.hibernate.cache.entity.Student&quot;/&gt; 
+  &lt;/session-factory&gt; 
+&lt;/hibernate-configuration&gt;
+</code></pre><h2 id="4-测试方法："><a href="#4-测试方法：" class="headerlink" title="4.测试方法："></a>4.测试方法：</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line">public static void main(String[] args) &#123; </div><div class="line">  Session session = null; </div><div class="line">  Transaction t = null; </div><div class="line"></div><div class="line">  *//** </div><div class="line">   * 开启查询缓存,关闭二级缓存, 开启一个session,分别调用query.list </div><div class="line">   */ </div><div class="line">//如果不用查询缓存的话,那两个都发出查询语句,这也是默认的情况. </div><div class="line">/* </div><div class="line">  try &#123; </div><div class="line">    session = HibernateUtils.getSession(); </div><div class="line">    t = session.beginTransaction(); </div><div class="line">    Query query = session.createQuery(&quot;select s.name from Student s&quot;); </div><div class="line">    //启用查询缓存    </div><div class="line">    query.setCacheable(true); </div><div class="line">    List&lt;String&gt; names = query.list(); </div><div class="line">    for (Iterator&lt;String&gt; it = names.iterator(); it.hasNext();) &#123; </div><div class="line">      String name = it.next(); </div><div class="line">      System.out.println(name); </div><div class="line">    &#125; </div><div class="line">    System.out.println(&quot;================================&quot;); </div><div class="line">    query = session.createQuery(&quot;select s.name from Student s&quot;); </div><div class="line">    //启用查询缓存 </div><div class="line">    query.setCacheable(true); </div><div class="line">    //没有发出查询语句,因为这里使用的查询缓存 </div><div class="line">    names = query.list(); </div><div class="line">    for (Iterator&lt;String&gt; it = names.iterator(); it.hasNext();) &#123; </div><div class="line">      String name = it.next(); </div><div class="line">      System.out.println(name); </div><div class="line">    &#125; </div><div class="line">    t.commit(); </div><div class="line">  &#125; catch (Exception e) &#123; </div><div class="line">    e.printStackTrace(); </div><div class="line">    t.rollback(); </div><div class="line">  &#125; finally &#123; </div><div class="line">    HibernateUtils.closeSession(session); </div><div class="line">  &#125; </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line">@SuppressWarnings(&quot;unchecked&quot;) </div><div class="line">public static void main(String[] args) &#123; </div><div class="line">  Session session = null; </div><div class="line">  Transaction t = null; </div><div class="line"></div><div class="line">  *//** </div><div class="line">   * 开启查询缓存,关闭二级缓存, 开启两个session,分别调用query.list </div><div class="line">   *//* </div><div class="line">  //如果不用查询缓存的话,那两个都发出查询语句,这也是默认的情况. </div><div class="line">  try &#123; </div><div class="line">    session = HibernateUtils.getSession(); </div><div class="line">    t = session.beginTransaction(); </div><div class="line">    Query query = session.createQuery(&quot;select s.name from Student s&quot;); </div><div class="line">    //启用查询缓存    </div><div class="line">    //query.setCacheable(true); </div><div class="line">    List&lt;String&gt; names = query.list(); </div><div class="line">    for (Iterator&lt;String&gt; it = names.iterator(); it.hasNext();) &#123; </div><div class="line">      String name = it.next(); </div><div class="line">      System.out.println(name); </div><div class="line">    &#125; </div><div class="line"></div><div class="line">    t.commit(); </div><div class="line">  &#125; catch (Exception e) &#123; </div><div class="line">    e.printStackTrace(); </div><div class="line">    t.rollback(); </div><div class="line">  &#125; finally &#123; </div><div class="line">    HibernateUtils.closeSession(session); </div><div class="line">  &#125; </div><div class="line">   </div><div class="line">  System.out.println(&quot;================================&quot;); </div><div class="line">   </div><div class="line">  try &#123; </div><div class="line">    session = HibernateUtils.getSession(); </div><div class="line">    t = session.beginTransaction(); </div><div class="line">    Query query = session.createQuery(&quot;select s.name from Student s&quot;); </div><div class="line">    //启用查询缓存    </div><div class="line">    //query.setCacheable(true); </div><div class="line">    //不会发出查询语句,因为查询缓存和session无关. </div><div class="line">    List&lt;String&gt; names = query.list(); </div><div class="line">    for (Iterator&lt;String&gt; it = names.iterator(); it.hasNext();) &#123; </div><div class="line">      String name = it.next(); </div><div class="line">      System.out.println(name); </div><div class="line">    &#125; </div><div class="line">    t.commit(); </div><div class="line">  &#125; catch (Exception e) &#123; </div><div class="line">    e.printStackTrace(); </div><div class="line">    t.rollback(); </div><div class="line">  &#125; finally &#123; </div><div class="line">    HibernateUtils.closeSession(session); </div><div class="line">  &#125; </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div></pre></td><td class="code"><pre><div class="line">@SuppressWarnings(&quot;unchecked&quot;) </div><div class="line">public static void main(String[] args) &#123; </div><div class="line">  Session session = null; </div><div class="line">  Transaction t = null; </div><div class="line"></div><div class="line">  *//** </div><div class="line">   * 开启查询缓存,关闭二级缓存, 开启两个session,分别调用query.iterate </div><div class="line">   *//* </div><div class="line">  //如果不用查询缓存的话,那两个都发出查询语句,这也是默认的情况. </div><div class="line">  try &#123; </div><div class="line">    session = HibernateUtils.getSession(); </div><div class="line">    t = session.beginTransaction(); </div><div class="line">    Query query = session.createQuery(&quot;select s.name from Student s&quot;); </div><div class="line">    //启用查询缓存    </div><div class="line">    query.setCacheable(true); </div><div class="line">    for (Iterator&lt;String&gt; it = query.iterate(); it.hasNext();) &#123; </div><div class="line">      String name = it.next(); </div><div class="line">      System.out.println(name); </div><div class="line">    &#125; </div><div class="line">    t.commit(); </div><div class="line">  &#125; catch (Exception e) &#123; </div><div class="line">    e.printStackTrace(); </div><div class="line">    t.rollback(); </div><div class="line">  &#125; finally &#123; </div><div class="line">    HibernateUtils.closeSession(session); </div><div class="line">  &#125; </div><div class="line">   </div><div class="line">  System.out.println(&quot;================================&quot;); </div><div class="line">   </div><div class="line">  try &#123; </div><div class="line">    session = HibernateUtils.getSession(); </div><div class="line">    t = session.beginTransaction(); </div><div class="line">    Query query = session.createQuery(&quot;select s.name from Student s&quot;); </div><div class="line">    //启用查询缓存    </div><div class="line">    query.setCacheable(true); </div><div class="line">    //会发出查询语句,因为query.iterate不使用查询缓存 </div><div class="line">    for (Iterator&lt;String&gt; it = query.iterate(); it.hasNext();) &#123; </div><div class="line">      String name = it.next(); </div><div class="line">      System.out.println(name); </div><div class="line">    &#125; </div><div class="line">    t.commit(); </div><div class="line">  &#125; catch (Exception e) &#123; </div><div class="line">    e.printStackTrace(); </div><div class="line">    t.rollback(); </div><div class="line">  &#125; finally &#123; </div><div class="line">    HibernateUtils.closeSession(session); </div><div class="line">  &#125; </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>```<br>  @SuppressWarnings(“unchecked”)<br>  public static void main(String[] args) {<br>    Session session = null;<br>    Transaction t = null; </p>
+<pre><code>*//** 
+ * 关闭查询缓存,关闭二级缓存, 开启两个session,分别调用query.list查询实体对象 
+ *//* 
+//如果不用查询缓存的话,那两个都发出查询语句,这也是默认的情况. 
+try { 
+  session = HibernateUtils.getSession(); 
+  t = session.beginTransaction(); 
+  Query query = session.createQuery(&quot;select s from Student s&quot;); 
+  //启用查询缓存    
+  //query.setCacheable(true); 
+  List&lt;Student&gt; students = query.list(); 
+  for (Iterator&lt;Student&gt; it = students.iterator(); it.hasNext();) { 
+    Student s = it.next(); 
+    System.out.println(s.getName()); 
+  } 
+  t.commit(); 
+} catch (Exception e) { 
+  e.printStackTrace(); 
+  t.rollback(); 
+} finally { 
+  HibernateUtils.closeSession(session); 
+} 
+
+System.out.println(&quot;================================&quot;); 
+
+try { 
+  session = HibernateUtils.getSession(); 
+  t = session.beginTransaction(); 
+  Query query = session.createQuery(&quot;select s from Student s&quot;); 
+  //启用查询缓存    
+  //query.setCacheable(true); 
+  //会发出查询语句,因为list默认每次都会发出sql语句 
+  List&lt;Student&gt; students = query.list(); 
+  for (Iterator&lt;Student&gt; it = students.iterator(); it.hasNext();) { 
+    Student s = it.next(); 
+    System.out.println(s.getName()); 
+  } 
+  t.commit(); 
+} catch (Exception e) { 
+  e.printStackTrace(); 
+  t.rollback(); 
+} finally { 
+  HibernateUtils.closeSession(session); 
+} 
+</code></pre><p>  }*/ </p>
+<p>/*  @SuppressWarnings(“unchecked”)<br>  public static void main(String[] args) {<br>    Session session = null;<br>    Transaction t = null; </p>
+<pre><code>*//** 
+ * 开启查询缓存,关闭二级缓存, 开启两个session,分别调用query.list查询实体对象 
+ *//* 
+//如果不用查询缓存的话,那两个都发出查询语句,这也是默认的情况. 
+try { 
+  session = HibernateUtils.getSession(); 
+  t = session.beginTransaction(); 
+  Query query = session.createQuery(&quot;select s from Student s&quot;); 
+  //启用查询缓存    
+  query.setCacheable(true); 
+  List&lt;Student&gt; students = query.list(); 
+  for (Iterator&lt;Student&gt; it = students.iterator(); it.hasNext();) { 
+    Student s = it.next(); 
+    System.out.println(s.getName()); 
+  } 
+  t.commit(); 
+} catch (Exception e) { 
+  e.printStackTrace(); 
+  t.rollback(); 
+} finally { 
+  HibernateUtils.closeSession(session); 
+} 
+
+System.out.println(&quot;================================&quot;); 
+
+try { 
+  session = HibernateUtils.getSession(); 
+  t = session.beginTransaction(); 
+  Query query = session.createQuery(&quot;select s from Student s&quot;); 
+  //启用查询缓存    
+  query.setCacheable(true); 
+  //会发出根据id查询实体的n条查询语句,因为这种情况下,查询过程是这样的： 
+  // 在第一次执行list时,会把查询对象的id缓存到查询缓存里 
+  // 第二次执行list时, 会遍历查询缓存里的id到缓存里去找实体对象,由于这里没找到实体对象, 
+  //所以就发出n条查询语句到数据库中查询. 
+  List&lt;Student&gt; students = query.list(); 
+  for (Iterator&lt;Student&gt; it = students.iterator(); it.hasNext();) { 
+    Student s = it.next(); 
+    System.out.println(s.getName()); 
+  } 
+  t.commit(); 
+} catch (Exception e) { 
+  e.printStackTrace(); 
+  t.rollback(); 
+} finally { 
+  HibernateUtils.closeSession(session); 
+} 
+</code></pre><p>  }*/ </p>
+<p>  @SuppressWarnings(“unchecked”)<br>  public static void main(String[] args) {<br>    Session session = null;<br>    Transaction t = null; </p>
+<pre><code>/** 
+ * 开启查询缓存,开启二级缓存, 开启两个session,分别调用query.list查询实体对象 
+ */ 
+//如果不用查询缓存的话,那两个都发出查询语句,这也是默认的情况. 
+try { 
+  session = HibernateUtils.getSession(); 
+  t = session.beginTransaction(); 
+  Query query = session.createQuery(&quot;select s from Student s&quot;); 
+  //启用查询缓存    
+  query.setCacheable(true); 
+  List&lt;Student&gt; students = query.list(); 
+  for (Iterator&lt;Student&gt; it = students.iterator(); it.hasNext();) { 
+    Student s = it.next(); 
+    System.out.println(s.getName()); 
+  } 
+  t.commit(); 
+} catch (Exception e) { 
+  e.printStackTrace(); 
+  t.rollback(); 
+} finally { 
+  HibernateUtils.closeSession(session); 
+} 
+
+System.out.println(&quot;================================&quot;); 
+
+try { 
+  session = HibernateUtils.getSession(); 
+  t = session.beginTransaction(); 
+  Query query = session.createQuery(&quot;select s from Student s&quot;); 
+  //启用查询缓存    
+  query.setCacheable(true); 
+  //不会发出查询语句,因为这种情况下,查询过程是这样的： 
+  // 在第一次执行list时,会把查询对象的id缓存到查询缓存里 
+  // 第二次执行list时, 会遍历查询缓存里的id到缓存里去找实体对象,由于这里开启了二级缓存,可以找到目标实体对象, 
+  //所以就不会再发出n条查询语句. 
+  List&lt;Student&gt; students = query.list(); 
+  for (Iterator&lt;Student&gt; it = students.iterator(); it.hasNext();) { 
+    Student s = it.next(); 
+    System.out.println(s.getName()); 
+  } 
+  t.commit(); 
+} catch (Exception e) { 
+  e.printStackTrace(); 
+  t.rollback(); 
+} finally { 
+  HibernateUtils.closeSession(session); 
+} 
+</code></pre><p>  }</p>
+]]></content>
+    
+    <summary type="html">
+    
+      hibernate的查询缓存
+    
+    </summary>
+    
+      <category term="hibernate" scheme="http://jishusuishouji.github.io/categories/hibernate/"/>
+    
+    
+      <category term="hibernate" scheme="http://jishusuishouji.github.io/tags/hibernate/"/>
+    
+  </entry>
   
   <entry>
     <title>Layout of Log4j</title>
@@ -1048,63 +1280,6 @@ location ~ .*\.(gif|jpg|jpeg|png|bmp|swf|js|html|htm|css)$ {
     
     
       <category term="Velocity" scheme="http://jishusuishouji.github.io/tags/Velocity/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Spring中提示元素 &#39;ref&#39; 中不允许出现属性 &#39;local&#39;</title>
-    <link href="http://jishusuishouji.github.io/2017/01/17/spring/Spring%E4%B8%AD%E6%8F%90%E7%A4%BA%E5%85%83%E7%B4%A0__ref__%E4%B8%AD%E4%B8%8D%E5%85%81%E8%AE%B8%E5%87%BA%E7%8E%B0%E5%B1%9E%E6%80%A7__local_/"/>
-    <id>http://jishusuishouji.github.io/2017/01/17/spring/Spring中提示元素__ref__中不允许出现属性__local_/</id>
-    <published>2017-01-17T07:58:44.000Z</published>
-    <updated>2017-01-17T08:00:23.520Z</updated>
-    
-    <content type="html"><![CDATA[<p>这个问题在Spring4.X以前的版本不存在。通过查询Spring的官方文档Spring4.X的以上版本不支持该属性了。<br>下面是官方说明：</p>
-<blockquote>
-<p>The local attribute on the ref element is no longer supported in the 4.0 beans xsd since it does not provide value over a regular bean reference anymore. Simply change your existing ref local references to ref bean when upgrading to the 4.0 schema. </p>
-</blockquote>
-<p>官方建议使用bean在Spring4.0以上的版本。</p>
-<h2 id="案例重现"><a href="#案例重现" class="headerlink" title="案例重现"></a>案例重现</h2><h3 id="抛错："><a href="#抛错：" class="headerlink" title="抛错："></a>抛错：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div></pre></td><td class="code"><pre><div class="line">Exception in thread &quot;main&quot; org.springframework.beans.factory.xml.XmlBeanDefinitionStoreException: Line 37 in XML document from class path resource [application_dependencies.xml] is invalid; nested exception is org.xml.sax.SAXParseException; lineNumber: 37; columnNumber: 27; cvc-complex-type.3.2.2: 元素 &apos;ref&apos; 中不允许出现属性 &apos;local&apos;。</div><div class="line">    at org.springframework.beans.factory.xml.XmlBeanDefinitionReader.doLoadBeanDefinitions(XmlBeanDefinitionReader.java:399)</div><div class="line">    at org.springframework.beans.factory.xml.XmlBeanDefinitionReader.loadBeanDefinitions(XmlBeanDefinitionReader.java:336)</div><div class="line">    at org.springframework.beans.factory.xml.XmlBeanDefinitionReader.loadBeanDefinitions(XmlBeanDefinitionReader.java:304)</div><div class="line">    at org.springframework.beans.factory.support.AbstractBeanDefinitionReader.loadBeanDefinitions(AbstractBeanDefinitionReader.java:181)</div><div class="line">    at org.springframework.beans.factory.support.AbstractBeanDefinitionReader.loadBeanDefinitions(AbstractBeanDefinitionReader.java:217)</div><div class="line">    at org.springframework.beans.factory.support.AbstractBeanDefinitionReader.loadBeanDefinitions(AbstractBeanDefinitionReader.java:188)</div><div class="line">    at org.springframework.beans.factory.support.AbstractBeanDefinitionReader.loadBeanDefinitions(AbstractBeanDefinitionReader.java:252)</div><div class="line">    at org.springframework.context.support.AbstractXmlApplicationContext.loadBeanDefinitions(AbstractXmlApplicationContext.java:127)</div><div class="line">    at org.springframework.context.support.AbstractXmlApplicationContext.loadBeanDefinitions(AbstractXmlApplicationContext.java:93)</div><div class="line">    at org.springframework.context.support.AbstractRefreshableApplicationContext.refreshBeanFactory(AbstractRefreshableApplicationContext.java:129)</div><div class="line">    at org.springframework.context.support.AbstractApplicationContext.obtainFreshBeanFactory(AbstractApplicationContext.java:604)</div><div class="line">    at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:509)</div><div class="line">    at org.springframework.context.support.ClassPathXmlApplicationContext.&lt;init&gt;(ClassPathXmlApplicationContext.java:139)</div><div class="line">    at org.springframework.context.support.ClassPathXmlApplicationContext.&lt;init&gt;(ClassPathXmlApplicationContext.java:83)</div><div class="line">    at com.mxsm.spring.SpringDependencies.main(SpringDependencies.java:64)</div><div class="line">Caused by: org.xml.sax.SAXParseException; lineNumber: 37; columnNumber: 27; cvc-complex-type.3.2.2: 元素 &apos;ref&apos; 中不允许出现属性 &apos;local&apos;。</div><div class="line">    at com.sun.org.apache.xerces.internal.util.ErrorHandlerWrapper.createSAXParseException(ErrorHandlerWrapper.java:198)</div><div class="line">    at com.sun.org.apache.xerces.internal.util.ErrorHandlerWrapper.error(ErrorHandlerWrapper.java:134)</div><div class="line">    at com.sun.org.apache.xerces.internal.impl.XMLErrorReporter.reportError(XMLErrorReporter.java:437)</div><div class="line">    at com.sun.org.apache.xerces.internal.impl.XMLErrorReporter.reportError(XMLErrorReporter.java:368)</div><div class="line">    at com.sun.org.apache.xerces.internal.impl.XMLErrorReporter.reportError(XMLErrorReporter.java:325)</div><div class="line">    at com.sun.org.apache.xerces.internal.impl.xs.XMLSchemaValidator$XSIErrorReporter.reportError(XMLSchemaValidator.java:453)</div><div class="line">    at com.sun.org.apache.xerces.internal.impl.xs.XMLSchemaValidator.reportSchemaError(XMLSchemaValidator.java:3232)</div><div class="line">    at com.sun.org.apache.xerces.internal.impl.xs.XMLSchemaValidator.processAttributes(XMLSchemaValidator.java:2709)</div><div class="line">    at com.sun.org.apache.xerces.internal.impl.xs.XMLSchemaValidator.handleStartElement(XMLSchemaValidator.java:2051)</div><div class="line">    at com.sun.org.apache.xerces.internal.impl.xs.XMLSchemaValidator.emptyElement(XMLSchemaValidator.java:761)</div><div class="line">    at com.sun.org.apache.xerces.internal.impl.XMLNSDocumentScannerImpl.scanStartElement(XMLNSDocumentScannerImpl.java:353)</div><div class="line">    at com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl$FragmentContentDriver.next(XMLDocumentFragmentScannerImpl.java:2717)</div><div class="line">    at com.sun.org.apache.xerces.internal.impl.XMLDocumentScannerImpl.next(XMLDocumentScannerImpl.java:607)</div><div class="line">    at com.sun.org.apache.xerces.internal.impl.XMLNSDocumentScannerImpl.next(XMLNSDocumentScannerImpl.java:116)</div><div class="line">    at com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl.scanDocument(XMLDocumentFragmentScannerImpl.java:489)</div><div class="line">    at com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:835)</div><div class="line">    at com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:764)</div><div class="line">    at com.sun.org.apache.xerces.internal.parsers.XMLParser.parse(XMLParser.java:123)</div><div class="line">    at com.sun.org.apache.xerces.internal.parsers.DOMParser.parse(DOMParser.java:237)</div><div class="line">    at com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderImpl.parse(DocumentBuilderImpl.java:300)</div><div class="line">    at org.springframework.beans.factory.xml.DefaultDocumentLoader.loadDocument(DefaultDocumentLoader.java:76)</div><div class="line">    at org.springframework.beans.factory.xml.XmlBeanDefinitionReader.doLoadDocument(XmlBeanDefinitionReader.java:429)</div><div class="line">    at org.springframework.beans.factory.xml.XmlBeanDefinitionReader.doLoadBeanDefinitions(XmlBeanDefinitionReader.java:391)</div><div class="line">    ... 14 more</div></pre></td></tr></table></figure>
-<h3 id="spring-xml文件配置"><a href="#spring-xml文件配置" class="headerlink" title="spring xml文件配置"></a>spring xml文件配置</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div></pre></td><td class="code"><pre><div class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</div><div class="line">&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;</div><div class="line">    xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</div><div class="line">    xsi:schemaLocation=&quot;http://www.springframework.org/schema/beans</div><div class="line">        http://www.springframework.org/schema/beans/spring-beans.xsd&quot;&gt;</div><div class="line"></div><div class="line">    &lt;bean id=&quot;animals&quot; class=&quot;com.mxsm.spring.bean.Animal&quot;&gt;</div><div class="line">        &lt;constructor-arg&gt;</div><div class="line">            &lt;ref bean=&quot;dog&quot;/&gt;</div><div class="line">        &lt;/constructor-arg&gt;</div><div class="line">        &lt;constructor-arg&gt;</div><div class="line">            &lt;ref bean=&quot;cat&quot;/&gt;</div><div class="line">        &lt;/constructor-arg&gt;</div><div class="line">    &lt;/bean&gt;</div><div class="line"></div><div class="line">    &lt;!--使用type属性--&gt;</div><div class="line">    &lt;bean id=&quot;dog&quot; class=&quot;com.mxsm.spring.bean.Dog&quot;&gt;</div><div class="line">        &lt;constructor-arg  type=&quot;java.lang.String&quot; value=&quot;aa&quot;/&gt;</div><div class="line">        &lt;constructor-arg  type=&quot;int&quot; value=&quot;1&quot;/&gt;</div><div class="line">        &lt;constructor-arg  type=&quot;java.lang.String&quot; value=&quot;meat&quot;/&gt;</div><div class="line">    &lt;/bean&gt;</div><div class="line"></div><div class="line">    &lt;bean id=&quot;dog_2&quot; class=&quot;com.mxsm.spring.bean.Dog&quot;&gt;</div><div class="line">        &lt;constructor-arg index=&quot;0&quot; value=&quot;ssss&quot;/&gt;</div><div class="line">        &lt;constructor-arg index=&quot;1&quot; value=&quot;3333&quot;/&gt;</div><div class="line">        &lt;constructor-arg index=&quot;2&quot; value=&quot;8888&quot;/&gt;</div><div class="line">    &lt;/bean&gt;</div><div class="line"></div><div class="line">    &lt;bean id=&quot;cat&quot; class=&quot;com.mxsm.spring.bean.Cat&quot;&gt;</div><div class="line">        &lt;constructor-arg name=&quot;a&quot; value=&quot;ssss&quot;/&gt;</div><div class="line">        &lt;constructor-arg name=&quot;b&quot; value=&quot;3333&quot;/&gt;</div><div class="line">    &lt;/bean&gt;</div><div class="line"></div><div class="line">    &lt;!-- setter 依赖注入bean --&gt;</div><div class="line">    **&lt;bean id=&quot;man&quot; class=&quot;com.mxsm.spring.bean.Man&quot;&gt;</div><div class="line">        &lt;property name=&quot;white&quot;&gt;</div><div class="line">            &lt;ref local=&quot;whiteMan&quot;/&gt;</div><div class="line">        &lt;/property&gt;</div><div class="line"></div><div class="line">        &lt;property name=&quot;yellow&quot;&gt;</div><div class="line">            &lt;ref local =&quot;yellowMan&quot;/&gt;</div><div class="line">        &lt;/property&gt;</div><div class="line"></div><div class="line">        &lt;property name=&quot;id&quot; value=&quot;1&quot;/&gt;</div><div class="line"></div><div class="line">    &lt;/bean&gt;**</div><div class="line"></div><div class="line">    &lt;bean id=&quot;whiteMan&quot; class=&quot;com.mxsm.spring.bean.WhitePerson&quot;&gt;</div><div class="line">        &lt;constructor-arg name=&quot;age&quot; value=&quot;1&quot;/&gt;</div><div class="line">        &lt;constructor-arg name=&quot;color&quot; value=&quot;white&quot;/&gt;</div><div class="line">        &lt;constructor-arg name=&quot;name&quot; value=&quot;USA&quot;/&gt;</div><div class="line">        &lt;constructor-arg name=&quot;sex&quot; value=&quot;男&quot;/&gt;</div><div class="line">    &lt;/bean&gt;</div><div class="line"></div><div class="line">    &lt;bean id=&quot;yellowMan&quot; class=&quot;com.mxsm.spring.bean.YellowPerson&quot;&gt;</div><div class="line">        &lt;constructor-arg name=&quot;age&quot; value=&quot;1&quot;/&gt;</div><div class="line">        &lt;constructor-arg name=&quot;color&quot; value=&quot;yellow&quot;/&gt;</div><div class="line">        &lt;constructor-arg name=&quot;name&quot; value=&quot;China&quot;/&gt;</div><div class="line">        &lt;constructor-arg name=&quot;sex&quot; value=&quot;男&quot;/&gt;</div><div class="line">    &lt;/bean&gt;</div><div class="line"></div><div class="line">&lt;/beans&gt;</div></pre></td></tr></table></figure>]]></content>
-    
-    <summary type="html">
-    
-      Spring中提示元素 &#39;ref&#39; 中不允许出现属性 &#39;local&#39;
-    
-    </summary>
-    
-      <category term="spring" scheme="http://jishusuishouji.github.io/categories/spring/"/>
-    
-    
-      <category term="spring" scheme="http://jishusuishouji.github.io/tags/spring/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>nodejs的require模块及路径</title>
-    <link href="http://jishusuishouji.github.io/2017/01/14/nodejs/nodejs%E7%9A%84require%E6%A8%A1%E5%9D%97%E5%8F%8A%E8%B7%AF%E5%BE%84/"/>
-    <id>http://jishusuishouji.github.io/2017/01/14/nodejs/nodejs的require模块及路径/</id>
-    <published>2017-01-13T17:30:53.000Z</published>
-    <updated>2017-01-13T17:38:42.287Z</updated>
-    
-    <content type="html"><![CDATA[<p>在nodejs中，模块分为核心模块和文件模块。    </p>
-<p>核心模块是被编译成二进制代码，引用的时候只需<code>require</code>即可，如<code>require(&#39;net&#39;)</code>。<br>文件模块，则是指js文件、json文件或者是.node文件。在引用文件模块的时候要加上文件的路径：如果既不加<code>/.../...</code>、<code>../</code>又不加<code>./</code>的话，则该模块要么是核心模块，要么是从一个<code>node_modules</code>文件夹加载。</p>
-<p>如果’<code>/home/ry/projects/foo.js</code>‘ 中的文件调用了`require(‘bar.js’)`` ，node将在下面的位置进行搜索：</p>
-<p>•<code>/home/ry/projects/node_modules/bar.js</code><br>•<code>/home/ry/node_modules/bar.js</code><br>•<code>/home/node_modules/bar.js</code><br>•<code>/node_modules/bar.js</code></p>
-<h2 id="文件夹作为模块："><a href="#文件夹作为模块：" class="headerlink" title="文件夹作为模块："></a>文件夹作为模块：</h2><p>首先在<code>./some-library</code>文件夹下建立<code>package.json</code>文件，它标识了一个主模块。一个<code>package.json</code>中的内容可能如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">&#123; </div><div class="line">    &quot;name&quot; : &quot;some-library&quot;,  </div><div class="line">    &quot;main&quot; : &quot;./lib/some-library.js&quot; </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p><code>require(&#39;./some-library&#39;)</code>(和some-library相同路径的js文件)时将试图加载<code>./some-library/lib/some-library.js</code><br>如果在这个目录下没有<code>package.json</code>文件，node将试图从这个目录下加载<code>index.js</code>或<code>index.node</code>文件。例如，如果上面没有<code>package.json</code>文件，那么<code>require(&#39;./some-library&#39;)</code>时，将试图加载下面的文件：<br>•<code>./some-library/index.js</code><br>•<code>./some-library/index.node</code></p>
-<p>分类: javascript,nodejs<br>标签: javascript, nodejs</p>
-]]></content>
-    
-    <summary type="html">
-    
-      nodejs的require模块及路径
-    
-    </summary>
-    
-      <category term="nodejs" scheme="http://jishusuishouji.github.io/categories/nodejs/"/>
-    
-    
-      <category term="nodejs" scheme="http://jishusuishouji.github.io/tags/nodejs/"/>
     
   </entry>
   
