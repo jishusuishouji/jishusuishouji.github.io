@@ -542,9 +542,9 @@
          
         <tag>jta</tag>
          
-        <tag>分布式事务</tag>
-         
         <tag>jotm</tag>
+         
+        <tag>分布式事务</tag>
          
         <tag>atomikos</tag>
          
