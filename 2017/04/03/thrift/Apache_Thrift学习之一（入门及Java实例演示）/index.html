@@ -1,0 +1,1261 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="facebook,Thrift,RPC," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="技术随手记" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Apache Thrift学习之一（入门及Java实例演示）">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Apache Thrift学习之一（入门及Java实例演示）">
+<meta property="og:url" content="http://jishusuishouji.github.io/2017/04/03/thrift/Apache_Thrift学习之一（入门及Java实例演示）/index.html">
+<meta property="og:site_name" content="技术随手记">
+<meta property="og:description" content="Apache Thrift学习之一（入门及Java实例演示）">
+<meta property="og:updated_time" content="2017-04-03T10:04:27.871Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Apache Thrift学习之一（入门及Java实例演示）">
+<meta name="twitter:description" content="Apache Thrift学习之一（入门及Java实例演示）">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://jishusuishouji.github.io/2017/04/03/thrift/Apache_Thrift学习之一（入门及Java实例演示）/"/>
+
+
+
+
+
+  <title> Apache Thrift学习之一（入门及Java实例演示） | 技术随手记 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">技术随手记</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://jishusuishouji.github.io/2017/04/03/thrift/Apache_Thrift学习之一（入门及Java实例演示）/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="技术随手记">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="技术随手记">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+            
+            
+              
+                Apache Thrift学习之一（入门及Java实例演示）
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-03T17:58:39+08:00">
+                2017-04-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/RPC/" itemprop="url" rel="index">
+                    <span itemprop="name">RPC</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/RPC/Thrift/" itemprop="url" rel="index">
+                    <span itemprop="name">Thrift</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            <!--noindex-->
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/04/03/thrift/Apache_Thrift学习之一（入门及Java实例演示）/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count hc-comment-count" data-xid="2017/04/03/thrift/Apache_Thrift学习之一（入门及Java实例演示）/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+              <!--/noindex-->
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  Apache Thrift学习之一（入门及Java实例演示）
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h2><p>Apache Thrift是Facebook实现的一种高效的、支持多种编程语言的远程服务调用的框架。Thrift是由Facebook开发的，并在2008年捐给了Apache基金会，成为了一个孵化器项目。</p>
+<p>Thrift是一个软件框架，用来进行可扩展且跨语言的服务的开发。它结合了功能强大的软件堆栈和代码生成引擎，</p>
+<p>Thrift是一个驱动层接口，它提供了用于客户端使用多种语言实现的API。<br>Thrift是个代码生成库，支持的客户端语言包括C++, Java, Python, PHP, Ruby, Erlang, Perl, Haskell, C#, Cocoa, JavaScript, Node.js, Smalltalk, and OCaml 。它的目标是为了各种流行的语言提供便利的RPC调用机制，而不需要使用那些开销巨大的方式，比如SOAP。</p>
+<p>要使用Thrift，就要使用一个语言中立的服务定义文件，描述数据类型和服务接口。这个文件会被用作引擎的输入，编译器为每种支持的语言生成代码。这种静态生成的设计让它非常容易被开发者所使用，而且因为类型验证都发生在编译期而非运行期，所以代码可以很有效率地运行。</p>
+<p>Thrift的设计提供了以下这些特性：<br>1、语言无关的类型<br>因为类型是使用定义文件按照语言中立的方式规定的，所以它们可以被不同的语言分享。比如，C++的结构可以和Python的字典类型相互交换数据。<br>2、通用传输接口<br>不论你使用的是磁盘文件、内存数据还是socket流，都可以使用同一段应用代码。<br>3、协议无关<br>Thrift会对数据类型进行编码和解码，可以跨协议使用。<br>4、支持版本<br>数据类型可以加入版本信息，来支持客户端API的更新。</p>
+<h2 id="二、下载配置"><a href="#二、下载配置" class="headerlink" title="二、下载配置"></a>二、下载配置</h2><p>1）安装thrift：到thrift官网下载exe文件，然后将文件重命名为thrift.exe,拷贝到D:\EBOOK\thrift目录下(或者任何目录下)，然后就可以在dos环境下使用了</p>
+<p>　　D:\EBOOK\thrift&gt;thrift -gen java D:\work\workspace\thriftworkspace\demo1\demoHello.thrift ，输出的java文件默认输出到当前目录下D:\EBOOK\thrift\gen-java，也可以使用-o参数指定输出路径;</p>
+<p>  2）下载相关依赖包</p>
+<p>  2.1）libthrift.jar ，下载地址：<a href="http://repo1.maven.org/maven2/org/apache/thrift/libthrift/0.9.0/" target="_blank" rel="external">http://repo1.maven.org/maven2/org/apache/thrift/libthrift/0.9.0/</a></p>
+<p>  2.2）slf4j-api.jar</p>
+<p>  2.3）slf4j-simple.jar</p>
+<p>到官网<a href="http://thrift.apache.org/download" target="_blank" rel="external">http://thrift.apache.org/download</a> 下载最新版本，截止今日（2016-05-23）最新版本为0.9.3</p>
+<ol>
+<li>如果是Maven构建项目的，直接在pom.xml 中添加如下内容：</li>
+</ol>
+<p><dependency><br>  <groupid>org.apache.thrift</groupid><br>  <artifactid>libthrift</artifactid><br>  <version>0.8.0</version><br></dependency><br>2.如果自己编译lib包，把下载的压缩包解压到X:盘，然后在X:\thrift-0.8.0\lib\java 目录下运行ant进行自动编译，会在X:\thrift-0.8.0\lib\java\build\ 目录下看到编译好的lib包：libthrift-0.8.0.jar</p>
+<p>[三]、基本概念</p>
+<p>1.数据类型</p>
+<p>基本类型：<br>bool：布尔值，true 或 false，对应 Java 的 boolean<br>byte：8 位有符号整数，对应 Java 的 byte<br>i16：16 位有符号整数，对应 Java 的 short<br>i32：32 位有符号整数，对应 Java 的 int<br>i64：64 位有符号整数，对应 Java 的 long<br>double：64 位浮点数，对应 Java 的 double<br>string：utf-8编码的字符串，对应 Java 的 String<br>结构体类型：<br>struct：定义公共的对象，类似于 C 语言中的结构体定义，在 Java 中是一个 JavaBean<br>容器类型：<br>list：对应 Java 的 ArrayList<br>set：对应 Java 的 HashSet<br>map：对应 Java 的 HashMap<br>异常类型：<br>exception：对应 Java 的 Exception<br>服务类型：<br>service：对应服务的类<br>2.服务端编码基本步骤：</p>
+<p>实现服务处理接口impl<br>创建TProcessor<br>创建TServerTransport<br>创建TProtocol<br>创建TServer<br>启动Server<br>3.客户端编码基本步骤：</p>
+<p>创建Transport<br>创建TProtocol<br>基于TTransport和TProtocol创建 Client<br>调用Client的相应方法<br>4.数据传输协议</p>
+<p>TBinaryProtocol : 二进制格式.<br>TCompactProtocol : 压缩格式<br>TJSONProtocol : JSON格式<br>TSimpleJSONProtocol : 提供JSON只写协议, 生成的文件很容易通过脚本语言解析<br>tips:客户端和服务端的协议要一致</p>
+<p>[四]、实例演示</p>
+<ol>
+<li>thrift生成代码</li>
+</ol>
+<p>创建Thrift文件：D:\work\workspace\thriftworkspace\demo1\demoHello.thrift ,内容如下：</p>
+<p>namespace java com.dxz.thrift.demo</p>
+<p>service  HelloWorldService {<br>  string sayHello(1:string username)<br>}<br>thrift-0.8.0.exe 是官网提供的windows下编译工具，运用这个工具生成相关代码：</p>
+<p>D:\EBOOK\thrift&gt;thrift-0.9.3.exe -r -gen java D:\work\workspace\thriftworkspace\demo1\demoHello.thrift<br>生成后的目录结构如下：</p>
+<p>将生成的HelloWorldService.java 文件copy到自己测试的工程中，我的工程是用maven构建的，故在pom.xml中增加如下内容：</p>
+<p>复制代码</p>
+<p><dependency></dependency></p>
+<p><groupid>org.apache.thrift</groupid></p>
+<p><artifactid>libthrift</artifactid></p>
+<p><version>0.8.0</version><br></p>
+<p><dependency></dependency></p>
+<p><groupid>org.slf4j</groupid></p>
+<p><artifactid>slf4j-log4j12</artifactid></p>
+<p><version>1.5.8</version><br><br>复制代码<br>如果是ant构建的工程，将libthrift-0.9.3.jar加入到工程中</p>
+<ol>
+<li>实现接口Iface</li>
+</ol>
+<p>java代码：HelloWorldImpl.java</p>
+<p>复制代码<br>package com.dxz.thrift.demo;</p>
+<p>import org.apache.thrift.TException;</p>
+<p>public class HelloWorldImpl implements HelloWorldService.Iface {</p>
+<pre><code>public HelloWorldImpl() {
+}
+
+@Override
+public String sayHello(String username) throws TException {
+    return &quot;Hi,&quot; + username + &quot; welcome to thrift world&quot;;
+}
+</code></pre><p>}<br>复制代码<br>3.TSimpleServer服务端</p>
+<p>简单的单线程服务模型，一般用于测试。</p>
+<p>编写服务端server代码：HelloServerDemo.java</p>
+<p>复制代码<br>package com.dxz.thrift.demo;</p>
+<p>import org.apache.thrift.TProcessor;<br>import org.apache.thrift.protocol.TBinaryProtocol;<br>import org.apache.thrift.protocol.TCompactProtocol;<br>import org.apache.thrift.protocol.TJSONProtocol;<br>import org.apache.thrift.protocol.TSimpleJSONProtocol;<br>import org.apache.thrift.server.TServer;<br>import org.apache.thrift.server.TSimpleServer;<br>import org.apache.thrift.transport.TServerSocket;</p>
+<p>public class HelloServerDemo {<br>    public static final int SERVER_PORT = 8090;</p>
+<pre><code>public void startServer() {
+    try {
+        System.out.println(&quot;HelloWorld TSimpleServer start ....&quot;);
+
+        TProcessor tprocessor = new HelloWorldService.Processor&lt;HelloWorldService.Iface&gt;(new HelloWorldImpl());
+        // HelloWorldService.Processor&amp;lt;HelloWorldService.Iface&amp;gt;
+        // tprocessor =
+        // new HelloWorldService.Processor&amp;lt;HelloWorldService.Iface&amp;gt;(
+        // new HelloWorldImpl());
+
+        // 简单的单线程服务模型，一般用于测试
+        TServerSocket serverTransport = new TServerSocket(SERVER_PORT);
+        TServer.Args tArgs = new TServer.Args(serverTransport);
+        tArgs.processor(tprocessor);
+        tArgs.protocolFactory(new TBinaryProtocol.Factory());
+        // tArgs.protocolFactory(new TCompactProtocol.Factory());
+        // tArgs.protocolFactory(new TJSONProtocol.Factory());
+        TServer server = new TSimpleServer(tArgs);
+        server.serve();
+
+    } catch (Exception e) {
+        System.out.println(&quot;Server start error!!!&quot;);
+        e.printStackTrace();
+    }
+}
+
+/**
+ * @param args
+ */
+public static void main(String[] args) {
+    HelloServerDemo server = new HelloServerDemo();
+    server.startServer();
+}
+</code></pre><p>}<br>复制代码<br>编写客户端Client代码：HelloClientDemo.java</p>
+<p>复制代码<br>package com.dxz.thrift.demo;</p>
+<p>import org.apache.thrift.TException;<br>import org.apache.thrift.protocol.TBinaryProtocol;<br>import org.apache.thrift.protocol.TCompactProtocol;<br>import org.apache.thrift.protocol.TJSONProtocol;<br>import org.apache.thrift.protocol.TProtocol;<br>import org.apache.thrift.transport.TSocket;<br>import org.apache.thrift.transport.TTransport;<br>import org.apache.thrift.transport.TTransportException;</p>
+<p>public class HelloClientDemo {</p>
+<pre><code>public static final String SERVER_IP = &quot;localhost&quot;;
+public static final int SERVER_PORT = 8090;
+public static final int TIMEOUT = 30000;
+
+/**
+ *
+ * @param userName
+ */
+public void startClient(String userName) {
+    TTransport transport = null;
+    try {
+        transport = new TSocket(SERVER_IP, SERVER_PORT, TIMEOUT);
+        // 协议要和服务端一致
+        TProtocol protocol = new TBinaryProtocol(transport);
+        // TProtocol protocol = new TCompactProtocol(transport);
+        // TProtocol protocol = new TJSONProtocol(transport);
+        HelloWorldService.Client client = new HelloWorldService.Client(protocol);
+        transport.open();
+        String result = client.sayHello(userName);
+        System.out.println(&quot;Thrify client result =: &quot; + result);
+    } catch (TTransportException e) {
+        e.printStackTrace();
+    } catch (TException e) {
+        e.printStackTrace();
+    } finally {
+        if (null != transport) {
+            transport.close();
+        }
+    }
+}
+
+/**
+ * @param args
+ */
+public static void main(String[] args) {
+    HelloClientDemo client = new HelloClientDemo();
+    client.startClient(&quot;china&quot;);
+
+}
+</code></pre><p>}<br>复制代码<br>先运行服务端程序，日志如下：</p>
+<p>HelloWorld TSimpleServer start ….<br>再运行客户端调用程序，日志如下：</p>
+<p>Thrify client result =: Hi,china welcome to thrift world.<br>测试成功，和预期的返回信息一致。</p>
+<p>4.TThreadPoolServer 服务模型</p>
+<p>线程池服务模型，使用标准的阻塞式IO，预先创建一组线程处理请求。</p>
+<p>编写服务端代码：HelloServerDemo2.java</p>
+<p>复制代码<br>package com.dxz.thrift.demo;</p>
+<p>import org.apache.thrift.TProcessor;<br>import org.apache.thrift.protocol.TBinaryProtocol;<br>import org.apache.thrift.server.TServer;<br>import org.apache.thrift.server.TThreadPoolServer;<br>import org.apache.thrift.transport.TServerSocket;</p>
+<p>public class HelloServerDemo2 {<br>    public static final int SERVER_PORT = 8090;</p>
+<pre><code>public void startServer() {
+    try {
+        System.out.println(&quot;HelloWorld TThreadPoolServer start ....&quot;);
+
+        TProcessor tprocessor = new HelloWorldService.Processor&lt;HelloWorldService.Iface&gt;(new HelloWorldImpl());
+
+        TServerSocket serverTransport = new TServerSocket(SERVER_PORT);
+        TThreadPoolServer.Args ttpsArgs = new TThreadPoolServer.Args(serverTransport);
+        ttpsArgs.processor(tprocessor);
+        ttpsArgs.protocolFactory(new TBinaryProtocol.Factory());
+
+        // 线程池服务模型，使用标准的阻塞式IO，预先创建一组线程处理请求。
+        TServer server = new TThreadPoolServer(ttpsArgs);
+        server.serve();
+
+    } catch (Exception e) {
+        System.out.println(&quot;Server start error!!!&quot;);
+        e.printStackTrace();
+    }
+}
+
+/**
+ * @param args
+ */
+public static void main(String[] args) {
+    HelloServerDemo2 server = new HelloServerDemo2();
+    server.startServer();
+}
+</code></pre><p>}<br>复制代码<br>客户端Client代码和之前的一样，只要数据传输的协议一致即可，客户端测试成功，结果如下：</p>
+<p>Thrify client result =: Hi,china welcome to thrift world.<br>5.TNonblockingServer 服务模型</p>
+<p>使用非阻塞式IO，服务端和客户端需要指定 TFramedTransport 数据传输的方式。</p>
+<p>编写服务端代码：HelloServerDemo3.java</p>
+<p>复制代码<br>package com.dxz.thrift.demo;</p>
+<p>import org.apache.thrift.TProcessor;<br>import org.apache.thrift.protocol.TBinaryProtocol;<br>import org.apache.thrift.protocol.TCompactProtocol;<br>import org.apache.thrift.server.TNonblockingServer;<br>import org.apache.thrift.server.TServer;<br>import org.apache.thrift.server.TThreadPoolServer;<br>import org.apache.thrift.transport.TFramedTransport;<br>import org.apache.thrift.transport.TNonblockingServerSocket;<br>import org.apache.thrift.transport.TServerSocket;</p>
+<p>public class HelloServerDemo3 {<br>    public static final int SERVER_PORT = 8090;</p>
+<pre><code>public void startServer() {
+    try {
+        System.out.println(&quot;HelloWorld TNonblockingServer start ....&quot;);
+
+        TProcessor tprocessor = new HelloWorldService.Processor&lt;HelloWorldService.Iface&gt;(new HelloWorldImpl());
+
+        TNonblockingServerSocket tnbSocketTransport = new TNonblockingServerSocket(SERVER_PORT);
+        TNonblockingServer.Args tnbArgs = new TNonblockingServer.Args(tnbSocketTransport);
+        tnbArgs.processor(tprocessor);
+        tnbArgs.transportFactory(new TFramedTransport.Factory());
+        tnbArgs.protocolFactory(new TCompactProtocol.Factory());
+
+        // 使用非阻塞式IO，服务端和客户端需要指定TFramedTransport数据传输的方式
+        TServer server = new TNonblockingServer(tnbArgs);
+        server.serve();
+
+    } catch (Exception e) {
+        System.out.println(&quot;Server start error!!!&quot;);
+        e.printStackTrace();
+    }
+}
+
+/**
+ * @param args
+ */
+public static void main(String[] args) {
+    HelloServerDemo3 server = new HelloServerDemo3();
+    server.startServer();
+}
+</code></pre><p>}<br>复制代码<br>编写客户端代码：HelloClientDemo3.java</p>
+<p>复制代码<br>package com.dxz.thrift.demo;</p>
+<p>import org.apache.thrift.TException;<br>import org.apache.thrift.protocol.TBinaryProtocol;<br>import org.apache.thrift.protocol.TCompactProtocol;<br>import org.apache.thrift.protocol.TJSONProtocol;<br>import org.apache.thrift.protocol.TProtocol;<br>import org.apache.thrift.transport.TSocket;<br>import org.apache.thrift.transport.TTransport;<br>import org.apache.thrift.transport.TTransportException;<br>import org.apache.thrift.TException;<br>import org.apache.thrift.protocol.TCompactProtocol;<br>import org.apache.thrift.protocol.TProtocol;<br>import org.apache.thrift.transport.TFramedTransport;<br>import org.apache.thrift.transport.TSocket;<br>import org.apache.thrift.transport.TTransport;<br>import org.apache.thrift.transport.TTransportException;</p>
+<p>public class HelloClientDemo3 {</p>
+<pre><code>public static final String SERVER_IP = &quot;localhost&quot;;
+public static final int SERVER_PORT = 8090;
+public static final int TIMEOUT = 30000;
+
+public void startClient(String userName) {
+    TTransport transport = null;
+    try {
+        transport = new TFramedTransport(new TSocket(SERVER_IP, SERVER_PORT, TIMEOUT));
+        // 协议要和服务端一致
+        TProtocol protocol = new TCompactProtocol(transport);
+        HelloWorldService.Client client = new HelloWorldService.Client(protocol);
+        transport.open();
+        String result = client.sayHello(userName);
+        System.out.println(&quot;Thrify client result =: &quot; + result);
+    } catch (TTransportException e) {
+        e.printStackTrace();
+    } catch (TException e) {
+        e.printStackTrace();
+    } finally {
+        if (null != transport) {
+            transport.close();
+        }
+    }
+}
+
+/**
+ * @param args
+ */
+public static void main(String[] args) {
+    HelloClientDemo3 client = new HelloClientDemo3();
+    client.startClient(&quot;HelloClientDemo3&quot;);
+
+}
+</code></pre><p>}<br>复制代码<br>客户端的测试成功，结果如下：</p>
+<p>Thrify client result =: Hi,HelloClientDemo3 welcome to thrift world.<br>6.THsHaServer服务模型</p>
+<p>半同步半异步的服务端模型，需要指定为： TFramedTransport 数据传输的方式。</p>
+<p>编写服务端代码：HelloServerDemo4.java</p>
+<p>复制代码<br>package com.dxz.thrift.demo;</p>
+<p>import org.apache.thrift.TProcessor;<br>import org.apache.thrift.protocol.TBinaryProtocol;<br>import org.apache.thrift.protocol.TCompactProtocol;<br>import org.apache.thrift.server.THsHaServer;<br>import org.apache.thrift.server.TNonblockingServer;<br>import org.apache.thrift.server.TServer;<br>import org.apache.thrift.server.TSimpleServer;<br>import org.apache.thrift.server.TThreadPoolServer;<br>import org.apache.thrift.transport.TFramedTransport;<br>import org.apache.thrift.transport.TNonblockingServerSocket;<br>import org.apache.thrift.transport.TServerSocket;</p>
+<p>public class HelloServerDemo4 {<br>    public static final int SERVER_PORT = 8090;</p>
+<pre><code>public void startServer() {
+    try {
+        System.out.println(&quot;HelloWorld THsHaServer start ....&quot;);
+
+        TProcessor tprocessor = new HelloWorldService.Processor&lt;HelloWorldService.Iface&gt;(new HelloWorldImpl());
+
+        TNonblockingServerSocket tnbSocketTransport = new TNonblockingServerSocket(SERVER_PORT);
+        THsHaServer.Args thhsArgs = new THsHaServer.Args(tnbSocketTransport);
+        thhsArgs.processor(tprocessor);
+        thhsArgs.transportFactory(new TFramedTransport.Factory());
+        thhsArgs.protocolFactory(new TBinaryProtocol.Factory());
+
+        // 半同步半异步的服务模型
+        TServer server = new THsHaServer(thhsArgs);
+        server.serve();
+
+    } catch (Exception e) {
+        System.out.println(&quot;Server start error!!!&quot;);
+        e.printStackTrace();
+    }
+}
+
+/**
+ * @param args
+ */
+public static void main(String[] args) {
+    HelloServerDemo4 server = new HelloServerDemo4();
+    server.startServer();
+}
+</code></pre><p>}<br>复制代码<br>客户端代码HelloClientDemo4.java</p>
+<p>复制代码<br>package com.dxz.thrift.demo;</p>
+<p>import java.io.IOException;</p>
+<p>import org.apache.thrift.TException;<br>import org.apache.thrift.protocol.TBinaryProtocol;<br>import org.apache.thrift.protocol.TCompactProtocol;<br>import org.apache.thrift.protocol.TProtocol;<br>import org.apache.thrift.transport.TSocket;<br>import org.apache.thrift.transport.TTransport;<br>import org.apache.thrift.transport.TTransportException;</p>
+<p>public class HelloClientDemo4 {</p>
+<pre><code>public static final String SERVER_IP = &quot;localhost&quot;;
+public static final int SERVER_PORT = 8090;
+public static final int TIMEOUT = 30000;
+
+public void startClient(String userName) {
+    TTransport transport = null;
+    try {
+        transport = new TFramedTransport(new TSocket(SERVER_IP, SERVER_PORT, TIMEOUT));
+        // 协议要和服务端一致
+        TProtocol protocol = new TBinaryProtocol(transport);
+        // TProtocol protocol = new TCompactProtocol(transport);
+        // TProtocol protocol = new TJSONProtocol(transport);
+        HelloWorldService.Client client = new HelloWorldService.Client(protocol);
+        transport.open();
+        String result = client.sayHello(userName);
+        System.out.println(&quot;Thrify client result =: &quot; + result);
+    } catch (TTransportException e) {
+        e.printStackTrace();
+    } catch (TException e) {
+        e.printStackTrace();
+    } finally {
+        if (null != transport) {
+            transport.close();
+        }
+    }
+}
+
+/**
+ * @param args
+ */
+public static void main(String[] args) {
+    HelloClientDemo4 client = new HelloClientDemo4();
+    client.startClient(&quot;HelloClientDemo4&quot;);
+
+}
+</code></pre><p>}<br>复制代码</p>
+<p>结果：Thrify client result =: Hi,HelloClientDemo4 welcome to thrift world.</p>
+<p>7.异步客户端</p>
+<p>编写服务端代码：HelloServerDemo5.java</p>
+<p>复制代码<br>package com.dxz.thrift.demo;</p>
+<p>import org.apache.thrift.TProcessor;<br>import org.apache.thrift.protocol.TCompactProtocol;<br>import org.apache.thrift.server.TNonblockingServer;<br>import org.apache.thrift.server.TServer;<br>import org.apache.thrift.transport.TFramedTransport;<br>import org.apache.thrift.transport.TNonblockingServerSocket;</p>
+<p>public class HelloServerDemo5 {<br>    public static final int SERVER_PORT = 8090;</p>
+<pre><code>public void startServer() {
+    try {
+        System.out.println(&quot;HelloWorld TNonblockingServer start ....&quot;);
+
+        TProcessor tprocessor = new HelloWorldService.Processor&lt;HelloWorldService.Iface&gt;(new HelloWorldImpl());
+
+        TNonblockingServerSocket tnbSocketTransport = new TNonblockingServerSocket(SERVER_PORT);
+        TNonblockingServer.Args tnbArgs = new TNonblockingServer.Args(tnbSocketTransport);
+        tnbArgs.processor(tprocessor);
+        tnbArgs.transportFactory(new TFramedTransport.Factory());
+        tnbArgs.protocolFactory(new TCompactProtocol.Factory());
+
+        // 使用非阻塞式IO，服务端和客户端需要指定TFramedTransport数据传输的方式
+        TServer server = new TNonblockingServer(tnbArgs);
+        server.serve();
+
+    } catch (Exception e) {
+        System.out.println(&quot;Server start error!!!&quot;);
+        e.printStackTrace();
+    }
+}
+
+/**
+ * @param args
+ */
+public static void main(String[] args) {
+    HelloServerDemo5 server = new HelloServerDemo5();
+    server.startServer();
+}
+</code></pre><p>}<br>复制代码<br>编写客户端Client代码：HelloAsynClientDemo.java</p>
+<p>复制代码<br>package com.dxz.thrift.demo;</p>
+<p>import java.util.concurrent.CountDownLatch;<br>import java.util.concurrent.TimeUnit;</p>
+<p>import org.apache.thrift.TException;<br>import org.apache.thrift.async.AsyncMethodCallback;<br>import org.apache.thrift.async.TAsyncClientManager;<br>import org.apache.thrift.protocol.TCompactProtocol;<br>import org.apache.thrift.protocol.TProtocolFactory;<br>import org.apache.thrift.transport.TNonblockingSocket;<br>import org.apache.thrift.transport.TNonblockingTransport;<br>import com.dxz.thrift.demo.HelloWorldService.AsyncClient.sayHello_call;</p>
+<p>public class HelloAsynClientDemo {</p>
+<pre><code>public static final String SERVER_IP = &quot;localhost&quot;;
+public static final int SERVER_PORT = 8090;
+public static final int TIMEOUT = 30000;
+
+public void startClient(String userName) {
+    try {
+        TAsyncClientManager clientManager = new TAsyncClientManager();
+        TNonblockingTransport transport = new TNonblockingSocket(SERVER_IP, SERVER_PORT, TIMEOUT);
+
+        TProtocolFactory tprotocol = new TCompactProtocol.Factory();
+        HelloWorldService.AsyncClient asyncClient = new HelloWorldService.AsyncClient(tprotocol, clientManager,
+                transport);
+        System.out.println(&quot;Client start .....&quot;);
+
+        CountDownLatch latch = new CountDownLatch(1);
+        AsynCallback callBack = new AsynCallback(latch);
+        System.out.println(&quot;call method sayHello start ...&quot;);
+        asyncClient.sayHello(userName, callBack);
+        System.out.println(&quot;call method sayHello .... end&quot;);
+        boolean wait = latch.await(30, TimeUnit.SECONDS);
+        System.out.println(&quot;latch.await =:&quot; + wait);
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    System.out.println(&quot;startClient end.&quot;);
+}
+
+public class AsynCallback implements AsyncMethodCallback&lt;sayHello_call&gt; {
+    private CountDownLatch latch;
+
+    public AsynCallback(CountDownLatch latch) {
+        this.latch = latch;
+    }
+
+    @Override
+    public void onComplete(sayHello_call response) {
+        System.out.println(&quot;onComplete&quot;);
+        try {
+            // Thread.sleep(1000L * 1);
+            System.out.println(&quot;AsynCall result =:&quot; + response.getResult().toString());
+        } catch (TException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            latch.countDown();
+        }
+    }
+
+    @Override
+    public void onError(Exception exception) {
+        System.out.println(&quot;onError :&quot; + exception.getMessage());
+        latch.countDown();
+    }
+}
+
+/**
+ * @param args
+ */
+public static void main(String[] args) {
+    HelloAsynClientDemo client = new HelloAsynClientDemo();
+    client.startClient(&quot;HelloAsynClientDemo&quot;);
+
+}
+</code></pre><p>}<br>复制代码<br>先运行服务程序，再运行客户端程序，测试结果如下：</p>
+<p>复制代码<br>Client start …..<br>call method sayHello start …<br>call method sayHello …. end<br>onComplete<br>AsynCall result =:Hi,HelloAsynClientDemo welcome to thrift world.<br>latch.await =:true<br>startClient end.<br>复制代码</p>
+<p>分类: rpc<br>标签: rpc, thrift<br>好文要顶 关注我 收藏该文<br>duanxz<br>关注 - 18<br>粉丝 - 154<br>+加关注<br>1 0<br>« 上一篇：Linux vmstat命令–监控CPU 性能分析<br>» 下一篇：Apache Thrift学习之二（基础及原理）<br>posted on 2016-10-30 13:42 duanxz 阅读(663) 评论(0) 编辑 收藏<br>刷新评论刷新页面返回顶部<br>注册用户登录后才能发表评论，请 登录 或 注册，访问网站首页。<br>【推荐】50万行VC++源码: 大型组态工控、电力仿真CAD与GIS源码库<br>【抢】大学生专享｜9.9元即刻拥有一台云服务器</p>
+<p>最新IT新闻:<br>· 苹果欲收购东芝闪存 自己把控闪存的技术了<br>· Facebook等19个组织（个人）斥资1400万美元支持新闻诚信<br>· 华为：去年研发支出764亿元 超过国内友商研发费总和<br>· 李开复说以后人们都不用买车了 蔚来汽车创始人“反驳”<br>· HBaseCon West 2017开幕在即，Apache HBase开发者别错过<br>» 更多新闻…</p>
+<p>最新知识库文章:<br>· 马拉松式学习与技术人员的成长性<br>· 程序员的“认知失调”<br>· 为什么有的人工作多年还是老样子<br>· 也许，这样理解HTTPS更容易<br>· 程序员学习能力提升三要素<br>» 更多知识库文章…<br>历史上的今天:<br>2012-10-30 Guava 1.5-Throwables：简化异常和错误的传播与检查<br>2012-10-30 常用 Java 静态代码分析工具的分析与比较<br>2012-10-30 Guava学习笔记：Google Guava 类库简介<br>昵称：duanxz<br>园龄：6年<br>粉丝：154<br>关注：18<br>+加关注<br>&lt;   2017年4月 &gt;<br>日   一   二   三   四   五   六<br>26  27  28  29  30  31  1<br>2   3   4   5   6   7   8<br>9   10  11  12  13  14  15<br>16  17  18  19  20  21  22<br>23  24  25  26  27  28  29<br>30  1   2   3   4   5   6</p>
+<p>搜索</p>
+<p> 找找看</p>
+<p> 谷歌搜索<br>常用链接</p>
+<p>我的随笔<br>我的评论<br>我的参与<br>最新评论<br>我的标签<br>我的标签</p>
+<p>mysql(110)<br>linux命令(83)<br>多线程(81)<br>spring(74)<br>JVM虚拟机(72)<br>cache(57)<br>linux(47)<br>mybatis(41)<br>DB基础(40)<br>pattern(38)<br>更多<br>随笔分类</p>
+<p>high-concurrence(3)<br>log4j源码分析<br>alibaba(17)<br>Android(1)<br>android基础(4)<br>android-界面(28)<br>android开源库应用(3)<br>annotation(2)<br>Application Server(39)<br>app-server管理与优化(4)<br>Architecture(41)<br>axis2(3)<br>build(20)<br>cache(60)<br>configuration-center(2)<br>CXF(12)<br>db操作(5)<br>DB基础(25)<br>design discipline(11)<br>distributed(61)<br>doc(3)<br>dubbo(9)<br>eclipse(23)<br>effective java笔记(8)<br>Ehcache(2)<br>environment(2)<br>ETL(10)<br>flume(1)<br>ftp(9)<br>hadoop-hbase(18)<br>hibernate(1)<br>HSQLDB(5)<br>http(9)<br>interceptor&amp;filter(5)<br>IT(2)<br>J2EE(6)<br>J2EE核心模式(2)<br>java(43)<br>java8(13)<br>java-advanced(22)<br>java-annotation(12)<br>java-basis(15)<br>java-collection(27)<br>java-enum&amp;generic(5)<br>java-exception(8)<br>javascript(27)<br>java加密与安全(10)<br>java理论知识(3)<br>java优化(17)<br>jdk命令(20)<br>Jetty(8)<br>JMS(5)<br>JMX(6)<br>JNI(5)<br>jquery(3)<br>js+css(10)<br>JSON(11)<br>juc(14)<br>junit(4)<br>jvm-monitor(29)<br>JVM虚拟机(75)<br>kafka(14)<br>linux(58)<br>linux tool(11)<br>linux命令(78)<br>linux文件和目录管理(18)<br>linux系统配置(8)<br>linux性能分析(21)<br>load-balance(11)<br>lock(22)<br>log4j(14)<br>message-queue(10)<br>middleware(2)<br>MongoDB(16)<br>monitor(33)<br>mybatis(43)<br>mysql(103)<br>mysqlSQL应用(3)<br>mysql安全<br>mysql触发器(1)<br>mysql存储过程函数事件(5)<br>mysql分区(4)<br>mysql关键字(4)<br>mysql函数(11)<br>mysql环境与运维(2)<br>mysql基础(10)<br>mysql架构(7)<br>mysql配置及管理(9)<br>mysql日志(7)<br>mysql事物和锁(6)<br>mysql索引(5)<br>mysql优化(22)<br>nginx(33)<br>NoSQL(27)<br>OAUTH2.0(4)<br>offheap(11)<br>open source(4)<br>operation(31)<br>optimize(32)<br>oracle(1)<br>pattern(38)<br>php(12)<br>phpMVC,Yii(19)<br>powerdesigner(3)<br>realtimecomputation(1)<br>RESTful(16)<br>restlet(4)<br>rpc(8)<br>scala(5)<br>script(14)<br>search(21)<br>serialization(7)<br>servlet(5)<br>SOA(2)<br>socket(4)<br>spark(27)<br>spring(33)<br>spring aop(2)<br>springboot(2)<br>springMVC(13)<br>spring学习笔记(16)<br>spring原理(12)<br>SQL(7)<br>sql优化(19)<br>Sqoop<br>Storm(15)<br>struts1(11)<br>struts2(10)<br>temp(2)<br>testing(19)<br>threadpool(8)<br>tomcat(12)<br>tools(7)<br>ubuntu(12)<br>UML(12)<br>validator(6)<br>web(11)<br>webService(15)<br>work(1)<br>xml解析(12)<br>zookeeper(21)<br>安全(31)<br>大数据(13)<br>调试技巧(2)<br>多线程(81)<br>分布式事务(4)<br>工具类库(19)<br>关注经济(3)<br>函数式编程(1)<br>集群-架构(18)<br>建模(1)<br>开源包使用(4)<br>开源组件(22)<br>面试题(26)<br>日志(8)<br>软件质量(9)<br>设计开发(2)<br>事件定时器(3)<br>算法(11)<br>索引(8)<br>网络编程(20)<br>网络通信(25)<br>微信(5)<br>项目管理(7)<br>性能分析及调优(17)<br>序列化框架(7)<br>移动开发(1)<br>源码(4)<br>孕妇营养(3)<br>杂七杂八(2)<br>随笔档案</p>
+<p>2017年3月 (15)<br>2017年2月 (2)<br>2017年1月 (21)<br>2016年12月 (7)<br>2016年11月 (60)<br>2016年10月 (10)<br>2016年9月 (1)<br>2016年8月 (2)<br>2016年6月 (6)<br>2016年5月 (25)<br>2016年4月 (53)<br>2016年3月 (37)<br>2016年2月 (39)<br>2016年1月 (141)<br>2015年12月 (98)<br>2015年11月 (35)<br>2015年10月 (73)<br>2015年9月 (12)<br>2015年8月 (107)<br>2015年7月 (28)<br>2015年6月 (7)<br>2015年5月 (75)<br>2015年4月 (51)<br>2015年3月 (32)<br>2015年2月 (12)<br>2015年1月 (10)<br>2014年12月 (4)<br>2014年11月 (19)<br>2014年10月 (9)<br>2014年9月 (25)<br>2014年8月 (2)<br>2014年6月 (60)<br>2014年5月 (36)<br>2014年4月 (21)<br>2014年3月 (54)<br>2014年2月 (49)<br>2014年1月 (48)<br>2013年12月 (57)<br>2013年11月 (26)<br>2013年10月 (9)<br>2013年9月 (5)<br>2013年8月 (6)<br>2013年7月 (19)<br>2013年6月 (32)<br>2013年5月 (15)<br>2013年4月 (9)<br>2013年3月 (13)<br>2013年2月 (17)<br>2013年1月 (35)<br>2012年12月 (39)<br>2012年11月 (45)<br>2012年10月 (55)<br>2012年9月 (17)<br>2012年8月 (45)<br>2012年7月 (29)<br>2012年6月 (19)<br>2012年5月 (9)<br>文章分类</p>
+<p>cloud(1)<br>mysql(1)<br>web(1)<br>最新评论</p>
+<ol>
+<li>Re:UML类图符号 各种关系说明以及举例<br>看了很多文章都是华而不实,重点都讲不到,这篇文章不错<br>–花溪的小石头</li>
+<li>Re:Jenkins<br>加入CCNET/Jenkins自动构建部署QQ群一起讨论吧： 190402937<br>–EasonJim</li>
+<li>Re:powerdesigner中将表的name在生成建表sql时生成注释<br>您好，看了您写的有点不明白，可以请教下您吗？<br>–xiakang</li>
+<li>Re:MYSQL一次性能优化实战经历[转]<br>mark<br>–幻空城</li>
+<li>Re:Android ListView从网络获取图片及文字显示<br>你好，我想请问下？如果是的话是怎么弄出来的呀<br>–Nicolellu</li>
+<li>Re:java多线程<br>那个。。大神 我能问一下如果不用static怎么样把所共享吗<br>–CheNbXxx</li>
+<li>Re:WebView介绍<br>你好， 问一下，使用webView进行自动登录时存在问题。请教一下，需要做什么设置吗？<br>–问知</li>
+<li>Re:log4j不同级别日志分不同文件记录<br>我用log4j.properties配置时,重写了RollingFileAppender的isAsSevereAsThreshold方法，是可以输出指定级别的日志，不过显得不太方便。<br>–java小飞侠</li>
+<li>Re:XA事务处理<br>XA Transactions<br>–Angkor–:–</li>
+<li>Re:java8 集合流式操作<br>前辈，您好，想问您个问题，希望您空闲的时候能回答一下。filter()方法在Stream接口里面，它没有方法体，只是传了一个函数式接口的参数，那个函数式接口要实现test()方法，该方法返回一个boo……<br>–naadp</li>
+<li>Re:Nginx、SSL双向认证、PHP、SOAP、Webservice、https<br>您好，SSL双向认证有没有demo可以参考？<br>–wng</li>
+<li>Re:消息推送技术<br>web实时推送技术使用越来越广泛，但是自己开发又太麻烦了，我觉得没有那个必要，GoEasy就挺不错的，服务器稳定，代码简洁易懂；官网:<br>–EmmaGong</li>
+<li>Re:eclipse中svn插件的安装与使用<br>Mark，:)<br>–xiaochou</li>
+<li>Re:memcache分布式部署的原理分析<br>@duanxz谢谢，我在网上找了一下，.Net方面的客户端，找到一个sourceforge.net的memcacheddotnetclient 似乎不是很全，比如群聚似乎没有一致性哈希，已经我想动态的……<br>–profangong</li>
+<li>Re:memcache分布式部署的原理分析<br>@profangong严格说是memcache客户端内部实现的，业务代码可以不用关注节点路由相关的事情。…<br>–duanxz</li>
+<li>Re:memcache分布式部署的原理分析<br>请问个问题，set(‘tokyo’，data); 这句是memcache是根据自己的算法来定位到某个服务器节点上的吗？ 我意思是计算key得到哈希值，然后根据哈希值来定位服务器节点。。。这个过程是me……<br>–profangong</li>
+<li>Re:几种ESB（企业服务总线）介绍<br>请问哪几种流行一些？？或者使用范围是什么呢？<br>–愤怒的辣椒</li>
+<li>Re:Checked Exception与Runtime Exception 的区别<br>写的还可以<br>–fairy1674</li>
+<li>Re:Nginx 反向代理、负载均衡、页面缓存、URL重写及读写分离详解<br>写的挺好,可是<br>图片都挂了….<br>–蚕豆</li>
+<li>Re:Yii 实现MySQL多库和读写分离<br>谁然看的不是很懂，但是还是很赞！！<br>–miketwais</li>
+<li>Re:三、深入Jetty源码分析<br>你好！请教下我准备搭建Java Web应用程序的开发环境，安装了JDK, Eclipse和JBoss,我还需要安装Jetty吗？如何安装配置呢？<br>–风影极光</li>
+<li>Re:UML类图符号 各种关系说明以及举例<br>还没怎么大量浏览UML相关的文章，但是这篇文章看起来的确是比较舒服的。博主幸苦了。<br>–Think_Jumper</li>
+<li>Re:使用Visual VM监控运行时的项目<br>这么好的文章居然没有人顶。</li>
+</ol>
+<p>好文章一定要赞！<br>–友人M</p>
+<ol>
+<li>Re:UML类图符号 各种关系说明以及举例<br>好文章<br>–helong</li>
+<li><p>Re:【Android】Handler应用（三）：从服务器端分页加载更新ListView<br>d百度搜索d商务轻骑兵营销软件d网商d必备d工具d<br>–vxagqz0968<br>阅读排行榜</p>
+</li>
+<li><p>UML类图符号 各种关系说明以及举例(41154)</p>
+</li>
+<li>JSONArray数据转换成java List(30000)</li>
+<li>eclipse中svn插件的安装与使用(7326)</li>
+<li>JAVA中线程同步的方法（7种）汇总(5451)</li>
+<li><p>spring容器启动的三种方式(5285)<br>评论排行榜</p>
+</li>
+<li><p>UML类图符号 各种关系说明以及举例(7)</p>
+</li>
+<li>memcache分布式部署的原理分析(3)</li>
+<li>单例—被废弃的DCL双重检查加锁(3)</li>
+<li>mysql show processlist命令 详解??(2)</li>
+<li><p>yii 操作session和cookie(2)<br>推荐排行榜</p>
+</li>
+<li><p>UML类图符号 各种关系说明以及举例(15)</p>
+</li>
+<li>慢日志之一：开启mysql慢查询日志并使用mysqldumpslow命令查看，分析诊断工具之四(3)</li>
+<li>eclipse中svn插件的安装与使用(3)</li>
+<li>Eclipse中如何修改SVN的地址(1)</li>
+<li>慢日志之二:ERROR 1146 (42S02): Table ‘mysql.slow_log’ doesn’t exist,分析诊断工具之四(1)</li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/facebook/" rel="tag"># facebook</a>
+          
+            <a href="/tags/Thrift/" rel="tag"># Thrift</a>
+          
+            <a href="/tags/RPC/" rel="tag"># RPC</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/04/03/thriff/facebook的thriff_基于rpc的远程调用实现/" rel="next" title="facebook的thriff 基于rpc的远程调用实现">
+                <i class="fa fa-chevron-left"></i> facebook的thriff 基于rpc的远程调用实现
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="hypercomments_widget"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="技术随手记" />
+          <p class="site-author-name" itemprop="name">技术随手记</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+           
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">32</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">26</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">31</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、概述"><span class="nav-number">1.</span> <span class="nav-text">一、概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、下载配置"><span class="nav-number">2.</span> <span class="nav-text">二、下载配置</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">技术随手记</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+		<script type="text/javascript">
+		_hcwp = window._hcwp || [];
+
+		_hcwp.push({widget:"Bloggerstream", widget_id: 89144, selector:".hc-comment-count", label: "{\%COUNT%\}" });
+
+		
+		_hcwp.push({widget:"Stream", widget_id: 89144, xid: "2017/04/03/thrift/Apache_Thrift学习之一（入门及Java实例演示）/"});
+		
+
+		(function() {
+		if("HC_LOAD_INIT" in window)return;
+		HC_LOAD_INIT = true;
+		var lang = (navigator.language || navigator.systemLanguage || navigator.userLanguage || "en").substr(0, 2).toLowerCase();
+		var hcc = document.createElement("script"); hcc.type = "text/javascript"; hcc.async = true;
+		hcc.src = ("https:" == document.location.protocol ? "https" : "http")+"://w.hypercomments.com/widget/hc/89144/"+lang+"/widget.js";
+		var s = document.getElementsByTagName("script")[0];
+		s.parentNode.insertBefore(hcc, s.nextSibling);
+		})();
+		</script>
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
