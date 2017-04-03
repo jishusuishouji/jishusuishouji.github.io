@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://jishusuishouji.github.io/2017/04/02/redis/%E5%85%A8%E9%9D%A2%E5%89%96%E6%9E%90Redis_Cluster%E5%8E%9F%E7%90%86%E5%92%8C%E5%BA%94%E7%94%A8/</loc>
+    
+    <lastmod>2017-04-02T16:04:03.246Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://jishusuishouji.github.io/2017/03/30/hibernate/Hibernate%E7%BC%93%E5%AD%98_%E6%9F%A5%E8%AF%A2%E7%BC%93%E5%AD%98/</loc>
     
     <lastmod>2017-03-30T05:59:23.196Z</lastmod>
