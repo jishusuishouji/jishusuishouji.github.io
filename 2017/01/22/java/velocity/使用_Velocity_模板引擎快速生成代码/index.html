@@ -1,4 +1,387 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="java,ruby,python,scala,sql,db,并发,协程"><title>使用 Velocity 模板引擎快速生成代码 | 技术随手记</title><link rel="stylesheet" type="text/css" href="//fonts.css.network/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/css/style.css?v=1.2.0"><link rel="stylesheet" type="text/css" href="/css/highlight.css?v=1.2.0"><link rel="Shortcut Icon" href="/favicon.ico"><link rel="bookmark" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">使用 Velocity 模板引擎快速生成代码</h1><a id="logo" href="/.">技术随手记</a><p class="description"></p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">使用 Velocity 模板引擎快速生成代码</h1><div class="post-meta">Jan 22, 2017<span> | </span><span class="category"><a href="/categories/Velocity/">Velocity</a></span><script src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js" async></script><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> Hits</span></span></div><a data-thread-key="2017/01/22/java/velocity/使用_Velocity_模板引擎快速生成代码/" href="/2017/01/22/java/velocity/使用_Velocity_模板引擎快速生成代码/#comments" class="ds-thread-count"></a><div class="post-content"><h2 id="Velocity-模板引擎介绍"><a href="#Velocity-模板引擎介绍" class="headerlink" title="Velocity 模板引擎介绍"></a>Velocity 模板引擎介绍</h2><p>在现今的软件开发过程中，软件开发人员将更多的精力投入在了重复的相似劳动中。特别是在如今特别流行的MVC架构模式中，软件各个层次的功能更加独立，同时代码的相似度也更加高。所以我们需要寻找一种来减少软件开发人员重复劳动的方法，让程序员将更多的精力放在业务逻辑以及其他更加具有创造力的工作上。Velocity这个模板引擎就可以在一定程度上解决这个问题。<br>Velocity是一个基于Java的模板引擎框架，提供的模板语言可以使用在Java中定义的对象和变量上。Velocity是Apache基金会的项目，开发的目标是分离MVC模式中的持久化层和业务层。但是在实际应用过程中，Velocity不仅仅被用在了MVC的架构中，还可以被用在以下一些场景中。</p>
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Velocity," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="技术随手记" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="使用 Velocity 模板引擎快速生成代码">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用 Velocity 模板引擎快速生成代码">
+<meta property="og:url" content="http://jishusuishouji.github.io/2017/01/22/java/velocity/使用_Velocity_模板引擎快速生成代码/index.html">
+<meta property="og:site_name" content="技术随手记">
+<meta property="og:description" content="使用 Velocity 模板引擎快速生成代码">
+<meta property="og:updated_time" content="2017-01-24T01:04:31.480Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用 Velocity 模板引擎快速生成代码">
+<meta name="twitter:description" content="使用 Velocity 模板引擎快速生成代码">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://jishusuishouji.github.io/2017/01/22/java/velocity/使用_Velocity_模板引擎快速生成代码/"/>
+
+
+
+
+
+  <title> 使用 Velocity 模板引擎快速生成代码 | 技术随手记 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">技术随手记</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Startseite
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Kategorien
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            Über
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archiv
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://jishusuishouji.github.io/2017/01/22/java/velocity/使用_Velocity_模板引擎快速生成代码/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="技术随手记">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="技术随手记">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+            
+            
+              
+                使用 Velocity 模板引擎快速生成代码
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Veröffentlicht am</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-01-22T07:35:11+08:00">
+                2017-01-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">in</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Velocity/" itemprop="url" rel="index">
+                    <span itemprop="name">Velocity</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            <!--noindex-->
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/01/22/java/velocity/使用_Velocity_模板引擎快速生成代码/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count hc-comment-count" data-xid="2017/01/22/java/velocity/使用_Velocity_模板引擎快速生成代码/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+              <!--/noindex-->
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  使用 Velocity 模板引擎快速生成代码
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="Velocity-模板引擎介绍"><a href="#Velocity-模板引擎介绍" class="headerlink" title="Velocity 模板引擎介绍"></a>Velocity 模板引擎介绍</h2><p>在现今的软件开发过程中，软件开发人员将更多的精力投入在了重复的相似劳动中。特别是在如今特别流行的MVC架构模式中，软件各个层次的功能更加独立，同时代码的相似度也更加高。所以我们需要寻找一种来减少软件开发人员重复劳动的方法，让程序员将更多的精力放在业务逻辑以及其他更加具有创造力的工作上。Velocity这个模板引擎就可以在一定程度上解决这个问题。<br>Velocity是一个基于Java的模板引擎框架，提供的模板语言可以使用在Java中定义的对象和变量上。Velocity是Apache基金会的项目，开发的目标是分离MVC模式中的持久化层和业务层。但是在实际应用过程中，Velocity不仅仅被用在了MVC的架构中，还可以被用在以下一些场景中。</p>
 <p>1.Web应用：开发者在不使用JSP的情况下，可以用Velocity让HTML具有动态内容的特性。<br>2.源代码生成：Velocity可以被用来生成Java代码、SQL或者PostScript。有很多开源和商业开发的软件是使用Velocity来开发的。<br>3.自动Email：很多软件的用户注册、密码提醒或者报表都是使用Velocity来自动生成的。使用Velocity可以在文本文件里面生成邮件内容，而不是在Java代码中拼接字符串。<br>4.转换xml：Velocity提供一个叫 Anakia 的ant任务，可以读取XML文件并让它能够被 Velocity模板读取。一个比较普遍的应用是将xdoc文档转换成带样式的HTML文件。</p>
 <h2 id="Hello-Velocity"><a href="#Hello-Velocity" class="headerlink" title="Hello Velocity"></a>Hello Velocity</h2><p>和学习所有新的语言或者框架的顺序一样，我们从Hello Velocity开始学习。首先在Velocity的官网上下载最新的发布包，之后使用Eclipse建立普通的Java项目。引入解压包中的 velocity-1.7.jar和lib文件夹下面的jar包。这样我们就可以在项目中使用Velocity了。<br>在做完上面的准备工作之后，就可以新建一个叫<code>HelloVelocity</code>的类，代码如下：</p>
 <h3 id="清单-1-HelloVelocity-java"><a href="#清单-1-HelloVelocity-java" class="headerlink" title="清单 1. HelloVelocity.java"></a>清单 1. HelloVelocity.java</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">public class HelloVelocity &#123;</div><div class="line"> public static void main(String[] args) &#123;</div><div class="line"> VelocityEngine ve = new VelocityEngine();</div><div class="line"> ve.setProperty(RuntimeConstants.RESOURCE_LOADER, &quot;classpath&quot;);</div><div class="line"> ve.setProperty(&quot;classpath.resource.loader.class&quot;, ClasspathResourceLoader.class.getName());</div><div class="line"> </div><div class="line"> ve.init();</div><div class="line"> </div><div class="line"> Template t = ve.getTemplate(&quot;hellovelocity.vm&quot;);</div><div class="line"> VelocityContext ctx = new VelocityContext();</div><div class="line"> </div><div class="line"> ctx.put(&quot;name&quot;, &quot;velocity&quot;);</div><div class="line"> ctx.put(&quot;date&quot;, (new Date()).toString());</div><div class="line"> </div><div class="line"> List temp = new ArrayList();</div><div class="line"> temp.add(&quot;1&quot;);</div><div class="line"> temp.add(&quot;2&quot;);</div><div class="line"> ctx.put(&quot;list&quot;, temp);</div><div class="line"> </div><div class="line"> StringWriter sw = new StringWriter();</div><div class="line"> </div><div class="line"> t.merge(ctx, sw);</div><div class="line"> </div><div class="line"> System.out.println(sw.toString());</div><div class="line"> &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
@@ -31,12 +414,379 @@
 <p> ve.init();<br> Template actionTpt = ve.getTemplate(“ActionTemplate.vm”);<br> Template listJspTpt = ve.getTemplate(“ListJspTemplate.vm”);<br> Template addTpt = ve.getTemplate(“AddTemplate.vm”);<br> Template modifyTpt = ve.getTemplate(“ModifyTemplate.vm”);<br> VelocityContext ctx = new VelocityContext();</p>
 <p> ctx.put(“classNameLowCase”, “teacher”);<br> ctx.put(“classNameUpCase”, “Teacher”);<br> String[][] attrs = {<br> {“Integer”,”id”},<br> {“String”,”name”},<br> {“String”,”serializeNo”},<br> {“String”,”titile”},<br> {“String”,”subject”}<br> };<br> ctx.put(“attrs”, attrs);<br> String rootPath = VelocityGenerator.class.getClassLoader().getResource(“”).getFile() + “../../src/main”;<br> merge(actionTpt,ctx,rootPath+”/java/com/liuxiang/velocity/action/TeacherAction.java”);<br> merge(listJspTpt,ctx,rootPath+”/webapp/teacherList.jsp”);<br> merge(addTpt,ctx,rootPath+”/webapp/teacherAdd.jsp”);<br> merge(modifyTpt,ctx,rootPath+”/webapp/teacherModify.jsp”);<br> System.out.println(“success…”);<br> }</p>
 <p> private static void merge(Template template, VelocityContext ctx, String path) {<br> PrintWriter writer = null;<br> try {<br> writer = new PrintWriter(path);<br> template.merge(ctx, writer);<br> writer.flush();<br> } catch (FileNotFoundException e) {<br> e.printStackTrace();<br> } finally {<br> writer.close();<br> }<br> }<br>}<br>在运行以上代码之后，项目文件夹中将会出现与 Teacher 相关的代码文件。<br>在实际项目中可能不会出现很多这种单张表维护的情况，而且业务逻辑和系统架构会更加复杂，编写模板文件就更加不容易。但是无论多复杂的系统，不同的业务逻辑之间一定或多或少会有相似的代码，特别是在 JSP 和 JS 显示端文件中，因为我们在一个系统中要求显示风格、操作方式一致的时候就免不了会有相似内容的代码出现。在总结这些相似性之后我们还是可以使用 Velocity 来帮助我们生成部分内容的代码，而且即使有一些非共性的内容，我们也可以在生成的代码中继续修改。使用 Velocity 的另外一个好处是生成出来的代码更好维护，风格更加统一。<br>回页首<br>结束语<br>Velocity 可以被应用在各种各样的情景下，本文介绍的只是它的一种用途而已，它还可以被用来做 MVC 结构中的 view 层，或者动态内容静态化等。另外，Velocity 并不是唯一的模板框架，同样很优秀的 Freemarker 也获得了非常广泛的应用，有兴趣的读者可以去深入研究更多的功能和用途。</p>
-</div><div class="tags"><a href="/tags/Velocity/">Velocity</a></div><div class="post-nav"><a href="/2017/01/25/xunihua/VAGRANT_和_Docker的使用场景和区别_/" class="pre">VAGRANT 和 Docker的使用场景和区别?</a><a href="/2017/01/17/spring/Spring中提示元素__ref__中不允许出现属性__local_/" class="next">Spring中提示元素 'ref' 中不允许出现属性 'local'</a></div><div data-thread-key="2017/01/22/java/velocity/使用_Velocity_模板引擎快速生成代码/" data-title="使用 Velocity 模板引擎快速生成代码" data-url="http://jishusuishouji.github.io/2017/01/22/java/velocity/使用_Velocity_模板引擎快速生成代码/" class="ds-share flat"><div class="ds-share-inline"><ul class="ds-share-icons-16"><li data-toggle="ds-share-icons-more"><a href="javascript:void(0);" class="ds-more">分享到:</a></li><li><a href="javascript:void(0);" data-service="weibo" class="ds-weibo">微博</a></li><li><a href="javascript:void(0);" data-service="qzone" class="ds-qzone">QQ空间</a></li><li><a href="javascript:void(0);" data-service="qqt" class="ds-qqt">腾讯微博</a></li><li><a href="javascript:void(0);" data-service="wechat" class="ds-wechat">微信</a></li></ul><div class="ds-share-icons-more"></div></div></div><div data-thread-key="2017/01/22/java/velocity/使用_Velocity_模板引擎快速生成代码/" data-title="使用 Velocity 模板引擎快速生成代码" data-url="http://jishusuishouji.github.io/2017/01/22/java/velocity/使用_Velocity_模板引擎快速生成代码/" data-author-key="1" class="ds-thread"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="widget"><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="请输入关键字..."/></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div class="widget"><div class="widget-title"><i class="fa fa-gui"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Druid/">Druid</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Log4j/">Log4j</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MongoDB/">MongoDB</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Nginx/">Nginx</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ORM/">ORM</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/RPC/">RPC</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/RPC/thriff/">thriff</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Velocity/">Velocity</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ZooKeeper/">ZooKeeper</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/druid/">druid</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/hexo/">hexo</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/hibernate/">hibernate</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/java/">java</a><span class="category-list-count">4</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/java/jta/">jta</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/java/spring/">spring</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/maven/">maven</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/mongodb/">mongodb</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/mysql/">mysql</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/nodejs/">nodejs</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/spring/">spring</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/函数式编程/">函数式编程</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/架构/">架构</a><span class="category-list-count">1</span></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/tags/Redis/" style="font-size: 15px;">Redis</a> <a href="/tags/ORM/" style="font-size: 15px;">ORM</a> <a href="/tags/Log4j/" style="font-size: 15px;">Log4j</a> <a href="/tags/druid/" style="font-size: 15px;">druid</a> <a href="/tags/函数式编程/" style="font-size: 15px;">函数式编程</a> <a href="/tags/hibernate/" style="font-size: 15px;">hibernate</a> <a href="/tags/hexo/" style="font-size: 15px;">hexo</a> <a href="/tags/架构/" style="font-size: 15px;">架构</a> <a href="/tags/maven/" style="font-size: 15px;">maven</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/MongoDB/" style="font-size: 15px;">MongoDB</a> <a href="/tags/mongodb/" style="font-size: 15px;">mongodb</a> <a href="/tags/Nginx/" style="font-size: 15px;">Nginx</a> <a href="/tags/nodejs/" style="font-size: 15px;">nodejs</a> <a href="/tags/Druid/" style="font-size: 15px;">Druid</a> <a href="/tags/redis/" style="font-size: 15px;">redis</a> <a href="/tags/spring/" style="font-size: 15px;">spring</a> <a href="/tags/thriff/" style="font-size: 15px;">thriff</a> <a href="/tags/rpc/" style="font-size: 15px;">rpc</a> <a href="/tags/facebook/" style="font-size: 15px;">facebook</a> <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/ZooKeeper/" style="font-size: 15px;">ZooKeeper</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/jta/" style="font-size: 15px;">jta</a> <a href="/tags/jotm/" style="font-size: 15px;">jotm</a> <a href="/tags/HibernateTemplate/" style="font-size: 15px;">HibernateTemplate</a> <a href="/tags/分布式事务/" style="font-size: 15px;">分布式事务</a> <a href="/tags/atomikos/" style="font-size: 15px;">atomikos</a> <a href="/tags/Velocity/" style="font-size: 15px;">Velocity</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-fei"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">四月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">三月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">一月 2017</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/04/03/thriff/facebook的thriff_基于rpc的远程调用实现/">facebook的thriff 基于rpc的远程调用实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/03/hexo/hexo安装部署/">hexo安装部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/03/redis/Redis_Cluster实现原理/">Redis Cluster实现原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/02/redis/全面剖析Redis_Cluster原理和应用/">全面剖析Redis Cluster原理和应用</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/30/hibernate/Hibernate缓存_查询缓存/">Hibernate缓存 查询缓存</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/30/hibernate/hibernate的查询缓存/">hibernate的查询缓存</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/28/Log4j/Layout_of_Log4j/">Layout of Log4j</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/27/mongodb/MongoDB两阶段提交实现事务/">MongoDB两阶段提交实现事务</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/27/mysql/mysql-Innodb事务隔离级别-repeatable_read详解/">mysql-Innodb事务隔离级别-repeatable read详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/27/mysql/说说MySQL中的事务/">说说MySQL中的事务</a></li></ul></div><div class="widget"><div class="comments-title"><i class="fa fa-commt"> 最近评论</i></div><div data-num-items="5" data-show-avatars="0" data-show-time="1" data-show-admin="0" data-excerpt-length="32" data-show-title="1" class="ds-recent-comments"></div></div></div></div></div><a id="totop" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=1.2.0" async></script><div id="footer"><div class="footer-info"><p><a href="/baidusitemap.xml">网站地图</a> |<a href="/atom.xml">订阅本站</a> |<span>联系博主：<a href="mailto:null" target="_blank" class="fa fa-email"> </a><a href="null" target="_blank" class="fa fa-weibo"></a><a href="null" target="_blank" class="fa fa-github"> </a></span></p><p><span> Copyright &copy;<a href="/." rel="nofollow">技术随手记</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span><span><a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> Theme </a>by<a rel="nofollow" target="_blank" href="https://github.com/chaooo"> Charles.</a></span></p></div></div></div><script>var duoshuoQuery = {short_name:'jishusuishouji'};
-(function() {
-    var ds = document.createElement('script');
-    ds.type = 'text/javascript';ds.async = true;
-    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
-    ds.charset = 'UTF-8';
-    document.getElementsByTagName('body')[0].appendChild(ds);
-})();
-</script><script type="text/javascript" src="/js/search.json.js?v=1.2.0"></script></body></html>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Velocity/" rel="tag"># Velocity</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/01/17/spring/Spring中提示元素__ref__中不允许出现属性__local_/" rel="next" title="Spring中提示元素 'ref' 中不允许出现属性 'local'">
+                <i class="fa fa-chevron-left"></i> Spring中提示元素 'ref' 中不允许出现属性 'local'
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/01/25/xunihua/VAGRANT_和_Docker的使用场景和区别_/" rel="prev" title="VAGRANT 和 Docker的使用场景和区别?">
+                VAGRANT 和 Docker的使用场景和区别? <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="hypercomments_widget"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Inhaltsverzeichnis
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Übersicht
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="技术随手记" />
+          <p class="site-author-name" itemprop="name">技术随手记</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+           
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">31</span>
+                <span class="site-state-item-name">Artikel</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">25</span>
+                <span class="site-state-item-name">Kategorien</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">29</span>
+                <span class="site-state-item-name">Tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Velocity-模板引擎介绍"><span class="nav-number">1.</span> <span class="nav-text">Velocity 模板引擎介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hello-Velocity"><span class="nav-number">2.</span> <span class="nav-text">Hello Velocity</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#清单-1-HelloVelocity-java"><span class="nav-number">2.1.</span> <span class="nav-text">清单 1. HelloVelocity.java</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#清单-2-Hellovelocity-vm"><span class="nav-number">2.2.</span> <span class="nav-text">清单 2. Hellovelocity.vm</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#undefined"><span class="nav-number"></span> <span class="nav-text">${classNameUpCase} List</span></a></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">技术随手记</span>
+</div>
+
+
+<div class="powered-by">
+  Erstellt mit  <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+		<script type="text/javascript">
+		_hcwp = window._hcwp || [];
+
+		_hcwp.push({widget:"Bloggerstream", widget_id: 89144, selector:".hc-comment-count", label: "{\%COUNT%\}" });
+
+		
+		_hcwp.push({widget:"Stream", widget_id: 89144, xid: "2017/01/22/java/velocity/使用_Velocity_模板引擎快速生成代码/"});
+		
+
+		(function() {
+		if("HC_LOAD_INIT" in window)return;
+		HC_LOAD_INIT = true;
+		var lang = (navigator.language || navigator.systemLanguage || navigator.userLanguage || "en").substr(0, 2).toLowerCase();
+		var hcc = document.createElement("script"); hcc.type = "text/javascript"; hcc.async = true;
+		hcc.src = ("https:" == document.location.protocol ? "https" : "http")+"://w.hypercomments.com/widget/hc/89144/"+lang+"/widget.js";
+		var s = document.getElementsByTagName("script")[0];
+		s.parentNode.insertBefore(hcc, s.nextSibling);
+		})();
+		</script>
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
