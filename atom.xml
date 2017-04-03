@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://jishusuishouji.github.io/"/>
-  <updated>2017-04-03T10:04:27.871Z</updated>
+  <updated>2017-04-03T10:52:51.665Z</updated>
   <id>http://jishusuishouji.github.io/</id>
   
   <author>
@@ -16,188 +16,140 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>基于ZooKeeper和Thrift构建动态RPC调用</title>
+    <link href="http://jishusuishouji.github.io/2017/04/03/thrift/%E5%9F%BA%E4%BA%8EZooKeeper%E5%92%8CThrift%E6%9E%84%E5%BB%BA%E5%8A%A8%E6%80%81RPC%E8%B0%83%E7%94%A8/"/>
+    <id>http://jishusuishouji.github.io/2017/04/03/thrift/基于ZooKeeper和Thrift构建动态RPC调用/</id>
+    <published>2017-04-03T10:49:07.000Z</published>
+    <updated>2017-04-03T10:52:51.665Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="一、基本功能"><a href="#一、基本功能" class="headerlink" title="一、基本功能"></a>一、基本功能</h2><p>实现服务端向ZooKeeper集群注册自己提供的服务，并且把自己的IP地址和服务端口创建到具体的服务目录下。客户端向ZooKeeper集群监听自己关注的RPC服务（例如：<code>sayHello</code>和天气服务）， 监听服务目录下的IP地址列表变化。若要在自己的项目中使用，可以采用阿里的Dubbo分布式服务框架。<br>在WEB端展示可以访问的RPC服务，WEB端可以通过RPC客户端向指定IP地址的RPC服务器发出调用RPC服务，RPC服务端向客户端反馈提供的服务内容，WEB客户端展示内容。<br>只是展示动态RPC基本原理，真正的调用一般都不是web端触发的，应该是RPC的客户端根据监听到的多个IP服务提供者，根据每个IP的负载情况，动态选择最优可用的RPC服务端并且调用服务。 </p>
+<p>我们提供2个基本RPC服务，网络及应用部署如图:<br>　　这里写图片描述<br>最终</p>
+<p>二、ZooKeeper介绍</p>
+<p>ZooKeeper是一个开放源代码的分布式应用程序协调服务，由知名互联网公司雅虎创建，是Google的Chubby一个开源的实现，是Hadoop和Hbase的重要组件。 ZooKeeper的目标就是封装好复杂易出错的关键服务，将简单易用的接口和性能高效、功能稳定的系统提供给用户。它是一个为分布式应用提供一致性服务的软件，以下是ZooKeeper典型的应用场景</p>
+<p>数据发布和订阅：就是发布者将数据发布到ZooKeeper的一个或一系列节点上，供订阅者进行数据订阅，进而达到动态获取数据的目的，实现配置信息的集中管理和数据的动态更新。<br>负载均衡：用来对多个计算机、网络连接、CPU、磁盘驱动或其他资源进分配负载，已达到优化资源使用、最大化吞吐率、最下化响应和避免过载。<br>命名服务：命名服务是分布式系统最基本的公共服务之一。在分布式系统中，被命名的实体通常可以就是集群中的机器、提供的服务地址或远程对象等–这些我们都可以统称它们的名称（Name），其中较常见的就是一些分布式服务框架（如RPC、RMI）中的服务地址列表，通过使用命名服务，客户端应用能够指定名字来获取资源的实体、服务地址和提供者的信息。<br>集群管理：随着分布式系统规模的日益扩大，集群中的机器规模也随之变大、因此集群监控与集群控制就变得很重要。<br>分布式锁：分布式锁就是控制分布式系统之间同步访问共享资源的一种方式。在分布式系统中，常常需要协调他们的动作。如果不同的系统或是同一个系统的不同主机之间共享了一个或一组资源，那么访问这些资源的时候，往往需要互斥来防止彼此干扰来保证一致性，在这种情况下，便需要使用到分布式锁。<br>分布式队列：利用Zookeeper的功能我们也可以实现类似于ActiveMQ、Kafka和HornetQ等的消息中间件。<br>三、构建ZooKeeper集群机及RPC服务机</p>
+<p>在Ubuntu 桌面系统下完成，利用Oracle下的虚拟机软件VirtualBox。虚拟出了５个Ubuntu 操作系统，３个 ZooKeeper机，分别是ZooKeeper-1,ZooKeeper-2,ZooKeeper-3个构建出一个 ZooKeeper集群。２各ＲＰＣ服务机，把在宿主机编写好的程序，通过打包的方式，发布到ＲＰＣ服务机的jetty下，提供ＲＰＣ服务 。</p>
+<p>四、配置ZooKeeper</p>
+<p>从官方网站下载后，解压到了虚拟机的/work/目录下，将/work/zookeeper-3.4.8/conf/目录下的zoo_sample.cfg重新复制一份命名位zoo.cfg,打开zoo.cfg文件。　<br>　修改配置文件：</p>
+<pre><code>tickTime=2000    
+ddataDir=/work/data/zookeeper   
+clientPort=2181 
+</code></pre><p>　   Server.1=192.168.0.3:2888:3888<br>     Server.2=192.168.0.4:2888:3888<br>     Server.3=192.168.0.5:2888:3888<br>1<br>2<br>3<br>4<br>5<br>6<br>1<br>2<br>3<br>4<br>5<br>6<br>参数说明:<br>tickTime: zookeeper中使用的基本时间单位, 毫秒值.<br>dataDir: 数据和日志的目录. 可以是任意目录.此处我们配置到了/work/data/zookeeper 目录下<br>　　　　　clientPort: 监听client连接的端口号.<br>　　　　　Server.X=HOST/IP:port:port　<br>　　　　　Server.X ：Ｘ是我们配置zookeeper集群服务每台机子的编号，需要在每台机子的/work/data/zookeeper/下创建myid文件，内容就是机子的编号。</p>
+<p>五、启动、关闭</p>
+<p>切换到/work/zookeeper-3.4.8/bin目录下 </p>
+<ol>
+<li><p>启动<br>./zkServer.sh start</p>
+<p>ZooKeeper JMX enabled by default<br>　　Using config: /work/zookeeper-3.4.8/bin/../conf/zoo.cfg<br>　　Starting zookeeper … STARTED<br>1<br>2<br>3<br>1<br>2<br>3<br>验证<br>./zkCli.sh<br>[zk: localhost:2181(CONNECTED) 0]<br>1<br>1<br>进入ZooKeeper 客户端终端命令就说明ZooKeeper 启动成功了。 </p>
+</li>
+<li><p>关闭<br>./zkServer.sh stop</p>
+<p>ZooKeeper JMX enabled by default<br>　　Using config: /work/tool/zookeeper-3.4.8/bin/../conf/zoo.cfg<br>　　Stopping zookeeper … STOPPED<br>1<br>2<br>3<br>1<br>2<br>3<br>六、利用Thrift提供RPC服务</p>
+</li>
+</ol>
+<p>定义Weather.thrift文件<br>namespace java com.rpc.weather<br>　　　　 　　service weather{<br>    　　string getWeather(1:string city)<br> 　　}　<br>1<br>2<br>3<br>4<br>1<br>2<br>3<br>4<br>生成JAVA文件接口<br>在windows环境下使用 Thrift 工具编译 .thrift文件，就会生成相应的 .java 文件。该文件包含了在 .thrift 文件中描述的服务类的接口定义，即 .Iface 接口，以及服务调用的底层通信细节。命令如下:　thrift.exe -r -gen java 　weather.thrift。该命令会自动生产相应的JAVA文件<br>这里写图片描述<br>gen-java目录就是生成好代码的地方<br>实现RPC接口功能<br>weather的接口实现比较复杂，在这里我们用简单些Hello来说明，道理是一样的。Hello接口的实现： hello只是一个简单的反馈功能，它把客户端传递过来的参数经过简单的组合一起反馈给ＲＰＣ的客户端，本例只是简单展示了一下ＲＰＣ服务处理能力，实现上面已经生产好的Hello.Iface 接口。代码如下：<br>public class HelloServiceImpl implements com.rpc.sayhello.Hello.Iface {<br>    public String helloString(String para) throws TException {<br>        System.out.println(“helloString be calling”);<br>        return “你好:” + para + “,欢迎来到”+GetIP.IP()+”服务器!”;<br>    }<br>}<br>1<br>2<br>3<br>4<br>5<br>6<br>1<br>2<br>3<br>4<br>5<br>6<br>七、RPC服务注册</p>
+<p>我们在ZooKeeper注册了2个服务（2个ZNode节点），分别是sayHello及Weather。用2个IP提供RPC的服务。目录结构如图-：<br>这里写图片描述<br>在Zookeeper的每个节点，都可以分为持久节点和临时节点　持久节点是指一旦这个节点被创建了，除非主动进行删除操作，否则这个节点将一直保存在ＺooKeeper中.而临时节点就不一样了，它的生命周期和客户端回话绑定，一旦客户端回话失效，那么这个客户端创建的所有临时节点都会被移除。ZooKeeper主要是利用了“心跳检测”功能，它会定时向各个服务提供者发送一个请求，如果长期没有响应，服务中心就认为该服务提供者已经“挂了”，并将其剔除。注意临时节点下不可以在创建任何节点。</p>
+<p>注册天气服务的主要代码：</p>
+<p>private void createServerHost()  {<br>        Stat stat = zookeeper.exists(WeatherConstants.RPCNAME + “/“ + GetIP.IP() + “:” + WeatherConstants.WeahterPort,false);//检查节点是否存在<br>        if (stat == null) {<br>　　　　　　// 这里是临时的节点，会因服务器的宕机、网络失效而消失<br>    path = zookeeper.create(WeatherConstants.RPCNAME + “/“ + GetIP.IP() + “:” + 　　WeatherConstants.WeahterPort, “”.getBytes(),Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);//创建节点　<br>        }<br>    }<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>八、RPC客戶端服务监听</p>
+<p>Watcher(事件监听器)，是ZooKeeper的一个很重要的特性。ZooKeeper允许用户在指定的节点上注册一些Watcher，并且在一些特定的事件触发的时候，ZooKeeper服务器会将事件通知到感兴趣的客户端。利用Watcher监听2个服务节点下的IP变化，一旦我们监听的服务下的节点有变化（增加或减少）ZooKeeper就会向我们注册的监听类发送“NodeChildrenChanged”事件，我们就可以在此时更新地址列表变化，从而进行更新。<br>需要注意的是ZooKeeper服务器在向客户端发送Watcher的通知的时候，仅仅只会发出一个通知，而不会把节点的变化情况发送给客户端，客户端需要自己重新获取。另外，由于Watcher通知是一次性的，一旦触发一次通知后，该Watcher就失效了，因此客户端需要反复注册Watcher。</p>
+<p>监听服务列表的变化<br>在监听WatchWeather类内我们定义了一个weatherlist的数组列表，用来存储提供天气的所有ＲＰＣ服务的地址和端口。<br>通过zookeeper.getChildren获取在zookeeper注册的所有提供天气的ＩＰ地址。并且注册了在这个节点下的监听类。</p>
+<p>　　　　weatherlist = zookeeper.getChildren(WeatherConstants.RPCNAME, this);<br>　　　 //在监听的WatchWeather实现Watcher接口的process方法：<br>　　　　public void process(WatchedEvent event) {<br>        if (EventType.NodeChildrenChanged == event.getType()) { 　<br>        　　weatherlist = zookeeper.getChildren(WeatherConstants.RPCNAME, this);<br>　　　　　}  　<br>    }<br>　　<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>只要我们监听的节点下有变动就会接受到NodeChildrenChanged 事件，在这里我们再次获取了节点下的最新ＩＰ地址列表，并且重新注册了监听类。</p>
+<p>九、调用RPC服务</p>
+<p>public class CallWeatherRPC {<br>    public String callWeather(String ip, int port, String city) {<br>        String retString = null;<br>        TTransport transport = new TSocket(ip, port);<br>        transport.open();<br>        TProtocol protocol = new TBinaryProtocol(transport);<br>        weather.Client client = new weather.Client(protocol);//weather为定义接口实现的文件<br>        retString = client.getWeather(city);//调用ＲＰＣ服务<br>        transport.close();<br>        return retString;<br>    }<br>}<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>此处是使用了Thrift的客户端调用RPC服务端的相应程序，主要特点是IP地址不固定，可以有多地址可以调用。</p>
+<p>项目代码地址：<a href="http://pan.baidu.com/s/1i4J0htb" target="_blank" rel="external">http://pan.baidu.com/s/1i4J0htb</a></p>
+<p>顶<br>1</p>
+<p>踩<br>0</p>
+<p>下一篇JDBC-基础<br>参考知识库<br>img<br>Hbase知识库<br>8152关注|68收录<br>img<br>Hadoop知识库<br>6774关注|556收录<br>img<br>Java 知识库<br>24943关注|1456收录<br>img<br>Oracle知识库<br>4736关注|252收录<br>img<br>操作系统知识库<br>5616关注|2210收录<br>img<br>Java SE知识库<br>25214关注|477收录<br>img<br>Java EE知识库<br>17098关注|1273收录<br>猜你在找<br>2017最新Linux集群全网服务器数据备份方案超细实战课Java分布式架构：EJB+消息中间件+CORBA高级Ceph—分布式存储系统的另一个选择高并发集群架构超细精讲Java分布式架构：使用xFire和CXF开发WEB服务<br>基于Spring Boot和Spring Cloud实现微服务架构学习Tumblr150亿月浏览量背后的架构挑战上Tumblr150亿月浏览量背后的架构挑战上微服务Microservice那点事Thrift 个人实战–RPC服务的发布订阅实现基于Zookeeper服务<br>查看评论</p>
+<p>  暂无评论</p>
+<p>发表评论<br>用 户 名：<br>ccssddnnbbookkee<br>评论内容：<br>插入代码</p>
+<p>提交  </p>
+<ul>
+<li>以上用户言论只代表其个人观点，不代表CSDN网站的观点或立场<br>核心技术类目<br>全部主题 Hadoop AWS 移动游戏 Java Android iOS Swift 智能硬件 Docker OpenStack VPN Spark ERP IE10 Eclipse CRM JavaScript 数据库 Ubuntu NFC WAP jQuery BI HTML5 Spring Apache .NET API HTML SDK IIS Fedora XML LBS Unity Splashtop UML components Windows Mobile Rails QEMU KDE Cassandra CloudStack FTC coremail OPhone  CouchBase 云计算 iOS6 Rackspace  Web App SpringSide Maemo Compuware 大数据 aptech Perl Tornado Ruby Hibernate ThinkPHP HBase Pure Solr Angular Cloud Foundry Redis Scala Django Bootstrap<br>个人资料<br>访问我的空间<br>火柴盒zhang</li>
+</ul>
+<p>访问：21694次<br>积分：394<br>等级：<br>排名：千里之外<br>原创：18篇转载：0篇译文：0篇评论：3条<br>文章搜索</p>
+<p> 搜索<br>文章分类<br>JDBC(1)<br>mybatis(13)<br>ZooKeeper(1)<br>Kafka(1)<br>docker(2)<br>文章存档<br>2016年07月(2)<br>2016年06月(1)<br>2016年05月(14)<br>2016年04月(1)<br>阅读排行<br>初识Apache Kafka+JAVA程序实例(6735)<br>基于ZooKeeper和Thrift构建动态RPC调用(3271)<br>MyBatis 入门(一)–建立数据库连接及基本操作(1958)<br>MyBatis 入门(二)–用接口方式访问数据库(1528)<br>MyBatis主流程分析之(三)-准备SQL语句和参数替换、执行(1342)<br>MyBatis主流程分析之(四)-通过反射来设置、获取属性值(1277)<br>DOCKER学习之(一) 镜像部分常用命令(876)<br>MyBatis之databaseIdProvider多数据库支持(741)<br>MyBatis 入门(五)–typeHandlers(715)<br>DOCKER学习之(二) 容器部分常用命令(598)<br>评论排行<br>初识Apache Kafka+JAVA程序实例(2)<br>MyBatis 入门(一)–建立数据库连接及基本操作(1)<br>基于ZooKeeper和Thrift构建动态RPC调用(0)<br>MyBatis Generator代码生成工具及参考文档链接(0)<br>MyBatis 入门(六)–分页查询（2） －插件方式(0)<br>MyBatis 入门(六)–分页查询（1）(0)<br>MyBatis 入门(五)–typeHandlers(0)<br>MyBatis 入门(四)–存储过程(0)<br>DOCKER学习之(二) 容器部分常用命令(0)<br>MyBatis 入门(二)–用接口方式访问数据库(0)<br>推荐文章</p>
+<ul>
+<li>CSDN日报20170402 ——《我希望进入大学时就能知道的一些事儿》</li>
+<li>最全面总结 Android WebView与 JS 的交互方式</li>
+<li>蓝牙DA14580开发：固件格式、二次引导和烧写</li>
+<li>你不知道的 Android WebView 使用漏洞<br>最新评论<br>MyBatis 入门(一)–建立数据库连接及基本操作<br>qq_24744145: 很好，加油<br>初识Apache Kafka+JAVA程序实例<br>thewindkee: 终于懂了些 ， 谢谢<br>初识Apache Kafka+JAVA程序实例<br>风云诀: 不错的文章，谢谢分享，只是文中有个别错别字。<br>公司简介|招贤纳士|广告服务|联系方式|版权声明|法律顾问|问题报告|合作伙伴|论坛反馈<br>网站客服杂志客服微博客服webmaster@csdn.net400-600-2320|北京创新乐知信息技术有限公司 版权所有|江苏知之为计算机有</li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      基于ZooKeeper和Thrift构建动态RPC调用
+    
+    </summary>
+    
+      <category term="分布式" scheme="http://jishusuishouji.github.io/categories/%E5%88%86%E5%B8%83%E5%BC%8F/"/>
+    
+      <category term="RPC" scheme="http://jishusuishouji.github.io/categories/%E5%88%86%E5%B8%83%E5%BC%8F/RPC/"/>
+    
+      <category term="Thrift" scheme="http://jishusuishouji.github.io/categories/%E5%88%86%E5%B8%83%E5%BC%8F/RPC/Thrift/"/>
+    
+    
+      <category term="Thrift" scheme="http://jishusuishouji.github.io/tags/Thrift/"/>
+    
+      <category term="RPC" scheme="http://jishusuishouji.github.io/tags/RPC/"/>
+    
+      <category term="ZoopKeeper" scheme="http://jishusuishouji.github.io/tags/ZoopKeeper/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Apache Thrift学习之一（入门及Java实例演示）</title>
     <link href="http://jishusuishouji.github.io/2017/04/03/thrift/Apache_Thrift%E5%AD%A6%E4%B9%A0%E4%B9%8B%E4%B8%80%EF%BC%88%E5%85%A5%E9%97%A8%E5%8F%8AJava%E5%AE%9E%E4%BE%8B%E6%BC%94%E7%A4%BA%EF%BC%89/"/>
     <id>http://jishusuishouji.github.io/2017/04/03/thrift/Apache_Thrift学习之一（入门及Java实例演示）/</id>
     <published>2017-04-03T09:58:39.000Z</published>
-    <updated>2017-04-03T10:04:27.871Z</updated>
+    <updated>2017-04-03T10:38:28.242Z</updated>
     
     <content type="html"><![CDATA[<h2 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h2><p>Apache Thrift是Facebook实现的一种高效的、支持多种编程语言的远程服务调用的框架。Thrift是由Facebook开发的，并在2008年捐给了Apache基金会，成为了一个孵化器项目。</p>
 <p>Thrift是一个软件框架，用来进行可扩展且跨语言的服务的开发。它结合了功能强大的软件堆栈和代码生成引擎，</p>
 <p>Thrift是一个驱动层接口，它提供了用于客户端使用多种语言实现的API。<br>Thrift是个代码生成库，支持的客户端语言包括C++, Java, Python, PHP, Ruby, Erlang, Perl, Haskell, C#, Cocoa, JavaScript, Node.js, Smalltalk, and OCaml 。它的目标是为了各种流行的语言提供便利的RPC调用机制，而不需要使用那些开销巨大的方式，比如SOAP。</p>
 <p>要使用Thrift，就要使用一个语言中立的服务定义文件，描述数据类型和服务接口。这个文件会被用作引擎的输入，编译器为每种支持的语言生成代码。这种静态生成的设计让它非常容易被开发者所使用，而且因为类型验证都发生在编译期而非运行期，所以代码可以很有效率地运行。</p>
 <p>Thrift的设计提供了以下这些特性：<br>1、语言无关的类型<br>因为类型是使用定义文件按照语言中立的方式规定的，所以它们可以被不同的语言分享。比如，C++的结构可以和Python的字典类型相互交换数据。<br>2、通用传输接口<br>不论你使用的是磁盘文件、内存数据还是socket流，都可以使用同一段应用代码。<br>3、协议无关<br>Thrift会对数据类型进行编码和解码，可以跨协议使用。<br>4、支持版本<br>数据类型可以加入版本信息，来支持客户端API的更新。</p>
-<h2 id="二、下载配置"><a href="#二、下载配置" class="headerlink" title="二、下载配置"></a>二、下载配置</h2><p>1）安装thrift：到thrift官网下载exe文件，然后将文件重命名为thrift.exe,拷贝到D:\EBOOK\thrift目录下(或者任何目录下)，然后就可以在dos环境下使用了</p>
-<p>　　D:\EBOOK\thrift&gt;thrift -gen java D:\work\workspace\thriftworkspace\demo1\demoHello.thrift ，输出的java文件默认输出到当前目录下D:\EBOOK\thrift\gen-java，也可以使用-o参数指定输出路径;</p>
-<p>  2）下载相关依赖包</p>
-<p>  2.1）libthrift.jar ，下载地址：<a href="http://repo1.maven.org/maven2/org/apache/thrift/libthrift/0.9.0/" target="_blank" rel="external">http://repo1.maven.org/maven2/org/apache/thrift/libthrift/0.9.0/</a></p>
-<p>  2.2）slf4j-api.jar</p>
-<p>  2.3）slf4j-simple.jar</p>
-<p>到官网<a href="http://thrift.apache.org/download" target="_blank" rel="external">http://thrift.apache.org/download</a> 下载最新版本，截止今日（2016-05-23）最新版本为0.9.3</p>
-<ol>
-<li>如果是Maven构建项目的，直接在pom.xml 中添加如下内容：</li>
-</ol>
-<p><dependency><br>  <groupid>org.apache.thrift</groupid><br>  <artifactid>libthrift</artifactid><br>  <version>0.8.0</version><br></dependency><br>2.如果自己编译lib包，把下载的压缩包解压到X:盘，然后在X:\thrift-0.8.0\lib\java 目录下运行ant进行自动编译，会在X:\thrift-0.8.0\lib\java\build\ 目录下看到编译好的lib包：libthrift-0.8.0.jar</p>
-<p>[三]、基本概念</p>
-<p>1.数据类型</p>
-<p>基本类型：<br>bool：布尔值，true 或 false，对应 Java 的 boolean<br>byte：8 位有符号整数，对应 Java 的 byte<br>i16：16 位有符号整数，对应 Java 的 short<br>i32：32 位有符号整数，对应 Java 的 int<br>i64：64 位有符号整数，对应 Java 的 long<br>double：64 位浮点数，对应 Java 的 double<br>string：utf-8编码的字符串，对应 Java 的 String<br>结构体类型：<br>struct：定义公共的对象，类似于 C 语言中的结构体定义，在 Java 中是一个 JavaBean<br>容器类型：<br>list：对应 Java 的 ArrayList<br>set：对应 Java 的 HashSet<br>map：对应 Java 的 HashMap<br>异常类型：<br>exception：对应 Java 的 Exception<br>服务类型：<br>service：对应服务的类<br>2.服务端编码基本步骤：</p>
-<p>实现服务处理接口impl<br>创建TProcessor<br>创建TServerTransport<br>创建TProtocol<br>创建TServer<br>启动Server<br>3.客户端编码基本步骤：</p>
-<p>创建Transport<br>创建TProtocol<br>基于TTransport和TProtocol创建 Client<br>调用Client的相应方法<br>4.数据传输协议</p>
-<p>TBinaryProtocol : 二进制格式.<br>TCompactProtocol : 压缩格式<br>TJSONProtocol : JSON格式<br>TSimpleJSONProtocol : 提供JSON只写协议, 生成的文件很容易通过脚本语言解析<br>tips:客户端和服务端的协议要一致</p>
-<p>[四]、实例演示</p>
-<ol>
-<li>thrift生成代码</li>
-</ol>
-<p>创建Thrift文件：D:\work\workspace\thriftworkspace\demo1\demoHello.thrift ,内容如下：</p>
-<p>namespace java com.dxz.thrift.demo</p>
-<p>service  HelloWorldService {<br>  string sayHello(1:string username)<br>}<br>thrift-0.8.0.exe 是官网提供的windows下编译工具，运用这个工具生成相关代码：</p>
-<p>D:\EBOOK\thrift&gt;thrift-0.9.3.exe -r -gen java D:\work\workspace\thriftworkspace\demo1\demoHello.thrift<br>生成后的目录结构如下：</p>
-<p>将生成的HelloWorldService.java 文件copy到自己测试的工程中，我的工程是用maven构建的，故在pom.xml中增加如下内容：</p>
-<p>复制代码</p>
-<p><dependency></dependency></p>
-<p><groupid>org.apache.thrift</groupid></p>
-<p><artifactid>libthrift</artifactid></p>
-<p><version>0.8.0</version><br></p>
-<p><dependency></dependency></p>
-<p><groupid>org.slf4j</groupid></p>
-<p><artifactid>slf4j-log4j12</artifactid></p>
-<p><version>1.5.8</version><br><br>复制代码<br>如果是ant构建的工程，将libthrift-0.9.3.jar加入到工程中</p>
-<ol>
-<li>实现接口Iface</li>
-</ol>
-<p>java代码：HelloWorldImpl.java</p>
-<p>复制代码<br>package com.dxz.thrift.demo;</p>
-<p>import org.apache.thrift.TException;</p>
-<p>public class HelloWorldImpl implements HelloWorldService.Iface {</p>
-<pre><code>public HelloWorldImpl() {
-}
-
-@Override
-public String sayHello(String username) throws TException {
-    return &quot;Hi,&quot; + username + &quot; welcome to thrift world&quot;;
-}
-</code></pre><p>}<br>复制代码<br>3.TSimpleServer服务端</p>
-<p>简单的单线程服务模型，一般用于测试。</p>
-<p>编写服务端server代码：HelloServerDemo.java</p>
-<p>复制代码<br>package com.dxz.thrift.demo;</p>
-<p>import org.apache.thrift.TProcessor;<br>import org.apache.thrift.protocol.TBinaryProtocol;<br>import org.apache.thrift.protocol.TCompactProtocol;<br>import org.apache.thrift.protocol.TJSONProtocol;<br>import org.apache.thrift.protocol.TSimpleJSONProtocol;<br>import org.apache.thrift.server.TServer;<br>import org.apache.thrift.server.TSimpleServer;<br>import org.apache.thrift.transport.TServerSocket;</p>
-<p>public class HelloServerDemo {<br>    public static final int SERVER_PORT = 8090;</p>
-<pre><code>public void startServer() {
-    try {
-        System.out.println(&quot;HelloWorld TSimpleServer start ....&quot;);
-
-        TProcessor tprocessor = new HelloWorldService.Processor&lt;HelloWorldService.Iface&gt;(new HelloWorldImpl());
-        // HelloWorldService.Processor&amp;lt;HelloWorldService.Iface&amp;gt;
-        // tprocessor =
-        // new HelloWorldService.Processor&amp;lt;HelloWorldService.Iface&amp;gt;(
-        // new HelloWorldImpl());
-
-        // 简单的单线程服务模型，一般用于测试
-        TServerSocket serverTransport = new TServerSocket(SERVER_PORT);
-        TServer.Args tArgs = new TServer.Args(serverTransport);
-        tArgs.processor(tprocessor);
-        tArgs.protocolFactory(new TBinaryProtocol.Factory());
-        // tArgs.protocolFactory(new TCompactProtocol.Factory());
-        // tArgs.protocolFactory(new TJSONProtocol.Factory());
-        TServer server = new TSimpleServer(tArgs);
-        server.serve();
-
-    } catch (Exception e) {
-        System.out.println(&quot;Server start error!!!&quot;);
-        e.printStackTrace();
-    }
-}
-
-/**
- * @param args
- */
-public static void main(String[] args) {
-    HelloServerDemo server = new HelloServerDemo();
-    server.startServer();
-}
-</code></pre><p>}<br>复制代码<br>编写客户端Client代码：HelloClientDemo.java</p>
-<p>复制代码<br>package com.dxz.thrift.demo;</p>
-<p>import org.apache.thrift.TException;<br>import org.apache.thrift.protocol.TBinaryProtocol;<br>import org.apache.thrift.protocol.TCompactProtocol;<br>import org.apache.thrift.protocol.TJSONProtocol;<br>import org.apache.thrift.protocol.TProtocol;<br>import org.apache.thrift.transport.TSocket;<br>import org.apache.thrift.transport.TTransport;<br>import org.apache.thrift.transport.TTransportException;</p>
-<p>public class HelloClientDemo {</p>
-<pre><code>public static final String SERVER_IP = &quot;localhost&quot;;
-public static final int SERVER_PORT = 8090;
-public static final int TIMEOUT = 30000;
-
-/**
- *
- * @param userName
- */
-public void startClient(String userName) {
-    TTransport transport = null;
-    try {
-        transport = new TSocket(SERVER_IP, SERVER_PORT, TIMEOUT);
-        // 协议要和服务端一致
-        TProtocol protocol = new TBinaryProtocol(transport);
-        // TProtocol protocol = new TCompactProtocol(transport);
-        // TProtocol protocol = new TJSONProtocol(transport);
-        HelloWorldService.Client client = new HelloWorldService.Client(protocol);
-        transport.open();
-        String result = client.sayHello(userName);
-        System.out.println(&quot;Thrify client result =: &quot; + result);
-    } catch (TTransportException e) {
-        e.printStackTrace();
-    } catch (TException e) {
-        e.printStackTrace();
-    } finally {
-        if (null != transport) {
-            transport.close();
-        }
-    }
-}
-
-/**
- * @param args
- */
-public static void main(String[] args) {
-    HelloClientDemo client = new HelloClientDemo();
-    client.startClient(&quot;china&quot;);
-
-}
-</code></pre><p>}<br>复制代码<br>先运行服务端程序，日志如下：</p>
-<p>HelloWorld TSimpleServer start ….<br>再运行客户端调用程序，日志如下：</p>
-<p>Thrify client result =: Hi,china welcome to thrift world.<br>测试成功，和预期的返回信息一致。</p>
-<p>4.TThreadPoolServer 服务模型</p>
-<p>线程池服务模型，使用标准的阻塞式IO，预先创建一组线程处理请求。</p>
-<p>编写服务端代码：HelloServerDemo2.java</p>
-<p>复制代码<br>package com.dxz.thrift.demo;</p>
-<p>import org.apache.thrift.TProcessor;<br>import org.apache.thrift.protocol.TBinaryProtocol;<br>import org.apache.thrift.server.TServer;<br>import org.apache.thrift.server.TThreadPoolServer;<br>import org.apache.thrift.transport.TServerSocket;</p>
-<p>public class HelloServerDemo2 {<br>    public static final int SERVER_PORT = 8090;</p>
-<pre><code>public void startServer() {
-    try {
-        System.out.println(&quot;HelloWorld TThreadPoolServer start ....&quot;);
-
-        TProcessor tprocessor = new HelloWorldService.Processor&lt;HelloWorldService.Iface&gt;(new HelloWorldImpl());
-
-        TServerSocket serverTransport = new TServerSocket(SERVER_PORT);
-        TThreadPoolServer.Args ttpsArgs = new TThreadPoolServer.Args(serverTransport);
-        ttpsArgs.processor(tprocessor);
-        ttpsArgs.protocolFactory(new TBinaryProtocol.Factory());
-
-        // 线程池服务模型，使用标准的阻塞式IO，预先创建一组线程处理请求。
-        TServer server = new TThreadPoolServer(ttpsArgs);
-        server.serve();
-
-    } catch (Exception e) {
-        System.out.println(&quot;Server start error!!!&quot;);
-        e.printStackTrace();
-    }
-}
-
-/**
- * @param args
- */
-public static void main(String[] args) {
-    HelloServerDemo2 server = new HelloServerDemo2();
-    server.startServer();
-}
-</code></pre><p>}<br>复制代码<br>客户端Client代码和之前的一样，只要数据传输的协议一致即可，客户端测试成功，结果如下：</p>
-<p>Thrify client result =: Hi,china welcome to thrift world.<br>5.TNonblockingServer 服务模型</p>
-<p>使用非阻塞式IO，服务端和客户端需要指定 TFramedTransport 数据传输的方式。</p>
+<h2 id="二、下载配置"><a href="#二、下载配置" class="headerlink" title="二、下载配置"></a>二、下载配置</h2><h3 id="1）安装thrift：到thrift官网下载exe文件，然后将文件重命名为thrift-exe-拷贝到D-EBOOK-thrift目录下-或者任何目录下-，然后就可以在dos环境下使用了"><a href="#1）安装thrift：到thrift官网下载exe文件，然后将文件重命名为thrift-exe-拷贝到D-EBOOK-thrift目录下-或者任何目录下-，然后就可以在dos环境下使用了" class="headerlink" title="1）安装thrift：到thrift官网下载exe文件，然后将文件重命名为thrift.exe,拷贝到D:\EBOOK\thrift目录下(或者任何目录下)，然后就可以在dos环境下使用了"></a>1）安装thrift：到thrift官网下载exe文件，然后将文件重命名为<code>thrift.exe</code>,拷贝到<code>D:\EBOOK\thrift</code>目录下(或者任何目录下)，然后就可以在dos环境下使用了</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">D:\EBOOK\thrift&gt;thrift -gen java D:\work\workspace\thriftworkspace\demo1\demoHello.thrift</div></pre></td></tr></table></figure>
+<p>输出的java文件默认输出到当前目录下<code>D:\EBOOK\thrift\gen-java</code>，也可以使用<code>-o</code>参数指定输出路径;</p>
+<h3 id="2）下载相关依赖包"><a href="#2）下载相关依赖包" class="headerlink" title="2）下载相关依赖包"></a>2）下载相关依赖包</h3><h4 id="2-1）libthrift-jar-，下载地址：http-repo1-maven-org-maven2-org-apache-thrift-libthrift-0-9-0"><a href="#2-1）libthrift-jar-，下载地址：http-repo1-maven-org-maven2-org-apache-thrift-libthrift-0-9-0" class="headerlink" title="2.1）libthrift.jar ，下载地址：http://repo1.maven.org/maven2/org/apache/thrift/libthrift/0.9.0/"></a>2.1）<code>libthrift.jar</code> ，下载地址：<a href="http://repo1.maven.org/maven2/org/apache/thrift/libthrift/0.9.0/" target="_blank" rel="external">http://repo1.maven.org/maven2/org/apache/thrift/libthrift/0.9.0/</a></h4><h4 id="2-2）slf4j-api-jar"><a href="#2-2）slf4j-api-jar" class="headerlink" title="2.2）slf4j-api.jar"></a>2.2）<code>slf4j-api.jar</code></h4><h4 id="2-3）slf4j-simple-jar"><a href="#2-3）slf4j-simple-jar" class="headerlink" title="2.3）slf4j-simple.jar"></a>2.3）<code>slf4j-simple.jar</code></h4><p>到官网<a href="http://thrift.apache.org/download" target="_blank" rel="external">http://thrift.apache.org/download</a> 下载最新版本，截止今日（2016-05-23）最新版本为0.9.3</p>
+<h3 id="3-Maven项目设置依赖包"><a href="#3-Maven项目设置依赖包" class="headerlink" title="3) Maven项目设置依赖包"></a>3) Maven项目设置依赖包</h3><p>如果是Maven构建项目的，直接在<code>pom.xml</code>中添加如下内容：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">&lt;dependency&gt;</div><div class="line">  &lt;groupId&gt;org.apache.thrift&lt;/groupId&gt;</div><div class="line">  &lt;artifactId&gt;libthrift&lt;/artifactId&gt;</div><div class="line">  &lt;version&gt;0.8.0&lt;/version&gt;</div><div class="line">&lt;/dependency&gt;</div></pre></td></tr></table></figure></p>
+<h3 id="4-手动编译"><a href="#4-手动编译" class="headerlink" title="4).手动编译"></a>4).手动编译</h3><p>如果自己编译lib包，把下载的压缩包解压到<code>X</code>盘，然后在<code>X:\thrift-0.8.0\lib\java</code> 目录下运行<code>ant</code>进行自动编译，会在<code>X:\thrift-0.8.0\lib\java\build\</code> 目录下看到编译好的lib包：<code>libthrift-0.8.0.jar</code></p>
+<h2 id="三、基本概念"><a href="#三、基本概念" class="headerlink" title="三、基本概念"></a>三、基本概念</h2><h3 id="1-数据类型"><a href="#1-数据类型" class="headerlink" title="1.数据类型"></a>1.数据类型</h3><h4 id="基本类型："><a href="#基本类型：" class="headerlink" title="基本类型："></a>基本类型：</h4><p><code>bool</code>：布尔值，<code>true</code>或<code>false</code>，对应Java的<code>boolean</code><br><code>byte</code>：8位有符号整数，对应Java的<code>byte</code><br><code>i16</code>：16位有符号整数，对应Java的<code>short</code><br><code>i32</code>：32位有符号整数，对应Java的<code>int</code><br><code>i64</code>：64位有符号整数，对应Java的<code>long</code><br><code>double</code>：64 位浮点数，对应Java的<code>double</code><br><code>string</code>：utf-8编码的字符串，对应Java的<code>String</code></p>
+<h4 id="结构体类型："><a href="#结构体类型：" class="headerlink" title="结构体类型："></a>结构体类型：</h4><p><code>struct</code>：定义公共的对象，类似于C语言中的结构体定义，在Java中是一个JavaBean</p>
+<h4 id="容器类型："><a href="#容器类型：" class="headerlink" title="容器类型："></a>容器类型：</h4><p><code>list</code>：对应Java的<code>ArrayList</code><br><code>set</code>：对应Java的<code>HashSet</code><br><code>map</code>：对应Java的<code>HashMap</code></p>
+<h4 id="异常类型："><a href="#异常类型：" class="headerlink" title="异常类型："></a>异常类型：</h4><p><code>exception</code>：对应Java的<code>Exception</code></p>
+<h4 id="服务类型："><a href="#服务类型：" class="headerlink" title="服务类型："></a>服务类型：</h4><p><code>service</code>：对应服务的类</p>
+<h3 id="2-服务端编码基本步骤："><a href="#2-服务端编码基本步骤：" class="headerlink" title="2.服务端编码基本步骤："></a>2.服务端编码基本步骤：</h3><ul>
+<li>实现服务处理接口impl</li>
+<li>创建<code>TProcessor</code>(业务处理器)</li>
+<li>创建<code>TServerTransport</code>()</li>
+<li>创建<code>TProtocol</code>(传输协议)</li>
+<li>创建<code>TServer</code></li>
+<li>启动<code>Server</code></li>
+</ul>
+<h3 id="3-客户端编码基本步骤："><a href="#3-客户端编码基本步骤：" class="headerlink" title="3.客户端编码基本步骤："></a>3.客户端编码基本步骤：</h3><ul>
+<li>创建<code>Transport</code></li>
+<li>创建<code>TProtocol</code></li>
+<li>基于<code>TTransport</code>和<code>TProtocol</code>创建<code>Client</code></li>
+<li>调用<code>Client</code>的相应方法</li>
+</ul>
+<h3 id="4-数据传输协议"><a href="#4-数据传输协议" class="headerlink" title="4.数据传输协议"></a>4.数据传输协议</h3><p><code>TBinaryProtocol</code>: 二进制格式.<br><code>TCompactProtocol</code>: 压缩格式<br><code>TJSONProtocol</code>: JSON格式<br><code>TSimpleJSONProtocol</code>: 提供JSON只写协议, 生成的文件很容易通过脚本语言解析</p>
+<blockquote>
+<p>客户端和服务端的协议要一致</p>
+</blockquote>
+<p>##四、实例演示</p>
+<h3 id="1-thrift生成代码"><a href="#1-thrift生成代码" class="headerlink" title="1. thrift生成代码"></a>1. thrift生成代码</h3><p>创建Thrift文件：<code>D:\work\workspace\thriftworkspace\demo1\demoHello.thrift</code> ,内容如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">namespace java com.dxz.thrift.demo</div><div class="line"> </div><div class="line">service  HelloWorldService &#123;</div><div class="line">  string sayHello(1:string username)</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>thrift-0.8.0.exe是官网提供的windows下编译工具，运用这个工具生成相关代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">D:\EBOOK\thrift&gt;thrift-0.9.3.exe -r -gen java D:\work\workspace\thriftworkspace\demo1\demoHello.thrift</div></pre></td></tr></table></figure></p>
+<p>将生成的<code>HelloWorldService.java</code>文件copy到自己测试的工程中，我的工程是用maven构建的，故在<code>pom.xml</code>中增加如下内容：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">&lt;dependency&gt;</div><div class="line">    &lt;groupId&gt;org.apache.thrift&lt;/groupId&gt;</div><div class="line">    &lt;artifactId&gt;libthrift&lt;/artifactId&gt;</div><div class="line">    &lt;version&gt;0.8.0&lt;/version&gt;</div><div class="line">&lt;/dependency&gt;</div><div class="line">&lt;dependency&gt;</div><div class="line">    &lt;groupId&gt;org.slf4j&lt;/groupId&gt;</div><div class="line">    &lt;artifactId&gt;slf4j-log4j12&lt;/artifactId&gt;</div><div class="line">    &lt;version&gt;1.5.8&lt;/version&gt;</div><div class="line">&lt;/dependency&gt;</div></pre></td></tr></table></figure></p>
+<p>如果是ant构建的工程，将<code>libthrift-0.9.3.jar</code>加入到工程中</p>
+<h3 id="2-实现接口Iface"><a href="#2-实现接口Iface" class="headerlink" title="2. 实现接口Iface"></a>2. 实现接口Iface</h3><p>java代码：<code>HelloWorldImpl.java</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">package com.dxz.thrift.demo;</div><div class="line">import org.apache.thrift.TException;</div><div class="line">public class HelloWorldImpl implements HelloWorldService.Iface &#123;</div><div class="line">    public HelloWorldImpl() &#123;</div><div class="line">    &#125;</div><div class="line">    @Override</div><div class="line">    public String sayHello(String username) throws TException &#123;</div><div class="line">        return &quot;Hi,&quot; + username + &quot; welcome to thrift world&quot;;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="3-TSimpleServer服务端"><a href="#3-TSimpleServer服务端" class="headerlink" title="3.TSimpleServer服务端"></a>3.<code>TSimpleServer</code>服务端</h3><h4 id="简单的单线程服务模型，一般用于测试。"><a href="#简单的单线程服务模型，一般用于测试。" class="headerlink" title="简单的单线程服务模型，一般用于测试。"></a>简单的单线程服务模型，一般用于测试。</h4><p>编写服务端server代码：<code>HelloServerDemo.java</code><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div></pre></td><td class="code"><pre><div class="line">package com.dxz.thrift.demo;</div><div class="line"></div><div class="line">import org.apache.thrift.TProcessor;</div><div class="line">import org.apache.thrift.protocol.TBinaryProtocol;</div><div class="line">import org.apache.thrift.protocol.TCompactProtocol;</div><div class="line">import org.apache.thrift.protocol.TJSONProtocol;</div><div class="line">import org.apache.thrift.protocol.TSimpleJSONProtocol;</div><div class="line">import org.apache.thrift.server.TServer;</div><div class="line">import org.apache.thrift.server.TSimpleServer;</div><div class="line">import org.apache.thrift.transport.TServerSocket;</div><div class="line"></div><div class="line">public class HelloServerDemo &#123;</div><div class="line">    public static final int SERVER_PORT = 8090;</div><div class="line"></div><div class="line">    public void startServer() &#123;</div><div class="line">        try &#123;</div><div class="line">            System.out.println(&quot;HelloWorld TSimpleServer start ....&quot;);</div><div class="line"></div><div class="line">            TProcessor tprocessor = new HelloWorldService.Processor&lt;HelloWorldService.Iface&gt;(new HelloWorldImpl());</div><div class="line">            //HelloWorldService.Processor&lt;HelloWorldService.Iface&gt; tprocessor =</div><div class="line">            new HelloWorldService.Processor&lt;HelloWorldService.Iface&gt;(new HelloWorldImpl());</div><div class="line"></div><div class="line">            // 简单的单线程服务模型，一般用于测试</div><div class="line">            TServerSocket serverTransport = new TServerSocket(SERVER_PORT);</div><div class="line">            TServer.Args tArgs = new TServer.Args(serverTransport);</div><div class="line">            tArgs.processor(tprocessor);</div><div class="line">            tArgs.protocolFactory(new TBinaryProtocol.Factory());</div><div class="line">            // tArgs.protocolFactory(new TCompactProtocol.Factory());</div><div class="line">            // tArgs.protocolFactory(new TJSONProtocol.Factory());</div><div class="line">            TServer server = new TSimpleServer(tArgs);</div><div class="line">            server.serve();</div><div class="line"></div><div class="line">        &#125; catch (Exception e) &#123;</div><div class="line">            System.out.println(&quot;Server start error!!!&quot;);</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public static void main(String[] args) &#123;</div><div class="line">        HelloServerDemo server = new HelloServerDemo();</div><div class="line">        server.startServer();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h4 id="编写客户端Client代码：HelloClientDemo-java"><a href="#编写客户端Client代码：HelloClientDemo-java" class="headerlink" title="编写客户端Client代码：HelloClientDemo.java"></a>编写客户端Client代码：<code>HelloClientDemo.java</code></h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div></pre></td><td class="code"><pre><div class="line">package com.dxz.thrift.demo;</div><div class="line"></div><div class="line">import org.apache.thrift.TException;</div><div class="line">import org.apache.thrift.protocol.TBinaryProtocol;</div><div class="line">import org.apache.thrift.protocol.TCompactProtocol;</div><div class="line">import org.apache.thrift.protocol.TJSONProtocol;</div><div class="line">import org.apache.thrift.protocol.TProtocol;</div><div class="line">import org.apache.thrift.transport.TSocket;</div><div class="line">import org.apache.thrift.transport.TTransport;</div><div class="line">import org.apache.thrift.transport.TTransportException;</div><div class="line"></div><div class="line">public class HelloClientDemo &#123;</div><div class="line"></div><div class="line">    public static final String SERVER_IP = &quot;localhost&quot;;</div><div class="line">    public static final int SERVER_PORT = 8090;</div><div class="line">    public static final int TIMEOUT = 30000;</div><div class="line"></div><div class="line">    public void startClient(String userName) &#123;</div><div class="line">        TTransport transport = null;</div><div class="line">        try &#123;</div><div class="line">            transport = new TSocket(SERVER_IP, SERVER_PORT, TIMEOUT);</div><div class="line">            // 协议要和服务端一致</div><div class="line">            TProtocol protocol = new TBinaryProtocol(transport);</div><div class="line">            // TProtocol protocol = new TCompactProtocol(transport);</div><div class="line">            // TProtocol protocol = new TJSONProtocol(transport);</div><div class="line">            HelloWorldService.Client client = new HelloWorldService.Client(protocol);</div><div class="line">            transport.open();</div><div class="line">            String result = client.sayHello(userName);</div><div class="line">            System.out.println(&quot;Thrify client result =: &quot; + result);</div><div class="line">        &#125; catch (TTransportException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125; catch (TException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125; finally &#123;</div><div class="line">            if (null != transport) &#123;</div><div class="line">                transport.close();</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public static void main(String[] args) &#123;</div><div class="line">        HelloClientDemo client = new HelloClientDemo();</div><div class="line">        client.startClient(&quot;china&quot;);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>先运行服务端程序，日志如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">HelloWorld TSimpleServer start ....</div></pre></td></tr></table></figure></p>
+<p>再运行客户端调用程序，日志如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Thrify client result =: Hi,china welcome to thrift world.</div></pre></td></tr></table></figure></p>
+<p>测试成功，和预期的返回信息一致。</p>
+<h3 id="4-TThreadPoolServer-服务模型"><a href="#4-TThreadPoolServer-服务模型" class="headerlink" title="4.TThreadPoolServer 服务模型"></a>4.TThreadPoolServer 服务模型</h3><p>线程池服务模型，使用标准的阻塞式IO，预先创建一组线程处理请求。</p>
+<h4 id="编写服务端代码：HelloServerDemo2-java"><a href="#编写服务端代码：HelloServerDemo2-java" class="headerlink" title="编写服务端代码：HelloServerDemo2.java"></a>编写服务端代码：<code>HelloServerDemo2.java</code></h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line">package com.dxz.thrift.demo;</div><div class="line"></div><div class="line">import org.apache.thrift.TProcessor;</div><div class="line">import org.apache.thrift.protocol.TBinaryProtocol;</div><div class="line">import org.apache.thrift.server.TServer;</div><div class="line">import org.apache.thrift.server.TThreadPoolServer;</div><div class="line">import org.apache.thrift.transport.TServerSocket;</div><div class="line"></div><div class="line">public class HelloServerDemo2 &#123;</div><div class="line">    public static final int SERVER_PORT = 8090;</div><div class="line"></div><div class="line">    public void startServer() &#123;</div><div class="line">        try &#123;</div><div class="line">            System.out.println(&quot;HelloWorld TThreadPoolServer start ....&quot;);</div><div class="line"></div><div class="line">            TProcessor tprocessor = new HelloWorldService.Processor&lt;HelloWorldService.Iface&gt;(new HelloWorldImpl());</div><div class="line"></div><div class="line">            TServerSocket serverTransport = new TServerSocket(SERVER_PORT);</div><div class="line">            TThreadPoolServer.Args ttpsArgs = new TThreadPoolServer.Args(serverTransport);</div><div class="line">            ttpsArgs.processor(tprocessor);</div><div class="line">            ttpsArgs.protocolFactory(new TBinaryProtocol.Factory());</div><div class="line"></div><div class="line">            // 线程池服务模型，使用标准的阻塞式IO，预先创建一组线程处理请求。</div><div class="line">            TServer server = new TThreadPoolServer(ttpsArgs);</div><div class="line">            server.serve();</div><div class="line"></div><div class="line">        &#125; catch (Exception e) &#123;</div><div class="line">            System.out.println(&quot;Server start error!!!&quot;);</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public static void main(String[] args) &#123;</div><div class="line">        HelloServerDemo2 server = new HelloServerDemo2();</div><div class="line">        server.startServer();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>客户端Client代码和之前的一样，只要数据传输的协议一致即可，客户端测试成功，结果如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Thrify client result =: Hi,china welcome to thrift world.</div></pre></td></tr></table></figure></p>
+<h3 id="5-TNonblockingServer-服务模型"><a href="#5-TNonblockingServer-服务模型" class="headerlink" title="5.TNonblockingServer 服务模型"></a>5.TNonblockingServer 服务模型</h3><p>使用非阻塞式IO，服务端和客户端需要指定 TFramedTransport 数据传输的方式。</p>
 <p>编写服务端代码：HelloServerDemo3.java</p>
 <p>复制代码<br>package com.dxz.thrift.demo;</p>
 <p>import org.apache.thrift.TProcessor;<br>import org.apache.thrift.protocol.TBinaryProtocol;<br>import org.apache.thrift.protocol.TCompactProtocol;<br>import org.apache.thrift.server.TNonblockingServer;<br>import org.apache.thrift.server.TServer;<br>import org.apache.thrift.server.TThreadPoolServer;<br>import org.apache.thrift.transport.TFramedTransport;<br>import org.apache.thrift.transport.TNonblockingServerSocket;<br>import org.apache.thrift.transport.TServerSocket;</p>
@@ -269,8 +221,8 @@ public static void main(String[] args) {
 
 }
 </code></pre><p>}<br>复制代码<br>客户端的测试成功，结果如下：</p>
-<p>Thrify client result =: Hi,HelloClientDemo3 welcome to thrift world.<br>6.THsHaServer服务模型</p>
-<p>半同步半异步的服务端模型，需要指定为： TFramedTransport 数据传输的方式。</p>
+<p>Thrify client result =: Hi,HelloClientDemo3 welcome to thrift world.</p>
+<h3 id="6-THsHaServer服务模型"><a href="#6-THsHaServer服务模型" class="headerlink" title="6.THsHaServer服务模型"></a>6.THsHaServer服务模型</h3><p>半同步半异步的服务端模型，需要指定为： TFramedTransport 数据传输的方式。</p>
 <p>编写服务端代码：HelloServerDemo4.java</p>
 <p>复制代码<br>package com.dxz.thrift.demo;</p>
 <p>import org.apache.thrift.TProcessor;<br>import org.apache.thrift.protocol.TBinaryProtocol;<br>import org.apache.thrift.protocol.TCompactProtocol;<br>import org.apache.thrift.server.THsHaServer;<br>import org.apache.thrift.server.TNonblockingServer;<br>import org.apache.thrift.server.TServer;<br>import org.apache.thrift.server.TSimpleServer;<br>import org.apache.thrift.server.TThreadPoolServer;<br>import org.apache.thrift.transport.TFramedTransport;<br>import org.apache.thrift.transport.TNonblockingServerSocket;<br>import org.apache.thrift.transport.TServerSocket;</p>
@@ -346,8 +298,7 @@ public static void main(String[] args) {
 }
 </code></pre><p>}<br>复制代码</p>
 <p>结果：Thrify client result =: Hi,HelloClientDemo4 welcome to thrift world.</p>
-<p>7.异步客户端</p>
-<p>编写服务端代码：HelloServerDemo5.java</p>
+<h3 id="7-异步客户端"><a href="#7-异步客户端" class="headerlink" title="7.异步客户端"></a>7.异步客户端</h3><p>编写服务端代码：HelloServerDemo5.java</p>
 <p>复制代码<br>package com.dxz.thrift.demo;</p>
 <p>import org.apache.thrift.TProcessor;<br>import org.apache.thrift.protocol.TCompactProtocol;<br>import org.apache.thrift.server.TNonblockingServer;<br>import org.apache.thrift.server.TServer;<br>import org.apache.thrift.transport.TFramedTransport;<br>import org.apache.thrift.transport.TNonblockingServerSocket;</p>
 <p>public class HelloServerDemo5 {<br>    public static final int SERVER_PORT = 8090;</p>
@@ -451,68 +402,6 @@ public static void main(String[] args) {
 }
 </code></pre><p>}<br>复制代码<br>先运行服务程序，再运行客户端程序，测试结果如下：</p>
 <p>复制代码<br>Client start …..<br>call method sayHello start …<br>call method sayHello …. end<br>onComplete<br>AsynCall result =:Hi,HelloAsynClientDemo welcome to thrift world.<br>latch.await =:true<br>startClient end.<br>复制代码</p>
-<p>分类: rpc<br>标签: rpc, thrift<br>好文要顶 关注我 收藏该文<br>duanxz<br>关注 - 18<br>粉丝 - 154<br>+加关注<br>1 0<br>« 上一篇：Linux vmstat命令–监控CPU 性能分析<br>» 下一篇：Apache Thrift学习之二（基础及原理）<br>posted on 2016-10-30 13:42 duanxz 阅读(663) 评论(0) 编辑 收藏<br>刷新评论刷新页面返回顶部<br>注册用户登录后才能发表评论，请 登录 或 注册，访问网站首页。<br>【推荐】50万行VC++源码: 大型组态工控、电力仿真CAD与GIS源码库<br>【抢】大学生专享｜9.9元即刻拥有一台云服务器</p>
-<p>最新IT新闻:<br>· 苹果欲收购东芝闪存 自己把控闪存的技术了<br>· Facebook等19个组织（个人）斥资1400万美元支持新闻诚信<br>· 华为：去年研发支出764亿元 超过国内友商研发费总和<br>· 李开复说以后人们都不用买车了 蔚来汽车创始人“反驳”<br>· HBaseCon West 2017开幕在即，Apache HBase开发者别错过<br>» 更多新闻…</p>
-<p>最新知识库文章:<br>· 马拉松式学习与技术人员的成长性<br>· 程序员的“认知失调”<br>· 为什么有的人工作多年还是老样子<br>· 也许，这样理解HTTPS更容易<br>· 程序员学习能力提升三要素<br>» 更多知识库文章…<br>历史上的今天:<br>2012-10-30 Guava 1.5-Throwables：简化异常和错误的传播与检查<br>2012-10-30 常用 Java 静态代码分析工具的分析与比较<br>2012-10-30 Guava学习笔记：Google Guava 类库简介<br>昵称：duanxz<br>园龄：6年<br>粉丝：154<br>关注：18<br>+加关注<br>&lt;   2017年4月 &gt;<br>日   一   二   三   四   五   六<br>26  27  28  29  30  31  1<br>2   3   4   5   6   7   8<br>9   10  11  12  13  14  15<br>16  17  18  19  20  21  22<br>23  24  25  26  27  28  29<br>30  1   2   3   4   5   6</p>
-<p>搜索</p>
-<p> 找找看</p>
-<p> 谷歌搜索<br>常用链接</p>
-<p>我的随笔<br>我的评论<br>我的参与<br>最新评论<br>我的标签<br>我的标签</p>
-<p>mysql(110)<br>linux命令(83)<br>多线程(81)<br>spring(74)<br>JVM虚拟机(72)<br>cache(57)<br>linux(47)<br>mybatis(41)<br>DB基础(40)<br>pattern(38)<br>更多<br>随笔分类</p>
-<p>high-concurrence(3)<br>log4j源码分析<br>alibaba(17)<br>Android(1)<br>android基础(4)<br>android-界面(28)<br>android开源库应用(3)<br>annotation(2)<br>Application Server(39)<br>app-server管理与优化(4)<br>Architecture(41)<br>axis2(3)<br>build(20)<br>cache(60)<br>configuration-center(2)<br>CXF(12)<br>db操作(5)<br>DB基础(25)<br>design discipline(11)<br>distributed(61)<br>doc(3)<br>dubbo(9)<br>eclipse(23)<br>effective java笔记(8)<br>Ehcache(2)<br>environment(2)<br>ETL(10)<br>flume(1)<br>ftp(9)<br>hadoop-hbase(18)<br>hibernate(1)<br>HSQLDB(5)<br>http(9)<br>interceptor&amp;filter(5)<br>IT(2)<br>J2EE(6)<br>J2EE核心模式(2)<br>java(43)<br>java8(13)<br>java-advanced(22)<br>java-annotation(12)<br>java-basis(15)<br>java-collection(27)<br>java-enum&amp;generic(5)<br>java-exception(8)<br>javascript(27)<br>java加密与安全(10)<br>java理论知识(3)<br>java优化(17)<br>jdk命令(20)<br>Jetty(8)<br>JMS(5)<br>JMX(6)<br>JNI(5)<br>jquery(3)<br>js+css(10)<br>JSON(11)<br>juc(14)<br>junit(4)<br>jvm-monitor(29)<br>JVM虚拟机(75)<br>kafka(14)<br>linux(58)<br>linux tool(11)<br>linux命令(78)<br>linux文件和目录管理(18)<br>linux系统配置(8)<br>linux性能分析(21)<br>load-balance(11)<br>lock(22)<br>log4j(14)<br>message-queue(10)<br>middleware(2)<br>MongoDB(16)<br>monitor(33)<br>mybatis(43)<br>mysql(103)<br>mysqlSQL应用(3)<br>mysql安全<br>mysql触发器(1)<br>mysql存储过程函数事件(5)<br>mysql分区(4)<br>mysql关键字(4)<br>mysql函数(11)<br>mysql环境与运维(2)<br>mysql基础(10)<br>mysql架构(7)<br>mysql配置及管理(9)<br>mysql日志(7)<br>mysql事物和锁(6)<br>mysql索引(5)<br>mysql优化(22)<br>nginx(33)<br>NoSQL(27)<br>OAUTH2.0(4)<br>offheap(11)<br>open source(4)<br>operation(31)<br>optimize(32)<br>oracle(1)<br>pattern(38)<br>php(12)<br>phpMVC,Yii(19)<br>powerdesigner(3)<br>realtimecomputation(1)<br>RESTful(16)<br>restlet(4)<br>rpc(8)<br>scala(5)<br>script(14)<br>search(21)<br>serialization(7)<br>servlet(5)<br>SOA(2)<br>socket(4)<br>spark(27)<br>spring(33)<br>spring aop(2)<br>springboot(2)<br>springMVC(13)<br>spring学习笔记(16)<br>spring原理(12)<br>SQL(7)<br>sql优化(19)<br>Sqoop<br>Storm(15)<br>struts1(11)<br>struts2(10)<br>temp(2)<br>testing(19)<br>threadpool(8)<br>tomcat(12)<br>tools(7)<br>ubuntu(12)<br>UML(12)<br>validator(6)<br>web(11)<br>webService(15)<br>work(1)<br>xml解析(12)<br>zookeeper(21)<br>安全(31)<br>大数据(13)<br>调试技巧(2)<br>多线程(81)<br>分布式事务(4)<br>工具类库(19)<br>关注经济(3)<br>函数式编程(1)<br>集群-架构(18)<br>建模(1)<br>开源包使用(4)<br>开源组件(22)<br>面试题(26)<br>日志(8)<br>软件质量(9)<br>设计开发(2)<br>事件定时器(3)<br>算法(11)<br>索引(8)<br>网络编程(20)<br>网络通信(25)<br>微信(5)<br>项目管理(7)<br>性能分析及调优(17)<br>序列化框架(7)<br>移动开发(1)<br>源码(4)<br>孕妇营养(3)<br>杂七杂八(2)<br>随笔档案</p>
-<p>2017年3月 (15)<br>2017年2月 (2)<br>2017年1月 (21)<br>2016年12月 (7)<br>2016年11月 (60)<br>2016年10月 (10)<br>2016年9月 (1)<br>2016年8月 (2)<br>2016年6月 (6)<br>2016年5月 (25)<br>2016年4月 (53)<br>2016年3月 (37)<br>2016年2月 (39)<br>2016年1月 (141)<br>2015年12月 (98)<br>2015年11月 (35)<br>2015年10月 (73)<br>2015年9月 (12)<br>2015年8月 (107)<br>2015年7月 (28)<br>2015年6月 (7)<br>2015年5月 (75)<br>2015年4月 (51)<br>2015年3月 (32)<br>2015年2月 (12)<br>2015年1月 (10)<br>2014年12月 (4)<br>2014年11月 (19)<br>2014年10月 (9)<br>2014年9月 (25)<br>2014年8月 (2)<br>2014年6月 (60)<br>2014年5月 (36)<br>2014年4月 (21)<br>2014年3月 (54)<br>2014年2月 (49)<br>2014年1月 (48)<br>2013年12月 (57)<br>2013年11月 (26)<br>2013年10月 (9)<br>2013年9月 (5)<br>2013年8月 (6)<br>2013年7月 (19)<br>2013年6月 (32)<br>2013年5月 (15)<br>2013年4月 (9)<br>2013年3月 (13)<br>2013年2月 (17)<br>2013年1月 (35)<br>2012年12月 (39)<br>2012年11月 (45)<br>2012年10月 (55)<br>2012年9月 (17)<br>2012年8月 (45)<br>2012年7月 (29)<br>2012年6月 (19)<br>2012年5月 (9)<br>文章分类</p>
-<p>cloud(1)<br>mysql(1)<br>web(1)<br>最新评论</p>
-<ol>
-<li>Re:UML类图符号 各种关系说明以及举例<br>看了很多文章都是华而不实,重点都讲不到,这篇文章不错<br>–花溪的小石头</li>
-<li>Re:Jenkins<br>加入CCNET/Jenkins自动构建部署QQ群一起讨论吧： 190402937<br>–EasonJim</li>
-<li>Re:powerdesigner中将表的name在生成建表sql时生成注释<br>您好，看了您写的有点不明白，可以请教下您吗？<br>–xiakang</li>
-<li>Re:MYSQL一次性能优化实战经历[转]<br>mark<br>–幻空城</li>
-<li>Re:Android ListView从网络获取图片及文字显示<br>你好，我想请问下？如果是的话是怎么弄出来的呀<br>–Nicolellu</li>
-<li>Re:java多线程<br>那个。。大神 我能问一下如果不用static怎么样把所共享吗<br>–CheNbXxx</li>
-<li>Re:WebView介绍<br>你好， 问一下，使用webView进行自动登录时存在问题。请教一下，需要做什么设置吗？<br>–问知</li>
-<li>Re:log4j不同级别日志分不同文件记录<br>我用log4j.properties配置时,重写了RollingFileAppender的isAsSevereAsThreshold方法，是可以输出指定级别的日志，不过显得不太方便。<br>–java小飞侠</li>
-<li>Re:XA事务处理<br>XA Transactions<br>–Angkor–:–</li>
-<li>Re:java8 集合流式操作<br>前辈，您好，想问您个问题，希望您空闲的时候能回答一下。filter()方法在Stream接口里面，它没有方法体，只是传了一个函数式接口的参数，那个函数式接口要实现test()方法，该方法返回一个boo……<br>–naadp</li>
-<li>Re:Nginx、SSL双向认证、PHP、SOAP、Webservice、https<br>您好，SSL双向认证有没有demo可以参考？<br>–wng</li>
-<li>Re:消息推送技术<br>web实时推送技术使用越来越广泛，但是自己开发又太麻烦了，我觉得没有那个必要，GoEasy就挺不错的，服务器稳定，代码简洁易懂；官网:<br>–EmmaGong</li>
-<li>Re:eclipse中svn插件的安装与使用<br>Mark，:)<br>–xiaochou</li>
-<li>Re:memcache分布式部署的原理分析<br>@duanxz谢谢，我在网上找了一下，.Net方面的客户端，找到一个sourceforge.net的memcacheddotnetclient 似乎不是很全，比如群聚似乎没有一致性哈希，已经我想动态的……<br>–profangong</li>
-<li>Re:memcache分布式部署的原理分析<br>@profangong严格说是memcache客户端内部实现的，业务代码可以不用关注节点路由相关的事情。…<br>–duanxz</li>
-<li>Re:memcache分布式部署的原理分析<br>请问个问题，set(‘tokyo’，data); 这句是memcache是根据自己的算法来定位到某个服务器节点上的吗？ 我意思是计算key得到哈希值，然后根据哈希值来定位服务器节点。。。这个过程是me……<br>–profangong</li>
-<li>Re:几种ESB（企业服务总线）介绍<br>请问哪几种流行一些？？或者使用范围是什么呢？<br>–愤怒的辣椒</li>
-<li>Re:Checked Exception与Runtime Exception 的区别<br>写的还可以<br>–fairy1674</li>
-<li>Re:Nginx 反向代理、负载均衡、页面缓存、URL重写及读写分离详解<br>写的挺好,可是<br>图片都挂了….<br>–蚕豆</li>
-<li>Re:Yii 实现MySQL多库和读写分离<br>谁然看的不是很懂，但是还是很赞！！<br>–miketwais</li>
-<li>Re:三、深入Jetty源码分析<br>你好！请教下我准备搭建Java Web应用程序的开发环境，安装了JDK, Eclipse和JBoss,我还需要安装Jetty吗？如何安装配置呢？<br>–风影极光</li>
-<li>Re:UML类图符号 各种关系说明以及举例<br>还没怎么大量浏览UML相关的文章，但是这篇文章看起来的确是比较舒服的。博主幸苦了。<br>–Think_Jumper</li>
-<li>Re:使用Visual VM监控运行时的项目<br>这么好的文章居然没有人顶。</li>
-</ol>
-<p>好文章一定要赞！<br>–友人M</p>
-<ol>
-<li>Re:UML类图符号 各种关系说明以及举例<br>好文章<br>–helong</li>
-<li><p>Re:【Android】Handler应用（三）：从服务器端分页加载更新ListView<br>d百度搜索d商务轻骑兵营销软件d网商d必备d工具d<br>–vxagqz0968<br>阅读排行榜</p>
-</li>
-<li><p>UML类图符号 各种关系说明以及举例(41154)</p>
-</li>
-<li>JSONArray数据转换成java List(30000)</li>
-<li>eclipse中svn插件的安装与使用(7326)</li>
-<li>JAVA中线程同步的方法（7种）汇总(5451)</li>
-<li><p>spring容器启动的三种方式(5285)<br>评论排行榜</p>
-</li>
-<li><p>UML类图符号 各种关系说明以及举例(7)</p>
-</li>
-<li>memcache分布式部署的原理分析(3)</li>
-<li>单例—被废弃的DCL双重检查加锁(3)</li>
-<li>mysql show processlist命令 详解??(2)</li>
-<li><p>yii 操作session和cookie(2)<br>推荐排行榜</p>
-</li>
-<li><p>UML类图符号 各种关系说明以及举例(15)</p>
-</li>
-<li>慢日志之一：开启mysql慢查询日志并使用mysqldumpslow命令查看，分析诊断工具之四(3)</li>
-<li>eclipse中svn插件的安装与使用(3)</li>
-<li>Eclipse中如何修改SVN的地址(1)</li>
-<li>慢日志之二:ERROR 1146 (42S02): Table ‘mysql.slow_log’ doesn’t exist,分析诊断工具之四(1)</li>
-</ol>
 ]]></content>
     
     <summary type="html">
@@ -2122,39 +2011,6 @@ location ~ .*\.(gif|jpg|jpeg|png|bmp|swf|js|html|htm|css)$ {
     
     
       <category term="Nginx" scheme="http://jishusuishouji.github.io/tags/Nginx/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>druid 配置WebStatFilter 网络url统计</title>
-    <link href="http://jishusuishouji.github.io/2017/03/23/druid/druid_%E9%85%8D%E7%BD%AEWebStatFilter_%E7%BD%91%E7%BB%9Curl%E7%BB%9F%E8%AE%A1/"/>
-    <id>http://jishusuishouji.github.io/2017/03/23/druid/druid_配置WebStatFilter_网络url统计/</id>
-    <published>2017-03-23T14:54:59.000Z</published>
-    <updated>2017-03-23T15:01:52.687Z</updated>
-    
-    <content type="html"><![CDATA[<p><code>WebStatFilter</code>用于采集web-jdbc关联监控的数据。<br><a id="more"></a></p>
-<h2 id="web-xml配置"><a href="#web-xml配置" class="headerlink" title="web.xml配置"></a><code>web.xml</code>配置</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">&lt;filter&gt;  </div><div class="line">  &lt;filter-name&gt;DruidWebStatFilter&lt;/filter-name&gt;  </div><div class="line">  &lt;filter-class&gt;com.alibaba.druid.support.http.WebStatFilter&lt;/filter-class&gt;  </div><div class="line">  &lt;init-param&gt;  </div><div class="line">      &lt;param-name&gt;exclusions&lt;/param-name&gt;  </div><div class="line">      &lt;param-value&gt;*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*&lt;/param-value&gt;  </div><div class="line">  &lt;/init-param&gt;  </div><div class="line">&lt;/filter&gt;  </div><div class="line">&lt;filter-mapping&gt;  </div><div class="line">  &lt;filter-name&gt;DruidWebStatFilter&lt;/filter-name&gt;  </div><div class="line">  &lt;url-pattern&gt;/*&lt;/url-pattern&gt;  </div><div class="line">&lt;/filter-mapping&gt;</div></pre></td></tr></table></figure>
-<h3 id="exlusions配置"><a href="#exlusions配置" class="headerlink" title="exlusions配置"></a><code>exlusions</code>配置</h3><p>经常需要排除一些不必要的<code>url</code>，比如<code>.js</code>,<code>/jslib/</code>等等。配置在<code>init-param</code>中。比如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">&lt;init-param&gt;  </div><div class="line">    &lt;param-name&gt;exclusions&lt;/param-name&gt;  </div><div class="line">    &lt;param-value&gt;*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*&lt;/param-value&gt;  </div><div class="line">&lt;/init-param&gt;</div></pre></td></tr></table></figure></p>
-<h3 id="sessionStatMaxCount配置"><a href="#sessionStatMaxCount配置" class="headerlink" title="sessionStatMaxCount配置"></a><code>sessionStatMaxCount</code>配置</h3><p>缺省<code>sessionStatMaxCount</code>是1000个。你可以按需要进行配置，比如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">&lt;init-param&gt;  </div><div class="line">    &lt;param-name&gt;sessionStatMaxCount&lt;/param-name&gt;  </div><div class="line">    &lt;param-value&gt;1000&lt;/param-value&gt;  </div><div class="line">&lt;/init-param&gt;</div></pre></td></tr></table></figure></p>
-<h3 id="sessionStatEnable配置"><a href="#sessionStatEnable配置" class="headerlink" title="`sessionStatEnable配置"></a><code>`sessionStatEnable</code>配置</h3><p>你可以关闭session统计功能，比如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">&lt;init-param&gt;  </div><div class="line">    &lt;param-name&gt;sessionStatEnable&lt;/param-name&gt;  </div><div class="line">    &lt;param-value&gt;false&lt;/param-value&gt;  </div><div class="line">&lt;/init-param&gt;</div></pre></td></tr></table></figure></p>
-<h3 id="principalSessionName配置"><a href="#principalSessionName配置" class="headerlink" title="principalSessionName配置"></a><code>principalSessionName</code>配置</h3><p>你可以配置<code>principalSessionName</code>，使得druid能够知道当前的session的用户是谁。比如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">&lt;init-param&gt;  </div><div class="line">    &lt;param-name&gt;principalSessionName&lt;/param-name&gt;  </div><div class="line">    &lt;param-value&gt;xxx.user&lt;/param-value&gt;  </div><div class="line">&lt;/init-param&gt;</div></pre></td></tr></table></figure></p>
-<p>根据需要，把其中的<code>xxx.user</code>修改为你<code>user</code>信息保存在session中的<code>sessionName</code>。</p>
-<p>注意：如果你session中保存的是非string类型的对象，需要重载toString方法</p>
-<h3 id="principalCookieName"><a href="#principalCookieName" class="headerlink" title="principalCookieName"></a><code>principalCookieName</code></h3><p>如果你的user信息保存在cookie中，你可以配置<code>principalCookieName</code>，使得druid知道当前的user是谁<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">&lt;init-param&gt;  </div><div class="line">    &lt;param-name&gt;principalCookieName&lt;/param-name&gt;  </div><div class="line">    &lt;param-value&gt;xxx.user&lt;/param-value&gt;  </div><div class="line">&lt;/init-param&gt;</div></pre></td></tr></table></figure></p>
-<p>根据需要，把其中的<code>xxx.user</code>修改为你user信息保存在cookie中的<code>cookieName</code></p>
-<h3 id="profileEnable"><a href="#profileEnable" class="headerlink" title="profileEnable"></a><code>profileEnable</code></h3><p>druid 0.2.7版本开始支持profile，配置<code>profileEnable</code>能够监控单个url调用的sql列表。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">&lt;init-param&gt;  </div><div class="line">    &lt;param-name&gt;profileEnable&lt;/param-name&gt;  </div><div class="line">    &lt;param-value&gt;true&lt;/param-value&gt;  </div><div class="line">&lt;/init-param&gt;</div></pre></td></tr></table></figure></p>
-]]></content>
-    
-    <summary type="html">
-    
-      druid 配置WebStatFilter 网络url统计
-    
-    </summary>
-    
-      <category term="druid" scheme="http://jishusuishouji.github.io/categories/druid/"/>
-    
-    
-      <category term="druid" scheme="http://jishusuishouji.github.io/tags/druid/"/>
     
   </entry>
   

@@ -272,6 +272,173 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://jishusuishouji.github.io/2017/03/27/mysql/mysql-Innodb事务隔离级别-repeatable_read详解/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="技术随手记">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="技术随手记">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/03/27/mysql/mysql-Innodb事务隔离级别-repeatable_read详解/" itemprop="url">
+                  mysql-Innodb事务隔离级别-repeatable read详解
+                </a>
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-03-27T19:04:08+08:00">
+                2017-03-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/mysql/" itemprop="url" rel="index">
+                    <span itemprop="name">mysql</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            <!--noindex-->
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/03/27/mysql/mysql-Innodb事务隔离级别-repeatable_read详解/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count hc-comment-count" data-xid="2017/03/27/mysql/mysql-Innodb事务隔离级别-repeatable_read详解/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+              <!--/noindex-->
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  mysql-Innodb事务隔离级别-repeatable read详解
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+          一、事务隔离级别ANSI/ISO SQL标准定义了4中事务隔离级别：未提交读（read uncommitted），提交读（read committed），重复读（repeatable read），串行读（serializable）。
+对于不同的事务，采用不同的隔离级别分别有不同的结果。不同的隔离级别有不同的现象。主要有下面3种现在：
+1、脏读（dirty read）：一个事务可以读取另一个尚未提交
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2017/03/27/mysql/mysql-Innodb事务隔离级别-repeatable_read详解/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://jishusuishouji.github.io/2017/03/27/mysql/说说MySQL中的事务/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -369,6 +536,10 @@
           
 
           
+              <div class="post-description">
+                  说说MySQL中的事务
+              </div>
+          
 
         </div>
       </header>
@@ -382,10 +553,14 @@
 
       
         
-          说说MySQL中的事务
+          
+          从一个问题开始从ATM机取钱分为以下几个步骤：
+1.登陆ATM机，输入密码；2.连接数据库，验证密码；3.验证成功，获得用户信息，比如存款余额等；4.用户输入需要取款的金额，按下确认键；5.从后台数据库中减掉用户账户上的对应金额；6.ATM吐出钱；7.用户把钱拿走。
+一个简单的取钱，主要分为以上几步。不知道大家有没有“天真”的想过，如果在第5步中，后台数据库中已经把钱减掉了，但是ATM还就是没有吐
+          ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2017/03/27/mysql/说说MySQL中的事务/">
+            <a class="btn" href="/2017/03/27/mysql/说说MySQL中的事务/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -528,6 +703,10 @@
           
 
           
+              <div class="post-description">
+                  ORM到底是用还是不用？
+              </div>
+          
 
         </div>
       </header>
@@ -541,10 +720,10 @@
 
       
         
-          ORM到底是用还是不用？
+          <p>ORM即Object/Relation Mapping的简写，一般称作“对象关系映射”，在Web开发中最常出没于和关系型数据库交互的地方。接口、中间件、库、包，你都可以这么称呼它。<br>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2017/03/27/ORM/ORM到底是用还是不用？/">
+            <a class="btn" href="/2017/03/27/ORM/ORM到底是用还是不用？/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -665,6 +844,10 @@
           
 
           
+              <div class="post-description">
+                  maven 多模块项目
+              </div>
+          
 
         </div>
       </header>
@@ -678,10 +861,12 @@
 
       
         
-          maven 多模块项目
+          
+          
+          
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2017/03/27/maven/maven_多模块项目/">
+            <a class="btn" href="/2017/03/27/maven/maven_多模块项目/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -824,6 +1009,10 @@
           
 
           
+              <div class="post-description">
+                  Maven最佳实践：划分模块
+              </div>
+          
 
         </div>
       </header>
@@ -837,10 +1026,11 @@
 
       
         
-          Maven最佳实践：划分模块
+          <p>“分天下为三十六郡，郡置守，尉，监” —— 《史记·秦始皇本纪》</p>
+<p>所有用Maven管理的真实的项目都应该是分模块的，每个模块都对应着一个<code>pom.xml</code>。它们之间通过继承和聚合（也称作多模块，multi-module）相互关联。那么，为什么要这么做呢？我们明明在开发一个项目，划分模块后，导入Eclipse变成了N个项目，这会带来复杂度，给开发带来不便。<br>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2017/03/27/maven/Maven最佳实践：划分模块/">
+            <a class="btn" href="/2017/03/27/maven/Maven最佳实践：划分模块/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -983,6 +1173,10 @@
           
 
           
+              <div class="post-description">
+                  mongodb最大连接数修改
+              </div>
+          
 
         </div>
       </header>
@@ -996,10 +1190,13 @@
 
       
         
-          mongodb最大连接数修改
+          
+          在nodejs启动时一次性开了200个Mongodb连接，目的是为了高并发时减少数据库连接耗时。如果做cluster开10个实例就有2000个连接了，这样就有些节点连接不到数据库的情况。
+原因是Mongodb默认最大连接数只有819个，于是通过在启动里面加参数--maxConns=3000来提高最大连接数。然后重启服务，但悲剧的是通过db.serverStatus().connections;查看
+          ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2017/03/26/mongodb/mongodb最大连接数修改/">
+            <a class="btn" href="/2017/03/26/mongodb/mongodb最大连接数修改/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1142,6 +1339,10 @@
           
 
           
+              <div class="post-description">
+                  Spring Cloud Netflix构建微服务入门实践
+              </div>
+          
 
         </div>
       </header>
@@ -1155,10 +1356,13 @@
 
       
         
-          Spring Cloud Netflix构建微服务入门实践
+          
+          在使用Spring Cloud Netflix构建微服务之前，我们先了解一下Spring Cloud集成的Netflix OSS的基础组件Eureka，对于Netflix的其他微服务组件，像Hystrix、Zuul、Ribbon等等本文暂不涉及，感兴趣可以参考官网文档。这里，我们用最基础的Eureka来构建一个最基础的微服务应用，来演示如何构建微服务，了解微服务的基本特点。
+EurekaEurek
+          ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2017/03/26/spring/Spring_Cloud_Netflix构建微服务入门实践/">
+            <a class="btn" href="/2017/03/26/spring/Spring_Cloud_Netflix构建微服务入门实践/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1301,6 +1505,10 @@
           
 
           
+              <div class="post-description">
+                  ZooKeeper 基础知识、部署和应用程序
+              </div>
+          
 
         </div>
       </header>
@@ -1314,10 +1522,15 @@
 
       
         
-          ZooKeeper 基础知识、部署和应用程序
+          
+          Apache ZooKeeper 是一个面向分布式应用程序的高性能协调服务器。它使用一个简单的接口暴露公共服务（比如命名和配置管理、同步和组服务），让用户不必从头开始编程。它为实现共识、组管理、领导者选举和到场协议（presence protocol）配备了现成的支持。 的示例。
+简介ZooKeeper 是一个面向分布式系统的构建块。当设计一个分布式系统时，一般需要设计和开发一些协调服务：
+
+名称
+          ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2017/03/26/zookeeper/ZooKeeper_基础知识、部署和应用程序/">
+            <a class="btn" href="/2017/03/26/zookeeper/ZooKeeper_基础知识、部署和应用程序/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1460,6 +1673,10 @@
           
 
           
+              <div class="post-description">
+                  Pointfree 编程风格指南
+              </div>
+          
 
         </div>
       </header>
@@ -1473,10 +1690,11 @@
 
       
         
-          Pointfree 编程风格指南
+          <h2 id="函数式编程有什么用？"><a href="#函数式编程有什么用？" class="headerlink" title="函数式编程有什么用？"></a>函数式编程有什么用？</h2><p>Pointfree就是如何使用函数式编程的答案。</p>
+<h3 id="一、程序的本质"><a href="#一、程序的本质" class="headerlink" title="一、程序的本质"></a>一、程序的本质</h3><p><img src="/img/程序的本质.png" alt=""><br>左侧是数据输入（input），中间是一系列的运算步骤，对数据进行加工，右侧是最后的数据输出（output）。一个或多个这样的任务，就组成了程序。<br>输入和输出（统称为 I/O）与键盘、屏幕、文件、数据库等相关。这里的关键是，中间的运算部分不能有 I/O 操作，应该是纯运算，即通过纯粹的数学运算来求值。否则，就应该拆分出另一个任务。<br>I/O 操作往往有现成命令，大多数时候，编程主要就是写中间的那部分运算逻辑。现在，主流写法是过程式编程和面向对象编程，但是我觉得，最合适纯运算的是函数式编程。<br>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2017/03/25/hanshushi/Pointfree_编程风格指南/">
+            <a class="btn" href="/2017/03/25/hanshushi/Pointfree_编程风格指南/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1619,164 +1837,9 @@
           
 
           
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          用Nginx搭建CDN服务器方法-开启Nginx缓存与镜像,自建图片服务器
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2017/03/23/nginx/用Nginx搭建CDN服务器方法-开启Nginx缓存与镜像,自建图片服务器/">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://jishusuishouji.github.io/2017/03/23/druid/druid_配置WebStatFilter_网络url统计/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="技术随手记">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="技术随手记">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/03/23/druid/druid_配置WebStatFilter_网络url统计/" itemprop="url">
-                  druid 配置WebStatFilter 网络url统计
-                </a>
-              
-            
-          </h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-03-23T22:54:59+08:00">
-                2017-03-23
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/druid/" itemprop="url" rel="index">
-                    <span itemprop="name">druid</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-            <!--noindex-->
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2017/03/23/druid/druid_配置WebStatFilter_网络url统计/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count hc-comment-count" data-xid="2017/03/23/druid/druid_配置WebStatFilter_网络url统计/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-              <!--/noindex-->
-            
-          
-
-          
-          
-
-          
-
-          
-
+              <div class="post-description">
+                  用Nginx搭建CDN服务器方法-开启Nginx缓存与镜像,自建图片服务器
+              </div>
           
 
         </div>
@@ -1791,10 +1854,13 @@
 
       
         
-          druid 配置WebStatFilter 网络url统计
+          
+          Nginx的proxy_cache和proxy_store很强大，利用proxy_store搭建图片服务器镜像实际上就相当于七牛和又拍的镜像CDN功能了，自动拉取图片保存在CDN服务器上。而proxy_cache作为Nginx缓存，既可以用作负载均衡，也可以反向绑定域名。
+用Nginx搭建CDN服务器方法-开启Nginx缓存与镜像,自建图片服务器一、利用Nginx的proxy_cache搭建缓存服
+          ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2017/03/23/druid/druid_配置WebStatFilter_网络url统计/">
+            <a class="btn" href="/2017/03/23/nginx/用Nginx搭建CDN服务器方法-开启Nginx缓存与镜像,自建图片服务器/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1880,7 +1946,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">32</span>
+                <span class="site-state-item-count">33</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1891,7 +1957,7 @@
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">26</span>
+                <span class="site-state-item-count">29</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -1902,7 +1968,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">31</span>
+                <span class="site-state-item-count">32</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

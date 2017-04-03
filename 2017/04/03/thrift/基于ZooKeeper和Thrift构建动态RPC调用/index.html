@@ -1,0 +1,830 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Thrift,RPC,ZoopKeeper," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="技术随手记" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="基于ZooKeeper和Thrift构建动态RPC调用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于ZooKeeper和Thrift构建动态RPC调用">
+<meta property="og:url" content="http://jishusuishouji.github.io/2017/04/03/thrift/基于ZooKeeper和Thrift构建动态RPC调用/index.html">
+<meta property="og:site_name" content="技术随手记">
+<meta property="og:description" content="基于ZooKeeper和Thrift构建动态RPC调用">
+<meta property="og:updated_time" content="2017-04-03T10:52:51.665Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="基于ZooKeeper和Thrift构建动态RPC调用">
+<meta name="twitter:description" content="基于ZooKeeper和Thrift构建动态RPC调用">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://jishusuishouji.github.io/2017/04/03/thrift/基于ZooKeeper和Thrift构建动态RPC调用/"/>
+
+
+
+
+
+  <title> 基于ZooKeeper和Thrift构建动态RPC调用 | 技术随手记 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">技术随手记</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://jishusuishouji.github.io/2017/04/03/thrift/基于ZooKeeper和Thrift构建动态RPC调用/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="技术随手记">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="技术随手记">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+            
+            
+              
+                基于ZooKeeper和Thrift构建动态RPC调用
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-03T18:49:07+08:00">
+                2017-04-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/分布式/" itemprop="url" rel="index">
+                    <span itemprop="name">分布式</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/分布式/RPC/" itemprop="url" rel="index">
+                    <span itemprop="name">RPC</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/分布式/RPC/Thrift/" itemprop="url" rel="index">
+                    <span itemprop="name">Thrift</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            <!--noindex-->
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/04/03/thrift/基于ZooKeeper和Thrift构建动态RPC调用/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count hc-comment-count" data-xid="2017/04/03/thrift/基于ZooKeeper和Thrift构建动态RPC调用/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+              <!--/noindex-->
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  基于ZooKeeper和Thrift构建动态RPC调用
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="一、基本功能"><a href="#一、基本功能" class="headerlink" title="一、基本功能"></a>一、基本功能</h2><p>实现服务端向ZooKeeper集群注册自己提供的服务，并且把自己的IP地址和服务端口创建到具体的服务目录下。客户端向ZooKeeper集群监听自己关注的RPC服务（例如：<code>sayHello</code>和天气服务）， 监听服务目录下的IP地址列表变化。若要在自己的项目中使用，可以采用阿里的Dubbo分布式服务框架。<br>在WEB端展示可以访问的RPC服务，WEB端可以通过RPC客户端向指定IP地址的RPC服务器发出调用RPC服务，RPC服务端向客户端反馈提供的服务内容，WEB客户端展示内容。<br>只是展示动态RPC基本原理，真正的调用一般都不是web端触发的，应该是RPC的客户端根据监听到的多个IP服务提供者，根据每个IP的负载情况，动态选择最优可用的RPC服务端并且调用服务。 </p>
+<p>我们提供2个基本RPC服务，网络及应用部署如图:<br>　　这里写图片描述<br>最终</p>
+<p>二、ZooKeeper介绍</p>
+<p>ZooKeeper是一个开放源代码的分布式应用程序协调服务，由知名互联网公司雅虎创建，是Google的Chubby一个开源的实现，是Hadoop和Hbase的重要组件。 ZooKeeper的目标就是封装好复杂易出错的关键服务，将简单易用的接口和性能高效、功能稳定的系统提供给用户。它是一个为分布式应用提供一致性服务的软件，以下是ZooKeeper典型的应用场景</p>
+<p>数据发布和订阅：就是发布者将数据发布到ZooKeeper的一个或一系列节点上，供订阅者进行数据订阅，进而达到动态获取数据的目的，实现配置信息的集中管理和数据的动态更新。<br>负载均衡：用来对多个计算机、网络连接、CPU、磁盘驱动或其他资源进分配负载，已达到优化资源使用、最大化吞吐率、最下化响应和避免过载。<br>命名服务：命名服务是分布式系统最基本的公共服务之一。在分布式系统中，被命名的实体通常可以就是集群中的机器、提供的服务地址或远程对象等–这些我们都可以统称它们的名称（Name），其中较常见的就是一些分布式服务框架（如RPC、RMI）中的服务地址列表，通过使用命名服务，客户端应用能够指定名字来获取资源的实体、服务地址和提供者的信息。<br>集群管理：随着分布式系统规模的日益扩大，集群中的机器规模也随之变大、因此集群监控与集群控制就变得很重要。<br>分布式锁：分布式锁就是控制分布式系统之间同步访问共享资源的一种方式。在分布式系统中，常常需要协调他们的动作。如果不同的系统或是同一个系统的不同主机之间共享了一个或一组资源，那么访问这些资源的时候，往往需要互斥来防止彼此干扰来保证一致性，在这种情况下，便需要使用到分布式锁。<br>分布式队列：利用Zookeeper的功能我们也可以实现类似于ActiveMQ、Kafka和HornetQ等的消息中间件。<br>三、构建ZooKeeper集群机及RPC服务机</p>
+<p>在Ubuntu 桌面系统下完成，利用Oracle下的虚拟机软件VirtualBox。虚拟出了５个Ubuntu 操作系统，３个 ZooKeeper机，分别是ZooKeeper-1,ZooKeeper-2,ZooKeeper-3个构建出一个 ZooKeeper集群。２各ＲＰＣ服务机，把在宿主机编写好的程序，通过打包的方式，发布到ＲＰＣ服务机的jetty下，提供ＲＰＣ服务 。</p>
+<p>四、配置ZooKeeper</p>
+<p>从官方网站下载后，解压到了虚拟机的/work/目录下，将/work/zookeeper-3.4.8/conf/目录下的zoo_sample.cfg重新复制一份命名位zoo.cfg,打开zoo.cfg文件。　<br>　修改配置文件：</p>
+<pre><code>tickTime=2000    
+ddataDir=/work/data/zookeeper   
+clientPort=2181 
+</code></pre><p>　   Server.1=192.168.0.3:2888:3888<br>     Server.2=192.168.0.4:2888:3888<br>     Server.3=192.168.0.5:2888:3888<br>1<br>2<br>3<br>4<br>5<br>6<br>1<br>2<br>3<br>4<br>5<br>6<br>参数说明:<br>tickTime: zookeeper中使用的基本时间单位, 毫秒值.<br>dataDir: 数据和日志的目录. 可以是任意目录.此处我们配置到了/work/data/zookeeper 目录下<br>　　　　　clientPort: 监听client连接的端口号.<br>　　　　　Server.X=HOST/IP:port:port　<br>　　　　　Server.X ：Ｘ是我们配置zookeeper集群服务每台机子的编号，需要在每台机子的/work/data/zookeeper/下创建myid文件，内容就是机子的编号。</p>
+<p>五、启动、关闭</p>
+<p>切换到/work/zookeeper-3.4.8/bin目录下 </p>
+<ol>
+<li><p>启动<br>./zkServer.sh start</p>
+<p>ZooKeeper JMX enabled by default<br>　　Using config: /work/zookeeper-3.4.8/bin/../conf/zoo.cfg<br>　　Starting zookeeper … STARTED<br>1<br>2<br>3<br>1<br>2<br>3<br>验证<br>./zkCli.sh<br>[zk: localhost:2181(CONNECTED) 0]<br>1<br>1<br>进入ZooKeeper 客户端终端命令就说明ZooKeeper 启动成功了。 </p>
+</li>
+<li><p>关闭<br>./zkServer.sh stop</p>
+<p>ZooKeeper JMX enabled by default<br>　　Using config: /work/tool/zookeeper-3.4.8/bin/../conf/zoo.cfg<br>　　Stopping zookeeper … STOPPED<br>1<br>2<br>3<br>1<br>2<br>3<br>六、利用Thrift提供RPC服务</p>
+</li>
+</ol>
+<p>定义Weather.thrift文件<br>namespace java com.rpc.weather<br>　　　　 　　service weather{<br>    　　string getWeather(1:string city)<br> 　　}　<br>1<br>2<br>3<br>4<br>1<br>2<br>3<br>4<br>生成JAVA文件接口<br>在windows环境下使用 Thrift 工具编译 .thrift文件，就会生成相应的 .java 文件。该文件包含了在 .thrift 文件中描述的服务类的接口定义，即 .Iface 接口，以及服务调用的底层通信细节。命令如下:　thrift.exe -r -gen java 　weather.thrift。该命令会自动生产相应的JAVA文件<br>这里写图片描述<br>gen-java目录就是生成好代码的地方<br>实现RPC接口功能<br>weather的接口实现比较复杂，在这里我们用简单些Hello来说明，道理是一样的。Hello接口的实现： hello只是一个简单的反馈功能，它把客户端传递过来的参数经过简单的组合一起反馈给ＲＰＣ的客户端，本例只是简单展示了一下ＲＰＣ服务处理能力，实现上面已经生产好的Hello.Iface 接口。代码如下：<br>public class HelloServiceImpl implements com.rpc.sayhello.Hello.Iface {<br>    public String helloString(String para) throws TException {<br>        System.out.println(“helloString be calling”);<br>        return “你好:” + para + “,欢迎来到”+GetIP.IP()+”服务器!”;<br>    }<br>}<br>1<br>2<br>3<br>4<br>5<br>6<br>1<br>2<br>3<br>4<br>5<br>6<br>七、RPC服务注册</p>
+<p>我们在ZooKeeper注册了2个服务（2个ZNode节点），分别是sayHello及Weather。用2个IP提供RPC的服务。目录结构如图-：<br>这里写图片描述<br>在Zookeeper的每个节点，都可以分为持久节点和临时节点　持久节点是指一旦这个节点被创建了，除非主动进行删除操作，否则这个节点将一直保存在ＺooKeeper中.而临时节点就不一样了，它的生命周期和客户端回话绑定，一旦客户端回话失效，那么这个客户端创建的所有临时节点都会被移除。ZooKeeper主要是利用了“心跳检测”功能，它会定时向各个服务提供者发送一个请求，如果长期没有响应，服务中心就认为该服务提供者已经“挂了”，并将其剔除。注意临时节点下不可以在创建任何节点。</p>
+<p>注册天气服务的主要代码：</p>
+<p>private void createServerHost()  {<br>        Stat stat = zookeeper.exists(WeatherConstants.RPCNAME + “/“ + GetIP.IP() + “:” + WeatherConstants.WeahterPort,false);//检查节点是否存在<br>        if (stat == null) {<br>　　　　　　// 这里是临时的节点，会因服务器的宕机、网络失效而消失<br>    path = zookeeper.create(WeatherConstants.RPCNAME + “/“ + GetIP.IP() + “:” + 　　WeatherConstants.WeahterPort, “”.getBytes(),Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);//创建节点　<br>        }<br>    }<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>八、RPC客戶端服务监听</p>
+<p>Watcher(事件监听器)，是ZooKeeper的一个很重要的特性。ZooKeeper允许用户在指定的节点上注册一些Watcher，并且在一些特定的事件触发的时候，ZooKeeper服务器会将事件通知到感兴趣的客户端。利用Watcher监听2个服务节点下的IP变化，一旦我们监听的服务下的节点有变化（增加或减少）ZooKeeper就会向我们注册的监听类发送“NodeChildrenChanged”事件，我们就可以在此时更新地址列表变化，从而进行更新。<br>需要注意的是ZooKeeper服务器在向客户端发送Watcher的通知的时候，仅仅只会发出一个通知，而不会把节点的变化情况发送给客户端，客户端需要自己重新获取。另外，由于Watcher通知是一次性的，一旦触发一次通知后，该Watcher就失效了，因此客户端需要反复注册Watcher。</p>
+<p>监听服务列表的变化<br>在监听WatchWeather类内我们定义了一个weatherlist的数组列表，用来存储提供天气的所有ＲＰＣ服务的地址和端口。<br>通过zookeeper.getChildren获取在zookeeper注册的所有提供天气的ＩＰ地址。并且注册了在这个节点下的监听类。</p>
+<p>　　　　weatherlist = zookeeper.getChildren(WeatherConstants.RPCNAME, this);<br>　　　 //在监听的WatchWeather实现Watcher接口的process方法：<br>　　　　public void process(WatchedEvent event) {<br>        if (EventType.NodeChildrenChanged == event.getType()) { 　<br>        　　weatherlist = zookeeper.getChildren(WeatherConstants.RPCNAME, this);<br>　　　　　}  　<br>    }<br>　　<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>只要我们监听的节点下有变动就会接受到NodeChildrenChanged 事件，在这里我们再次获取了节点下的最新ＩＰ地址列表，并且重新注册了监听类。</p>
+<p>九、调用RPC服务</p>
+<p>public class CallWeatherRPC {<br>    public String callWeather(String ip, int port, String city) {<br>        String retString = null;<br>        TTransport transport = new TSocket(ip, port);<br>        transport.open();<br>        TProtocol protocol = new TBinaryProtocol(transport);<br>        weather.Client client = new weather.Client(protocol);//weather为定义接口实现的文件<br>        retString = client.getWeather(city);//调用ＲＰＣ服务<br>        transport.close();<br>        return retString;<br>    }<br>}<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>此处是使用了Thrift的客户端调用RPC服务端的相应程序，主要特点是IP地址不固定，可以有多地址可以调用。</p>
+<p>项目代码地址：<a href="http://pan.baidu.com/s/1i4J0htb" target="_blank" rel="external">http://pan.baidu.com/s/1i4J0htb</a></p>
+<p>顶<br>1</p>
+<p>踩<br>0</p>
+<p>下一篇JDBC-基础<br>参考知识库<br>img<br>Hbase知识库<br>8152关注|68收录<br>img<br>Hadoop知识库<br>6774关注|556收录<br>img<br>Java 知识库<br>24943关注|1456收录<br>img<br>Oracle知识库<br>4736关注|252收录<br>img<br>操作系统知识库<br>5616关注|2210收录<br>img<br>Java SE知识库<br>25214关注|477收录<br>img<br>Java EE知识库<br>17098关注|1273收录<br>猜你在找<br>2017最新Linux集群全网服务器数据备份方案超细实战课Java分布式架构：EJB+消息中间件+CORBA高级Ceph—分布式存储系统的另一个选择高并发集群架构超细精讲Java分布式架构：使用xFire和CXF开发WEB服务<br>基于Spring Boot和Spring Cloud实现微服务架构学习Tumblr150亿月浏览量背后的架构挑战上Tumblr150亿月浏览量背后的架构挑战上微服务Microservice那点事Thrift 个人实战–RPC服务的发布订阅实现基于Zookeeper服务<br>查看评论</p>
+<p>  暂无评论</p>
+<p>发表评论<br>用 户 名：<br>ccssddnnbbookkee<br>评论内容：<br>插入代码</p>
+<p>提交  </p>
+<ul>
+<li>以上用户言论只代表其个人观点，不代表CSDN网站的观点或立场<br>核心技术类目<br>全部主题 Hadoop AWS 移动游戏 Java Android iOS Swift 智能硬件 Docker OpenStack VPN Spark ERP IE10 Eclipse CRM JavaScript 数据库 Ubuntu NFC WAP jQuery BI HTML5 Spring Apache .NET API HTML SDK IIS Fedora XML LBS Unity Splashtop UML components Windows Mobile Rails QEMU KDE Cassandra CloudStack FTC coremail OPhone  CouchBase 云计算 iOS6 Rackspace  Web App SpringSide Maemo Compuware 大数据 aptech Perl Tornado Ruby Hibernate ThinkPHP HBase Pure Solr Angular Cloud Foundry Redis Scala Django Bootstrap<br>个人资料<br>访问我的空间<br>火柴盒zhang</li>
+</ul>
+<p>访问：21694次<br>积分：394<br>等级：<br>排名：千里之外<br>原创：18篇转载：0篇译文：0篇评论：3条<br>文章搜索</p>
+<p> 搜索<br>文章分类<br>JDBC(1)<br>mybatis(13)<br>ZooKeeper(1)<br>Kafka(1)<br>docker(2)<br>文章存档<br>2016年07月(2)<br>2016年06月(1)<br>2016年05月(14)<br>2016年04月(1)<br>阅读排行<br>初识Apache Kafka+JAVA程序实例(6735)<br>基于ZooKeeper和Thrift构建动态RPC调用(3271)<br>MyBatis 入门(一)–建立数据库连接及基本操作(1958)<br>MyBatis 入门(二)–用接口方式访问数据库(1528)<br>MyBatis主流程分析之(三)-准备SQL语句和参数替换、执行(1342)<br>MyBatis主流程分析之(四)-通过反射来设置、获取属性值(1277)<br>DOCKER学习之(一) 镜像部分常用命令(876)<br>MyBatis之databaseIdProvider多数据库支持(741)<br>MyBatis 入门(五)–typeHandlers(715)<br>DOCKER学习之(二) 容器部分常用命令(598)<br>评论排行<br>初识Apache Kafka+JAVA程序实例(2)<br>MyBatis 入门(一)–建立数据库连接及基本操作(1)<br>基于ZooKeeper和Thrift构建动态RPC调用(0)<br>MyBatis Generator代码生成工具及参考文档链接(0)<br>MyBatis 入门(六)–分页查询（2） －插件方式(0)<br>MyBatis 入门(六)–分页查询（1）(0)<br>MyBatis 入门(五)–typeHandlers(0)<br>MyBatis 入门(四)–存储过程(0)<br>DOCKER学习之(二) 容器部分常用命令(0)<br>MyBatis 入门(二)–用接口方式访问数据库(0)<br>推荐文章</p>
+<ul>
+<li>CSDN日报20170402 ——《我希望进入大学时就能知道的一些事儿》</li>
+<li>最全面总结 Android WebView与 JS 的交互方式</li>
+<li>蓝牙DA14580开发：固件格式、二次引导和烧写</li>
+<li>你不知道的 Android WebView 使用漏洞<br>最新评论<br>MyBatis 入门(一)–建立数据库连接及基本操作<br>qq_24744145: 很好，加油<br>初识Apache Kafka+JAVA程序实例<br>thewindkee: 终于懂了些 ， 谢谢<br>初识Apache Kafka+JAVA程序实例<br>风云诀: 不错的文章，谢谢分享，只是文中有个别错别字。<br>公司简介|招贤纳士|广告服务|联系方式|版权声明|法律顾问|问题报告|合作伙伴|论坛反馈<br>网站客服杂志客服微博客服webmaster@csdn.net400-600-2320|北京创新乐知信息技术有限公司 版权所有|江苏知之为计算机有</li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Thrift/" rel="tag"># Thrift</a>
+          
+            <a href="/tags/RPC/" rel="tag"># RPC</a>
+          
+            <a href="/tags/ZoopKeeper/" rel="tag"># ZoopKeeper</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/04/03/thrift/Apache_Thrift学习之一（入门及Java实例演示）/" rel="next" title="Apache Thrift学习之一（入门及Java实例演示）">
+                <i class="fa fa-chevron-left"></i> Apache Thrift学习之一（入门及Java实例演示）
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="hypercomments_widget"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="技术随手记" />
+          <p class="site-author-name" itemprop="name">技术随手记</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+           
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">33</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">29</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">32</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、基本功能"><span class="nav-number">1.</span> <span class="nav-text">一、基本功能</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">技术随手记</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+		<script type="text/javascript">
+		_hcwp = window._hcwp || [];
+
+		_hcwp.push({widget:"Bloggerstream", widget_id: 89144, selector:".hc-comment-count", label: "{\%COUNT%\}" });
+
+		
+		_hcwp.push({widget:"Stream", widget_id: 89144, xid: "2017/04/03/thrift/基于ZooKeeper和Thrift构建动态RPC调用/"});
+		
+
+		(function() {
+		if("HC_LOAD_INIT" in window)return;
+		HC_LOAD_INIT = true;
+		var lang = (navigator.language || navigator.systemLanguage || navigator.userLanguage || "en").substr(0, 2).toLowerCase();
+		var hcc = document.createElement("script"); hcc.type = "text/javascript"; hcc.async = true;
+		hcc.src = ("https:" == document.location.protocol ? "https" : "http")+"://w.hypercomments.com/widget/hc/89144/"+lang+"/widget.js";
+		var s = document.getElementsByTagName("script")[0];
+		s.parentNode.insertBefore(hcc, s.nextSibling);
+		})();
+		</script>
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
