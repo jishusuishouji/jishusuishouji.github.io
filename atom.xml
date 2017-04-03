@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://jishusuishouji.github.io/"/>
-  <updated>2017-04-03T04:00:31.737Z</updated>
+  <updated>2017-04-03T09:21:34.367Z</updated>
   <id>http://jishusuishouji.github.io/</id>
   
   <author>
@@ -14,6 +14,72 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>facebook的thriff 基于rpc的远程调用实现</title>
+    <link href="http://jishusuishouji.github.io/2017/04/03/thriff/facebook%E7%9A%84thriff_%E5%9F%BA%E4%BA%8Erpc%E7%9A%84%E8%BF%9C%E7%A8%8B%E8%B0%83%E7%94%A8%E5%AE%9E%E7%8E%B0/"/>
+    <id>http://jishusuishouji.github.io/2017/04/03/thriff/facebook的thriff_基于rpc的远程调用实现/</id>
+    <published>2017-04-03T09:05:33.000Z</published>
+    <updated>2017-04-03T09:21:34.367Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="RPC、RMI、JMS概念："><a href="#RPC、RMI、JMS概念：" class="headerlink" title="RPC、RMI、JMS概念："></a>RPC、RMI、JMS概念：</h2><h3 id="RPC与RMI的对比"><a href="#RPC与RMI的对比" class="headerlink" title="RPC与RMI的对比"></a>RPC与RMI的对比</h3><p>远程过程调用 (RPC)是平台中立的，它不理会操作系统之间以及语言之间的差异。即RPC支持多种语言，而 RMI只支持Java写的应用程序。</p>
+<p>另外RMI调用远程对象方法，允许方法返回Java 对象以及基本数据类型。而RPC 不支持对象的概念，传送到RPC服务的消息由外部数据表示 (External Data Representation, XDR) 语言表示，这种语言抽象了字节序类和数据类型结构之间的差异。只有由XDR定义的数据类型才能被传递，RPC不允许传递对象。可以说RMI是面向对象方式的 Java RPC。</p>
+<h3 id="JMS"><a href="#JMS" class="headerlink" title="JMS"></a>JMS</h3><p>Java消息服务(Java Messaging Service, JMS) 是一种允许应用程序创建、发送、接受和读取消息的Java API。JMS与RMI的区别在于，采用JMS服务，对象是在物理上被异步从网络的某个JVM上直接移动到另一个JVM上。而RMI对象是绑定在本地JVM中，只有函数参数和返回值是通过网络传送的。</p>
+<h2 id="thrift概念"><a href="#thrift概念" class="headerlink" title="thrift概念"></a>thrift概念</h2><p>是facebook提供的一种跨平台远程通信框架，效率比较高。</p>
+<h2 id="thirift用法"><a href="#thirift用法" class="headerlink" title="thirift用法"></a>thirift用法</h2><h3 id="1-编写一个thrift文件Test-thrift，用于确定连接双方的接口。"><a href="#1-编写一个thrift文件Test-thrift，用于确定连接双方的接口。" class="headerlink" title="1.编写一个thrift文件Test.thrift，用于确定连接双方的接口。"></a>1.编写一个thrift文件<code>Test.thrift</code>，用于确定连接双方的接口。</h3><p>简单例子：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">service Test &#123;</div><div class="line">  void  ping(1: i32 length)</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="2-使用thrift编译"><a href="#2-使用thrift编译" class="headerlink" title="2.使用thrift编译"></a>2.使用thrift编译</h3><p>thrift可以用不同命令生成不同文件：</p>
+<h4 id="a-生成java文件"><a href="#a-生成java文件" class="headerlink" title="a.生成java文件"></a>a.生成java文件</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">thrift  -gen java Test.thrift</div></pre></td></tr></table></figure>
+<p>完成后生成一个java文件：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">public class Test &#123;                                   </div><div class="line">  public interfaceIface &#123;                   </div><div class="line">    public void ping(int length)throws org.apache.thrift.TException;             </div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="b-生成node-js文件："><a href="#b-生成node-js文件：" class="headerlink" title="b.生成node.js文件："></a>b.生成node.js文件：</h3><p>thrift原生支持node.js<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">thrift  -gen js:node Test.thrift</div></pre></td></tr></table></figure></p>
+<p>完成后生成<code>Test.js</code>和<code>Test_types.js</code>两个文件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">var Thrift = require(&apos;thrift&apos;).Thrift;</div><div class="line">                                </div><div class="line">var ttypes = require(&apos;./Test_types&apos;);</div><div class="line">//HELPER FUNCTIONS AND STRUCTURES</div><div class="line">                                </div><div class="line">var Test_ping_args =function(args) &#123;</div><div class="line">  this.length = null;</div><div class="line">  if(args) &#123;</div><div class="line">    if(args.length !== undefined) &#123;</div><div class="line">      this.length = args.length;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>不过需要在node.js里加载thrift库：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">npm intall thrift</div></pre></td></tr></table></figure></p>
+<p>准备工作到此结束！</p>
+<h2 id="3-实战："><a href="#3-实战：" class="headerlink" title="3.实战："></a>3.实战：</h2><p>使用java当客户端,Node.js当服务端。<br>java客户端代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">package apache.thrift;</div><div class="line">              </div><div class="line">import org.apache.thrift.TException;</div><div class="line">import org.apache.thrift.protocol.TBinaryProtocol;</div><div class="line">import org.apache.thrift.protocol.TProtocol;</div><div class="line">import org.apache.thrift.transport.TFramedTransport;</div><div class="line">import org.apache.thrift.transport.TSocket;</div><div class="line">import org.apache.thrift.transport.TTransport;</div><div class="line">import org.apache.thrift.transport.TTransportException;</div><div class="line">              </div><div class="line"></div><div class="line">public class TestUserStorage &#123;</div><div class="line">    public static void main(String[] args) &#123;</div><div class="line">        TTransport transport =new TFramedTransport(new TSocket(&quot;localhost&quot;,9799));</div><div class="line">        try&#123;</div><div class="line">            transport.open();</div><div class="line">        &#125;catch(TTransportException e1) &#123;</div><div class="line">            e1.printStackTrace();</div><div class="line">        &#125;</div><div class="line">        TProtocol protocol =new TBinaryProtocol(transport);</div><div class="line">              </div><div class="line">        UserStorage.Client client =new UserStorage.Client(protocol);</div><div class="line">        try&#123;</div><div class="line">            client.store(new UserProfile(1,&quot;&quot;,&quot;&quot;));</div><div class="line">            System.out.println(client.retrieve(1));</div><div class="line">        &#125;catch(TException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125;</div><div class="line">    &#125;     </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>注意两个地方：thrift在java中的实现很多，但是node-thrift模块目前只支持<code>TFramedTransport</code>，<code>TBinaryProtocol</code>，所以使用其他实现时server会出错。另外transport是需要先open进行连接的。</p>
+<p>node服务端代码：</p>
+<pre><code>var thrift = require(&apos;thrift&apos;);
+
+var UserStorage = require(&apos;./gen-nodejs/UserStorage.js&apos;),
+    ttypes = require(&apos;./gen-nodejs/user_types&apos;);
+
+var users = {};
+
+var server = thrift.createServer(UserStorage, {
+  store:function(user, success) {
+    console.log(&quot;server stored:&quot;, user.uid);
+    users[user.uid] = user;
+    success();
+  },
+
+  retrieve:function(uid, success) {
+    console.log(&quot;server retrieved:&quot;, uid);
+    success(users[uid]);
+  },
+});
+
+server.listen(9799);
+</code></pre><h4 id="输出结果："><a href="#输出结果：" class="headerlink" title="输出结果："></a>输出结果：</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">client: UserProfile(uid:1, name:, blurb:)</div><div class="line">server: server stored: 1</div><div class="line">server retrieved: 1</div></pre></td></tr></table></figure>
+]]></content>
+    
+    <summary type="html">
+    
+      facebook的thriff 基于rpc的远程调用实现
+    
+    </summary>
+    
+      <category term="RPC" scheme="http://jishusuishouji.github.io/categories/RPC/"/>
+    
+      <category term="thriff" scheme="http://jishusuishouji.github.io/categories/RPC/thriff/"/>
+    
+    
+      <category term="thriff" scheme="http://jishusuishouji.github.io/tags/thriff/"/>
+    
+      <category term="rpc" scheme="http://jishusuishouji.github.io/tags/rpc/"/>
+    
+      <category term="facebook" scheme="http://jishusuishouji.github.io/tags/facebook/"/>
+    
+  </entry>
   
   <entry>
     <title>hexo安装部署</title>
@@ -60,7 +126,7 @@
     <link href="http://jishusuishouji.github.io/2017/04/03/redis/Redis_Cluster%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/"/>
     <id>http://jishusuishouji.github.io/2017/04/03/redis/Redis_Cluster实现原理/</id>
     <published>2017-04-03T00:56:20.000Z</published>
-    <updated>2017-04-03T04:11:38.263Z</updated>
+    <updated>2017-04-03T09:04:19.054Z</updated>
     
     <content type="html"><![CDATA[<h2 id="一、Redis-Cluster主要特性和设计"><a href="#一、Redis-Cluster主要特性和设计" class="headerlink" title="一、Redis Cluster主要特性和设计"></a>一、Redis Cluster主要特性和设计</h2><h3 id="集群目标"><a href="#集群目标" class="headerlink" title="集群目标"></a>集群目标</h3><p>1）高性能和线性扩展，最大可以支撑到1000个节点；Cluster架构中无Proxy层，Master与slave之间使用异步replication，且不存在操作的merge。（即操作不能跨多个nodes，不存在merge层）<br>2）一定程度上保证writes的安全性，需要客户端容忍一定程度的数据丢失：集群将会尽可能（best-effort）保存客户端write操作的数据；通常在failover期间，会有短暂时间内的数据丢失（因为异步replication引起）；当客户端与少数派的节点处于网络分区时（network partition），丢失数据的可能性会更高。（因为节点有效性检测、failover需要更长的时间）<br>3）可用性：只要集群中大多数master可达、且失效的master至少有一个slave可达时，集群都可以继续提供服务；同时“replicas migration”可以将那些拥有多个slaves的master的某个slave，迁移到没有slave的master下，即将slaves的分布在整个集群相对平衡，尽力确保每个master都有一定数量的slave备份。</p>
 <p>（Redis Cluster集群由多个shard组成，每个shard可以由一个master和多个slaves构成，数据根据hash slots配额分布在多个shard节点上，节点之间建立双向TCP链接用于有效性检测、Failover等，Client直接与shard节点进行通讯；Cluster集群没有Proxy层，也没有中央式的Master用于协调集群状态或者state存储；集群暂不提供动态reblance策略）</p>
@@ -69,45 +135,22 @@
 <p>Cluster中实现了一个称为“hash tags”的概念，每个key都可以包含一个自定义的“tags”，那么在存储时将根据tags计算此key应该分布在哪个nodes上（而不是使用key计算，但是存储层面仍然是key）；此特性，可以强制某些keys被保存在同一个节点上，以便于进行“multikey”操作，比如“<code>foo</code>”和“<code>{foo}.student</code>”将会被保存在同一个node上。不过在人工对slots进行resharding期间，multikey操作可能不可用。</p>
 <p>我们在Redis单例中，偶尔会用到“SELECT”指令，即可以将key保存在特定的database中（默认database索引号为0）；但是在Cluster环境下，将不支持<code>SELECT</code>命令，所有的key都将保存在默认的database中。</p>
 <h3 id="客户端与Server角色"><a href="#客户端与Server角色" class="headerlink" title="客户端与Server角色"></a>客户端与Server角色</h3><p>集群中nodes负责存储数据，保持集群的状态，包括keys与nodes的对应关系（内部其实为slots与nodes对应关系）。nodes也能够自动发现其他的nodes，检测失效的节点，当某个master失效时还应该能将合适的slave提升为master。</p>
-<p>为了达成这些行为，集群中的每个节点都通过TCP与其他所有nodes建立连接，它们之间的通信协议和方式称为“Redis Cluster Bus”。Nodes之间使用gossip协议向其他nodes传播集群信息，以达到自动发现的特性，通过发送ping来确认其他nodes工作是否正常，也会在合适的时机发送集群的信息。当然在Failover时（包括人为failover）也会使用Bus来传播消息。<br>（gossip：最终一致性，分布式服务数据同步算法，node首选需要知道（可以读取配置）集群中至少一个seed node，此node向seed发送ping请求，此时seed节点pong返回自己已知的所有nodes列表，然后node解析nodes列表并与它们都建立tcp连接，同时也会向每个nodes发送ping，并从它们的pong结果中merge出全局nodes列表，并逐步与所有的nodes建立连接…….数据传输的方式也是类似，网络拓扑结构为full mesh）<br>    因为Node并不提供Proxy机制，当Client将请求发给错误的nodes时（此node上不存在此key所属的slot），node将会反馈“MOVED”或者“ASK”错误信息，以便Client重新定向到合适的node。理论上，Client可以将请求发送给任意一个nodes，然后根据在根据错误信息转发给合适的node，客户端可以不用保存集群的状态信息，当然这种情况下性能比较低效，因为Client可能需要2次TCP调用才能获取key的结果，通常客户端会缓存集群中nodes与slots的映射关系，并在遇到“Redirected”错误反馈时，才会更新本地的缓存。</p>
-<pre><code>安全写入（write safety）
-在Master-slaves之间使用异步replication机制，在failover之后，新的Master将会最终替代其他的replicas（即slave）。在出现网络分区时（network partition），总会有一个窗口期（node timeout）可能会导致数据丢失；不过，Client与多数派的Master、少数派Master处于一个分区（网络分区，因为网络阻断问题，导致Clients与Nodes被隔离成2部分）时，这两种情况下影响并不相同。
-1）write提交到master，master执行完毕后向Client反馈“OK”，不过此时可能数据还没有传播给slaves（异步replication）；如果此时master不可达的时间超过阀值（node timeout，参见配置参数），那么将触发slave被选举为新的Master（即Failover），这意味着那些没有replication到slaves的writes将永远丢失了！
-2）还有一种情况导致数据丢失：
-    A）因为网络分区，此时master不可达，且Master与Client处于一个分区，且是少数派分区。
-    B）Failover机制，将其中一个slave提升为新Master。
-    C）此后网络分区消除，旧的Master再次可达，此时它将被切换成slave。
-    D）那么在网络分区期间，处于少数派分区的Client仍然将write提交到旧的Master，因为它们觉得Master仍然有效；当旧的Master再次加入集群，切换成slave之后，这些数据将永远丢失。
-
-
-
-在第二种情况下，如果Master无法与其他大多数Masters通讯的时间超过阀值后，此Master也将不再接收Writes，自动切换为readonly状态。当网络分区消除后，仍然会有一小段时间，客户端的write请求被拒绝，因为此时旧的Master需要更新本地的集群状态、与其他节点建立连接、角色切换为slave等等，同时Client端的路由信息也需要更新。
-只有当此master被大多数其他master不可达的时间达到阀值时，才会触发Failover，这个时间称为NODE_TIMEOUT，可以通过配置设定。所以当网络分区在此时间被消除的话，writes不会有任何丢失。反之，如果网络分区持续时间超过此值，处于“小分区”（minority）端的Master将会切换为readonly状态，拒绝客户端继续提交writes请求，那么“大分区”端将会进行failover，这意味着NODE_TIMEOUT期间发生在“小分区”端的writes操作将丢失（因为新的Master上没有同步到那些数据）。 
-
-可用性
-处于“小分区”的集群节点是不可用的；“大分区”端必须持有大多数Masters，同时每个不可达的Master至少有一个slave也在“大分区”端，当NODE_TIMEOUT时，触发failover，此后集群才是可用的。Redis Cluster在小部分nodes失效后仍然可以恢复有效性，如果application希望大面积节点失效仍然有效，那么Cluster不适合这种情况。
-
-比如集群有N个Master，且每个Master都有一个slave，那么集群的有效性只能容忍一个节点（master）被分区隔离（即一个master处于小分区端，其他处于大分区端），当第二个节点被分区隔离之前仍保持可用性的概率为1 - (1/(N * 2 - 1))（解释：当第一个节点失效后，剩余N * 2 -1个节点，此时没有slave的Master失效的概率为1/(N * 2 -1)）。比如有5个Master，每个Master有一个slave，当2个nodes被隔离出去（或者失效）后，集群可用性的概率只有1/(5 * 2 - 1) = 11.11%，因此集群不再可用。
-幸好Redis Cluster提供了“replicas migration”机制，在实际应用方面，可以有效的提高集群的可用性，当每次failover发生后，集群都会重新配置、平衡slaves的分布，以更好的抵御下一次失效情况的发生。（具体参见下文）
-
-性能
-Redis Cluster并没有提供Proxy层，而是告知客户端将key的请求转发给合适的nodes。Client保存集群中nodes与keys的映射关系（slots），并保持此数据的更新，所以通常Client总能够将请求直接发送到正确的nodes上。因为采用异步replication，所以master不会等待slaves也保存成功后才向客户端反馈结果，除非显式的指定了WAIT指令。multi-key指令仅限于单个节点内，除了resharding操作外，节点的数据不会在节点间迁移。每个操作只会在特定的一个节点上执行，所以集群的性能为master节点的线性扩展。同时，Clients与每个nodes保持链接，所以请求的延迟等同于单个节点，即请求的延迟并不会因为Cluster的规模增大而受到影响。高性能和扩展性，同时保持合理的数据安全性，是Redis Cluster的设计目标。
-
-Redis Cluster没有Proxy层，Client请求的数据也无法在nodes间merge；因为Redis核心就是K-V数据存储，没有scan类型（sort，limit，group by）的操作，因此merge操作并不被Redis Cluster所接受，而且这种特性会极大增加了Cluster的设计复杂度。（类比于mongodb）
-</code></pre><p>二、Cluster主要组件<br>    keys分布模型<br>    集群将key分成16384个slots（hash 槽），slot是数据映射的单位，言外之意，Redis Cluster最多支持16384个nodes（每个nodes持有一个slot）。集群中的每个master持有16384个slots中的一部分，处于“stable”状态时，集群中没有任何slots在节点间迁移，即任意一个hash slot只会被单个node所服务（master，当然可以有多个slave用于replicas，slave也可以用来扩展read请求）。keys与slot的映射关系，是按照如下算法计算的：HASH_SLOT = CRC16(key) mod 16384。其中CRC16是一种冗余码校验和，可以将字符串转换成16位的数字。</p>
-<pre><code>hash tags
-在计算hash slots时有一个意外的情况，用于支持“hash tags”；hash tags用于确保多个keys能够被分配在同一个hash slot中，用于支持multi-key操作。hash tags的实现比较简单，key中“{}”之间的字符串就是当前key的hash tags，如果存在多个“{}”，首个符合规则的字符串作为hash tags，如果“{}”存在多级嵌套，那么最内层首个完整的字符串作为hash tags，比如“{foo}.student”，那么“foo”是hash tags。如果key中存在合法的hash tags，那么在计算hash slots时，将使用hash tags，而不再使用原始的key。即“foo”与“{foo}.student”将得到相同的slot值，不过“{foo}.student”仍作为key来保存数据，即redis中数据的key仍为“{foo}.student”。
-
-集群节点的属性
-集群中每个节点都有唯一的名字，称之为node ID，一个160位随机数字的16进制表示，在每个节点首次启动时创建。每个节点都将各自的ID保存在实例的配置文件中，此后将一直使用此ID，或者说只要配置文件不被删除，或者没有使用“CLUSTER RESET”指令重置集群，那么此ID将永不会修改。
-集群通过node ID来标识节点，而不是使用IP + port，因为node可以修改它的IP和port，不过如果ID不变，我们仍然认定它是集群中合法一员。集群可以在cluster Bus中通过gossip协议来探测IP、port的变更，并重新配置。
-node ID并不是与node相关的唯一信息，不过是唯一一个全局一致的。每个node还持有如下相关的信息，有些信息是关系集群配置的，其他的信息比如最后ping时间等。每个node也保存其他节点的IP、Port、flags（比如flags表示它是master还是slave）、最近ping的时间、最近pong接收时间、当前配置的epoch、链接的状态，最重要的是还包含此node上持有的hash slots。这些信息均可通过“CLUSTER NODES”指令开查看。
-
-Cluster Bus
-每个Node都有一个特定的TCP端口，用来接收其他nodes的链接；此端口号为面向Client的端口号 + 10000，比如果客户端端口号为6379，那么次node的BUS端口号为16379，客户端端口号可以在配置文件中声明。由此可见，nodes之间的交互通讯是通过Bus端口进行，使用了特定的二进制协议，此端口通常应该只对nodes可用，可以借助防火墙技术来屏蔽其他非法访问。
-
-集群拓扑
-Redis Cluster中每个node都与其他nodes的Bus端口建立TCP链接（full mesh，全网）。比如在由N各节点的集群中，每个node有N-1个向外发出的TCP链接，以及N-1个其他nodes发过来的TCP链接；这些TCP链接总是keepalive，不是按需创建的。如果ping发出之后，node在足够长的时间内仍然没有pong响应，那么次node将会被标记为“不可达”，那么与此node的链接将会被刷新或者重建。Nodes之间通过gossip协议和配置更新的机制，来避免每次都交互大量的消息，最终确保在nodes之间的信息传送量是可控的。
+<p>为了达成这些行为，集群中的每个节点都通过TCP与其他所有nodes建立连接，它们之间的通信协议和方式称为“Redis Cluster Bus”。Nodes之间使用gossip协议向其他nodes传播集群信息，以达到自动发现的特性，通过发送ping来确认其他nodes工作是否正常，也会在合适的时机发送集群的信息。当然在Failover时（包括人为failover）也会使用Bus来传播消息。<br>（gossip：最终一致性，分布式服务数据同步算法，node首先需要知道（可以读取配置）集群中至少一个seed node，此node向seed发送ping请求，此时seed节点pong返回自己已知的所有nodes列表，然后node解析nodes列表并与它们都建立tcp连接，同时也会向每个nodes发送ping，并从它们的pong结果中merge出全局nodes列表，并逐步与所有的nodes建立连接…….数据传输的方式也是类似，网络拓扑结构为full mesh）</p>
+<p>因为Node并不提供Proxy机制，当Client将请求发给错误的nodes时（此node上不存在此key所属的slot），node将会反馈“MOVED”或者“ASK”错误信息，以便Client重新定向到合适的node。理论上，Client可以将请求发送给任意一个nodes，然后根据再根据错误信息转发给合适的node，客户端可以不用保存集群的状态信息，当然这种情况下性能比较低效，因为Client可能需要2次TCP调用才能获取key的结果，通常客户端会缓存集群中nodes与slots的映射关系，并在遇到“Redirected”错误反馈时，才会更新本地的缓存。</p>
+<h3 id="安全写入（write-safety）"><a href="#安全写入（write-safety）" class="headerlink" title="安全写入（write safety）"></a>安全写入（write safety）</h3><p>在Master-slaves之间使用异步replication机制，在failover之后，新的Master将会最终替代其他的replicas（即slave）。在出现网络分区时（network partition），总会有一个窗口期（node timeout）可能会导致数据丢失；不过，Client与多数派的Master、少数派Master处于一个分区（网络分区，因为网络阻断问题，导致Clients与Nodes被隔离成2部分）时，这两种情况下影响并不相同。</p>
+<p>1）write提交到master，master执行完毕后向Client反馈“OK”，不过此时可能数据还没有传播给slaves（异步replication）；如果此时master不可达的时间超过阀值（node timeout，参见配置参数），那么将触发slave被选举为新的Master（即Failover），这意味着那些没有replication到slaves的writes将永远丢失了！<br>2）还有一种情况导致数据丢失：<br>A）因为网络分区，此时master不可达，且Master与Client处于一个分区，且是少数派分区。<br>B）Failover机制，将其中一个slave提升为新Master。<br>C）此后网络分区消除，旧的Master再次可达，此时它将被切换成slave。<br>D）那么在网络分区期间，处于少数派分区的Client仍然将write提交到旧的Master，因为它们觉得Master仍然有效；当旧的Master再次加入集群，切换成slave之后，这些数据将永远丢失。</p>
+<p>在第二种情况下，如果Master无法与其他大多数Masters通讯的时间超过阀值后，此Master也将不再接收Writes，自动切换为readonly状态。当网络分区消除后，仍然会有一小段时间，客户端的write请求被拒绝，因为此时旧的Master需要更新本地的集群状态、与其他节点建立连接、角色切换为slave等等，同时Client端的路由信息也需要更新。<br>只有当此master被大多数其他master不可达的时间达到阀值时，才会触发Failover，这个时间称为<code>NODE_TIMEOUT</code>，可以通过配置设定。所以当网络分区在此时间被消除的话，writes不会有任何丢失。反之，如果网络分区持续时间超过此值，处于“小分区”（minority）端的Master将会切换为<code>readonly</code>状态，拒绝客户端继续提交writes请求，那么“大分区”端将会进行<code>failover</code>，这意味着<code>NODE_TIMEOUT</code>期间发生在“小分区”端的writes操作将丢失（因为新的Master上没有同步到那些数据）。 </p>
+<h3 id="可用性"><a href="#可用性" class="headerlink" title="可用性"></a>可用性</h3><p>处于“小分区”的集群节点是不可用的；“大分区”端必须持有大多数Masters，同时每个不可达的Master至少有一个slave也在“大分区”端，当<code>NODE_TIMEOUT</code>时，触发<code>failover</code>，此后集群才是可用的。Redis Cluster在小部分nodes失效后仍然可以恢复有效性，如果application希望大面积节点失效仍然有效，那么Cluster不适合这种情况。</p>
+<p>比如集群有N个Master，且每个Master都有一个slave，那么集群的有效性只能容忍一个节点（master）被分区隔离（即一个master处于小分区端，其他处于大分区端），当第二个节点被分区隔离之前仍保持可用性的概率为1 - (1/(N <em> 2 - 1))（解释：当第一个节点失效后，剩余N </em> 2 -1个节点，此时没有slave的Master失效的概率为1/(N <em> 2 -1)）。比如有5个Master，每个Master有一个slave，当2个nodes被隔离出去（或者失效）后，集群可用性的概率只有1/(5 </em> 2 - 1) = 11.11%。<br>幸好Redis Cluster提供了“replicas migration”机制，在实际应用方面，可以有效的提高集群的可用性，当每次failover发生后，集群都会重新配置、平衡slaves的分布，以更好的抵御下一次失效情况的发生。</p>
+<h3 id="性能"><a href="#性能" class="headerlink" title="性能"></a>性能</h3><p>Redis Cluster并没有提供Proxy层，而是告知客户端将key的请求转发给合适的nodes。Client保存集群中nodes与keys的映射关系（slots），并保持此数据的更新，所以通常Client总能够将请求直接发送到正确的nodes上。因为采用异步replication，所以master不会等待slaves也保存成功后才向客户端反馈结果，除非显式的指定了<code>WAIT</code>指令。multi-key指令仅限于单个节点内，除了resharding操作外，节点的数据不会在节点间迁移。每个操作只会在特定的一个节点上执行，所以集群的性能为master节点的线性扩展。同时，Clients与每个nodes保持链接，所以请求的延迟等同于单个节点，即请求的延迟并不会因为Cluster的规模增大而受到影响。高性能和扩展性，同时保持合理的数据安全性，是Redis Cluster的设计目标。</p>
+<p>Redis Cluster没有Proxy层，Client请求的数据也无法在nodes间merge；因为Redis核心就是K-V数据存储，没有scan类型（<code>sort</code>，<code>limit</code>，<code>group by</code>）的操作，因此merge操作并不被Redis Cluster所接受，而且这种特性会极大增加了Cluster的设计复杂度。</p>
+<h2 id="二、Cluster主要组件"><a href="#二、Cluster主要组件" class="headerlink" title="二、Cluster主要组件"></a>二、Cluster主要组件</h2><h3 id="keys分布模型"><a href="#keys分布模型" class="headerlink" title="keys分布模型"></a>keys分布模型</h3><p>集群将key分成16384个slots（hash 槽），slot是数据映射的单位，言外之意，Redis Cluster最多支持16384个nodes（每个nodes持有一个slot）。集群中的每个master持有16384个slots中的一部分，处于“stable”状态时，集群中没有任何slots在节点间迁移，即任意一个hash slot只会被单个node所服务（master，当然可以有多个slave用于replicas，slave也可以用来扩展read请求）。keys与slot的映射关系，是按照如下算法计算的：<code>HASH_SLOT = CRC16(key) mod 16384</code>。其中<code>CRC16</code>是一种冗余码校验和，可以将字符串转换成16位的数字。</p>
+<h3 id="hash-tags"><a href="#hash-tags" class="headerlink" title="hash tags"></a>hash tags</h3><p>在计算hash slots时有一个意外的情况，用于支持“hash tags”；hash tags用于确保多个keys能够被分配在同一个hash slot中，用于支持multi-key操作。hash tags的实现比较简单，key中“<code>{}</code>”之间的字符串就是当前key的hash tags，如果存在多个“<code>{}</code>”，首个符合规则的字符串作为<code>hash tags</code>，如果“<code>{}</code>”存在多级嵌套，那么最内层首个完整的字符串作为<code>hash tags</code>，比如“<code>{foo}.student</code>”，那么“<code>foo</code>”是hash tags。如果key中存在合法的hash tags，那么在计算hash slots时，将使用hash tags，而不再使用原始的key。即“<code>foo</code>”与“<code>{foo}.student</code>”将得到相同的slot值，不过“<code>{foo}.student</code>”仍作为key来保存数据，即redis中数据的key仍为“<code>{foo}.student</code>”。</p>
+<h3 id="集群节点的属性"><a href="#集群节点的属性" class="headerlink" title="集群节点的属性"></a>集群节点的属性</h3><p>集群中每个节点都有唯一的名字，称之为node ID，一个160位随机数字的16进制表示，在每个节点首次启动时创建。每个节点都将各自的ID保存在实例的配置文件中，此后将一直使用此ID，或者说只要配置文件不被删除，或者没有使用“CLUSTER RESET”指令重置集群，那么此ID将永不会修改。</p>
+<p>集群通过node ID来标识节点，而不是使用IP + port，因为node可以修改它的IP和port，不过如果ID不变，我们仍然认定它是集群中合法一员。集群可以在cluster Bus中通过gossip协议来探测IP、port的变更，并重新配置。</p>
+<p>node ID并不是与node相关的唯一信息，不过是唯一一个全局一致的。每个node还持有如下相关的信息，有些信息是关系集群配置的，其他的信息比如最后ping时间等。每个node也保存其他节点的IP、Port、flags（比如flags表示它是master还是slave）、最近ping的时间、最近pong接收时间、当前配置的epoch、链接的状态，最重要的是还包含此node上持有的hash slots。这些信息均可通过“CLUSTER NODES”指令开查看。</p>
+<h3 id="Cluster-Bus"><a href="#Cluster-Bus" class="headerlink" title="Cluster Bus"></a>Cluster Bus</h3><p>每个Node都有一个特定的TCP端口，用来接收其他nodes的链接；此端口号为面向Client的端口号 + 10000，比如果客户端端口号为<code>6379</code>，那么次node的BUS端口号为<code>16379</code>，客户端端口号可以在配置文件中声明。由此可见，nodes之间的交互通讯是通过Bus端口进行，使用了特定的二进制协议，此端口通常应该只对nodes可用，可以借助防火墙技术来屏蔽其他非法访问。</p>
+<h3 id="集群拓扑"><a href="#集群拓扑" class="headerlink" title="集群拓扑"></a>集群拓扑</h3><pre><code>Redis Cluster中每个node都与其他nodes的Bus端口建立TCP链接（full mesh，全网）。比如在由N各节点的集群中，每个node有N-1个向外发出的TCP链接，以及N-1个其他nodes发过来的TCP链接；这些TCP链接总是keepalive，不是按需创建的。如果ping发出之后，node在足够长的时间内仍然没有pong响应，那么次node将会被标记为“不可达”，那么与此node的链接将会被刷新或者重建。Nodes之间通过gossip协议和配置更新的机制，来避免每次都交互大量的消息，最终确保在nodes之间的信息传送量是可控的。
 
 节点间handshake
 Nodes通过Bus端口发送ping、pong；如果一个节点不属于集群，那么它的消息将会被其他nodes全部丢弃。一个节点被认为是集群成员的方式有2种：
@@ -327,8 +370,7 @@ Node resets
 2）然后设定一个60秒的隔离时间，阻止持有相同ID的node再次加入集群。
 
 之所以2）规则，因为FORGET指令将会通过gossip协议传播给其他nodes，集群中所有的节点都收到消息是需要一定的时间延迟。
-</code></pre><p>参考文档：<br><a href="http://redis.io/topics/cluster-spec" target="_blank" rel="external">http://redis.io/topics/cluster-spec</a></p>
-]]></content>
+</code></pre>]]></content>
     
     <summary type="html">
     
@@ -1676,41 +1718,6 @@ location ~ .*\.(gif|jpg|jpeg|png|bmp|swf|js|html|htm|css)$ {
     <summary type="html">
     
       DRUID连接池的实用 配置详解
-    
-    </summary>
-    
-      <category term="Druid" scheme="http://jishusuishouji.github.io/categories/Druid/"/>
-    
-    
-      <category term="Druid" scheme="http://jishusuishouji.github.io/tags/Druid/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Druid：一个用于大数据实时处理的开源分布式系统</title>
-    <link href="http://jishusuishouji.github.io/2017/03/23/druid/Druid%EF%BC%9A%E4%B8%80%E4%B8%AA%E7%94%A8%E4%BA%8E%E5%A4%A7%E6%95%B0%E6%8D%AE%E5%AE%9E%E6%97%B6%E5%A4%84%E7%90%86%E7%9A%84%E5%BC%80%E6%BA%90%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/"/>
-    <id>http://jishusuishouji.github.io/2017/03/23/druid/Druid：一个用于大数据实时处理的开源分布式系统/</id>
-    <published>2017-03-23T14:00:02.000Z</published>
-    <updated>2017-03-23T14:02:58.182Z</updated>
-    
-    <content type="html"><![CDATA[<p>Druid是一个用于大数据实时查询和分析的高容错、高性能开源分布式系统，旨在快速处理大规模的数据，并能够实现快速查询和分析。尤其是当发生代码部署、机器故障以及其他产品系统遇到宕机等情况时，Druid仍能够保持100%正常运行。创建Druid的最初意图主要是为了解决查询延迟问题，当时试图使用Hadoop来实现交互式查询分析，但是很难满足实时分析的需要。而Druid提供了以交互方式访问数据的能力，并权衡了查询的灵活性和性能而采取了特殊的存储格式。<br><a id="more"></a><br>Druid功能介于PowerDrill和Dremel之间，它几乎实现了Dremel的所有功能，并且从PowerDrill吸收一些有趣的数据格式。Druid允许以类似Dremel和PowerDrill的方式进行单表查询，同时还增加了一些新特性，如为局部嵌套数据结构提供列式存储格式、为快速过滤做索引、实时摄取和查询、高容错的分布式体系架构等。从官方得知，Druid的具有以下主要特征：</p>
-<ul>
-<li>为分析而设计——Druid是为OLAP工作流的探索性分析而构建，它支持各种过滤、聚合和查询等类；</li>
-<li>快速的交互式查询——Druid的低延迟数据摄取架构允许事件在它们创建后毫秒内可被查询到；</li>
-<li>高可用性——Druid的数据在系统更新时依然可用，规模的扩大和缩小都不会造成数据丢失；</li>
-<li>可扩展——Druid已实现每天能够处理数十亿事件和TB级数据。</li>
-<li>Druid应用最多的是类似于广告分析创业公司Metamarkets中的应用场景，如广告分析、互联网广告系统监控以及网络监控等。当业务中出现以下情况时，Druid是一个很好的技术方案选择：</li>
-</ul>
-<p>需要交互式聚合和快速探究大量数据时；<br>需要实时查询分析时；<br>具有大量数据时，如每天数亿事件的新增、每天数10T数据的增加；<br>对数据尤其是大数据进行实时分析时；<br>需要一个高可用、高容错、高性能数据库时。<br>一个Druid集群有各种类型的节点（Node）组成，每个节点都可以很好的处理一些的事情，这些节点包括对非实时数据进行处理存储和查询的Historical节点、实时摄取数据、监听输入数据流的Realtime节、监控Historical节点的Coordinator节点、接收来自外部客户端的查询和将查询转发到Realtime和Historical节点的Broker节点、负责索引服务的Indexer节点。</p>
-<p>查询操作中数据流和各个节点的关系如下图所示：</p>
-<p>如下图是Druid集群的管理层架构，该图展示了相关节点和集群管理所依赖的其他组件（如负责服务发现的ZooKeeper集群）的关系：</p>
-<p>Druid已基于Apache License 2.0协议开源，代码托管在GitHub，其当前最新稳定版本是0.7.1.1。当前，Druid已有63个代码贡献者和将近2000个关注。Druid的主要贡献者包括广告分析创业公司Metamarkets、电影流媒体网站Netflix、Yahoo等公司。Druid官方还对Druid同Shark、Vertica、Cassandra、Hadoop、Spark、Elasticsearch等在容错能力、灵活性、查询性能等方便进行了对比说明。更多关于Druid的信息，大家还可以参考官方提供的入门教程、白皮书 、设计文档等。</p>
-<p>感谢徐川对本文的审校。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      Druid：一个用于大数据实时处理的开源分布式系统
     
     </summary>
     
