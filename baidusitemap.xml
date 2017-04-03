@@ -4,6 +4,26 @@
 
     
   <url>
+    <loc>http://jishusuishouji.github.io/2017/04/03/redis/Redis_Cluster%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/</loc>
+    <lastmod>2017-04-03T00:57:53.364Z</lastmod>
+    <data>
+        <display>
+        <title>Redis Cluster实现原理</title>
+        <pubTime>2017-04-03T00:56:20.000Z</pubTime>
+        
+        <tag>Redis</tag>
+         
+         
+           
+             
+              <breadCrumb title="Redis" url="http://jishusuishouji.github.io/categories/Redis/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://jishusuishouji.github.io/2017/04/02/redis/%E5%85%A8%E9%9D%A2%E5%89%96%E6%9E%90Redis_Cluster%E5%8E%9F%E7%90%86%E5%92%8C%E5%BA%94%E7%94%A8/</loc>
     <lastmod>2017-04-02T16:04:03.246Z</lastmod>
     <data>
