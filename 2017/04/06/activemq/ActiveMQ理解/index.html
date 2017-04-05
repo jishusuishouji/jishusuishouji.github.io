@@ -95,7 +95,7 @@
 <meta property="og:url" content="http://jishusuishouji.github.io/2017/04/06/activemq/ActiveMQ理解/index.html">
 <meta property="og:site_name" content="技术随手记">
 <meta property="og:description" content="ActiveMQ理解">
-<meta property="og:updated_time" content="2017-04-05T21:44:16.866Z">
+<meta property="og:updated_time" content="2017-04-05T22:12:57.502Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ActiveMQ理解">
 <meta name="twitter:description" content="ActiveMQ理解">
@@ -635,169 +635,162 @@
 </table>
 <p>例如：<code>discovery:(multicast://default)?initialReconnectDelay=100</code><br>为了使用Discovery来发现broker，需要为broker启用discovery agent。 以下是XML配置文件中的一个例子：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&lt;broker name=&quot;foo&quot;&gt; </div><div class="line">        &lt;transportConnectors&gt; </div><div class="line">                &lt;transportConnector uri=&quot;tcp://localhost:0&quot; discoveryUri=&quot;multicast://default&quot;/&gt; </div><div class="line">        &lt;/transportConnectors&gt; </div><div class="line">... </div><div class="line">&lt;/broker&gt;</div></pre></td></tr></table></figure></p>
 <p>在使用Failover Transport或Discovery transport等能够自动重连的transport的时候，需要注意的是：设想有两个broker，它们都启用AMQ Message Store作为持久化存储，有一个producer和一个consumer连接到某个queue。当因其中一个broker失效时而切换到另一个 broker的时候，如果失效的broker的queue中还有未被consumer消费的消息，那么这个queue里的消息仍然滞留在失效broker 的中，直到失效的broker被修复并重新切换回这个被修复的broker后，之前被保留的消息才会被consumer消费掉。如果被处理的消息有时序限制，那么应用程序就需要处理这个问题。另外也可以通过ActiveMQ集群来解决这个问题。<br>在transport重连的时候，可以在connection上注册<code>TransportListener</code>来获得回调，例如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">(ActiveMQConnection)connection).addTransportListener(new TransportListener() &#123; </div><div class="line">public void onCommand(Object cmd) &#123; </div><div class="line">&#125; </div><div class="line"></div><div class="line">public void onException(IOException exp) &#123; </div><div class="line">&#125; </div><div class="line"></div><div class="line">public void transportInterupted() &#123; </div><div class="line">// The transport has suffered an interruption from which it hopes to recover. </div><div class="line">&#125; </div><div class="line"> </div><div class="line">public void transportResumed() &#123; </div><div class="line">// The transport has resumed after an interruption. </div><div class="line">&#125; </div><div class="line">&#125;);</div></pre></td></tr></table></figure></p>
-<h2 id="Persistence"><a href="#Persistence" class="headerlink" title="Persistence"></a>Persistence</h2><h3 id="AMQ-Message-Store"><a href="#AMQ-Message-Store" class="headerlink" title="AMQ Message Store"></a>AMQ Message Store</h3><p>AMQ Message Store是ActiveMQ5.0缺省的持久化存储。Message commands被保存到transactional journal（由rolling data logs组成）。Messages被保存到data logs中，同时被reference store进行索引以提高存取速度。Date logs由一些单独的data log文件组成，缺省的文件大小是32M，如果某个消息的大小超过了data log文件的大小，那么可以修改配置以增加data log文件的大小。如果某个data log文件中所有的消息都被成功消费了，那么这个data log文件将会被标记，以便在下一轮的清理中被删除或者归档。以下是其配置的一个例子：<br>Xml代码 </p>
-<ol>
-<li><broker brokername="broker" persistent="true" useshutdownhook="false"> </broker></li>
-<li><persistenceadapter> </persistenceadapter></li>
-<li><amqpersistenceadapter directory="${activemq.base}/data" maxfilelength="32mb"> </amqpersistenceadapter></li>
-<li> </li>
-<li><br>Property name Default value Comments<br>directory activemq-data the path to the directory to use to store the message store data and log files<br>useNIO true use NIO to write messages to the data logs<br>syncOnWrite false sync every write to disk<br>maxFileLength 32mb a hint to set the maximum size of the message data logs<br>persistentIndex true use a persistent index for the message logs. If this is false, an in-memory structure is maintained<br>maxCheckpointMessageAddSize 4kb the maximum number of messages to keep in a transaction before automatically committing<br>cleanupInterval 30000 time (ms) before checking for a discarding/moving message data logs that are no longer used<br>indexBinSize 1024 default number of bins used by the index. The bigger the bin size - the better the relative performance of the index<br>indexKeySize 96 the size of the index key - the key is the message id<br>indexPageSize 16kb the size of the index page - the bigger the page - the better the write performance of the index<br>directoryArchive archive the path to the directory to use to store discarded data logs<br>archiveDataLogs false if true data logs are moved to the archive directory instead of being deleted </li>
-</ol>
-<p>2．3．2 Kaha Persistence<br>Kaha Persistence 是一个专门针对消息持久化的解决方案。它对典型的消息使用模式进行了优化。在Kaha中，数据被追加到data logs中。当不再需要log文件中的数据的时候，log文件会被丢弃。以下是其配置的一个例子：<br>Xml代码 </p>
-<ol>
-<li><broker brokername="broker" persistent="true" useshutdownhook="false"> </broker></li>
-<li><persistenceadapter> </persistenceadapter></li>
-<li><kahapersistenceadapter directory="activemq-data" maxdatafilelength="33554432"> </kahapersistenceadapter></li>
-<li> </li>
-<li> </li>
-</ol>
-<p>2．3．3 JDBC Persistence<br>目前支持的数据库有Apache Derby, Axion, DB2, HSQL, Informix, MaxDB, MySQL, Oracle, Postgresql, SQLServer, Sybase。<br>如果你使用的数据库不被支持，那么可以调整StatementProvider 来保证使用正确的SQL方言（flavour of SQL）。通常绝大多数数据库支持以下adaptor：<br>• org.activemq.store.jdbc.adapter.BlobJDBCAdapter<br>• org.activemq.store.jdbc.adapter.BytesJDBCAdapter<br>• org.activemq.store.jdbc.adapter.DefaultJDBCAdapter<br>• org.activemq.store.jdbc.adapter.ImageJDBCAdapter<br>也可以在配置文件中直接指定JDBC adaptor，例如：<br>Xml代码 </p>
-<ol>
-<li><jdbcpersistenceadapter adapterclass="org.apache.activemq.store.jdbc.adapter.ImageBasedJDBCAdaptor"><br>以下是其配置的一个例子： </jdbcpersistenceadapter></li>
-</ol>
-<p>Xml代码 </p>
-<ol>
-<li><persistence> </persistence></li>
-<li><jdbcpersistence datasourceref=" mysql-ds"> </jdbcpersistence></li>
-<li> </li>
-<li></li>
-<li><bean id="mysql-ds" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close"> </bean></li>
-<li><property name="driverClassName" value="com.mysql.jdbc.Driver"> </property></li>
-<li><property name="url" value="jdbc:mysql://localhost/activemq?relaxAutoCommit=true"> </property></li>
-<li><property name="username" value="activemq"> </property></li>
-<li><property name="password" value="activemq"> </property></li>
-<li><property name="poolPreparedStatements" value="true"> </property></li>
-<li><br>需要注意的是，如果使用MySQL，那么需要设置relaxAutoCommit 标志为true。 </li>
-</ol>
-<p>2．3．4 Disable Persistence<br>以下是其配置的一个例子：<br>Xml代码 </p>
-<ol>
-<li><broker persistent="false"> </broker></li>
-<li><br>2．4 Security<br>ActiveMQ支持可插拔的安全机制，用以在不同的provider之间切换。<br>2．4．1 Simple Authentication Plugin<br>Simple Authentication Plugin适用于简单的认证需求，或者用于建立测试环境。它允许在XML配置文件中指定用户、用户组和密码等信息。以下是ActiveMQ配置的一个例子：<br>Xml代码 </li>
-<li><plugins> </plugins></li>
-<li>… </li>
-<li><simpleauthenticationplugin> </simpleauthenticationplugin></li>
-<li><users> </users></li>
-<li><authenticationuser username="system" password="manager" groups="users,admins"> </authenticationuser></li>
-<li><authenticationuser username="user" password="password" groups="users"> </authenticationuser></li>
-<li><authenticationuser username="guest" password="password" groups="guests"> </authenticationuser></li>
-<li> </li>
-<li> </li>
-<li> </li>
-</ol>
-<p>2．4．2 JAAS Authentication Plugin<br>JAAS Authentication Plugin依赖标准的JAAS机制来实现认证。通常情况下，你需要通过设置java.security.auth.login.config系统属性来 配置login modules的配置文件。如果没有指定这个系统属性，那么JAAS Authentication Plugin会缺省使用login.config作为文件名。以下是一个login.config文件的例子：<br>activemq-domain {<br>org.apache.activemq.jaas.PropertiesLoginModule required debug=true org.apache.activemq.jaas.properties.user=”users.properties” org.apache.activemq.jaas.properties.group=”groups.properties”;<br>};<br>这个login.config文件中设置了两个属性：org.apache.activemq.jaas.properties.user和 org.apache.activemq.jaas.properties.group分别用来指向user.properties和 group.properties文件。需要注意的是，PropertiesLoginModule使用本地文件的查找方式，而且查找时采用的base directory是login.config文件所在的目录。因此这个login.config说明user.properties和 group.properties文件存放在跟login.config文件相同的目录里。<br>以下是ActiveMQ配置的一个例子：<br>Xml代码 </p>
-<ol>
-<li><plugins> </plugins></li>
-<li>… </li>
-<li><jaasauthenticationplugin configuration="activemq-domain"> </jaasauthenticationplugin></li>
-<li><br>基于以上的配置，在JAAS的LoginContext中会使用activemq-domain中配置的PropertiesLoginModule来进行登陆。<br>ActiveMQ JAAS还支持LDAPLoginModule、CertificateLoginModule、TextFileCertificateLoginModule等login module。 </li>
-</ol>
-<p>2．4．3 Custom Authentication Implementation<br>可以通过编码的方式为ActiveMQ增加认证功能。例如编写一个类继承自XBeanBrokerService。<br>Java代码 </p>
-<ol>
-<li>package com.yourpackage; </li>
-<li></li>
-<li>import java.net.URI; </li>
-<li>import java.util.HashMap; </li>
-<li>import java.util.Map; </li>
-<li></li>
-<li>import org.apache.activemq.broker.Broker; </li>
-<li>import org.apache.activemq.broker.BrokerFactory; </li>
-<li>import org.apache.activemq.broker.BrokerService; </li>
-<li>import org.apache.activemq.security.SimpleAuthenticationBroker; </li>
-<li>import org.apache.activemq.xbean.XBeanBrokerService; </li>
-<li></li>
-<li>public class SimpleAuthBroker extends XBeanBrokerService { </li>
-<li>// </li>
-<li>private String user; </li>
-<li>private String password; </li>
-<li></li>
-<li>@SuppressWarnings(“unchecked”) </li>
-<li>protected Broker addInterceptors(Broker broker) throws Exception { </li>
-<li>broker = super.addInterceptors(broker); </li>
-<li>Map passwords = new HashMap(); </li>
-<li>passwords.put(getUser(), getPassword()); </li>
-<li>broker = new SimpleAuthenticationBroker(broker, passwords, new HashMap()); </li>
-<li>return broker; </li>
-<li>} </li>
-<li></li>
-<li>public String getUser() { </li>
-<li>return user; </li>
-<li>} </li>
-<li></li>
-<li>public void setUser(String user) { </li>
-<li>this.user = user; </li>
-<li>} </li>
-<li></li>
-<li>public String getPassword() { </li>
-<li>return password; </li>
-<li>} </li>
-<li></li>
-<li>public void setPassword(String password) { </li>
-<li>this.password = password; </li>
-<li>} </li>
-<li>}<br>以下是ActiveMQ配置文件的一个例子：<br>Xml代码 </li>
-<li><beans> </beans></li>
-<li>… </li>
-<li>&lt;auth:SimpleAuthBroker </li>
-<li>xmlns:auth=”java://com.yourpackage” </li>
-<li>xmlns=”<a href="http://activemq.org/config/1.0" target="_blank" rel="external">http://activemq.org/config/1.0</a>“ brokerName=”SimpleAuthBroker1” user=”user” password=”password” useJmx=”true”&gt; </li>
-<li></li>
-<li><transportconnectors> </transportconnectors></li>
-<li><transportconnector uri="tcp://localhost:61616"> </transportconnector></li>
-<li> </li>
-<li> </li>
-<li>… </li>
-<li><br>在这个配置文件中增加了一个namespace auth，用于指向之前编写的哪个类。同时为SimpleAuthBroker注入了两个属性值user和password，因此在被 SimpleAuthBroker改写的addInterceptors方法里，可以使用这两个属性进行认证了。ActiveMQ提供的 SimpleAuthenticationBroker类继承自BrokerFilter（可以简单的看成是Broker的Adaptor），它的构造函 数中的两个Map分别是userPasswords和userGroups。 SimpleAuthenticationBroker在 addConnection方法中使用userPasswords进行认证，同时会把userGroups的信息保存到 ConnectionContext中 。</li>
-</ol>
-<p>2．4．4 Authorization Plugin<br>可以通过Authorization Plugin为认证后的用户授权，以下ActiveMQ配置文件的一个例子：<br>Xml代码 </p>
-<ol>
-<li><plugins> </plugins></li>
-<li><jaasauthenticationplugin configuration="activemq-domain"> </jaasauthenticationplugin></li>
-<li></li>
-<li><authorizationplugin> </authorizationplugin></li>
-<li><map> </map></li>
-<li><authorizationmap> </authorizationmap></li>
-<li><authorizationentries> </authorizationentries></li>
-<li><authorizationentry queue=">" read="admins" write="admins" admin="admins"> </authorizationentry></li>
-<li><authorizationentry queue="USERS.>" read="users" write="users" admin="users"> </authorizationentry></li>
-<li><authorizationentry queue="GUEST.>" read="guests" write="guests,users" admin="guests,users"> </authorizationentry></li>
-<li></li>
-<li><authorizationentry topic=">" read="admins" write="admins" admin="admins"> </authorizationentry></li>
-<li><authorizationentry topic="USERS.>" read="users" write="users" admin="users"> </authorizationentry></li>
-<li><authorizationentry topic="GUEST.>" read="guests" write="guests,users" admin="guests,users"> </authorizationentry></li>
-<li></li>
-<li><authorizationentry topic="ActiveMQ.Advisory.>" read="guests,users" write="guests,users" admin="guests,users"> </authorizationentry></li>
-<li> </li>
-<li> </li>
-<li> </li>
-<li> </li>
-<li><br>2．5 Clustering<br>ActiveMQ从多种不同的方面提供了集群的支持。<br>2．5．1 Queue consumer clusters<br>ActiveMQ支持订阅同一个queue的consumers上的集群。如果一个consumer失效，那么所有未被确认 （unacknowledged）的消息都会被发送到这个queue上其它的consumers。如果某个consumer的处理速度比其它 consumers更快，那么这个consumer就会消费更多的消息。<br>需要注意的是，笔者发现AcitveMQ5.0版本的Queue consumer clusters存在一个bug：采用AMQ Message Store，运行一个producer，两个consumer，并采用如下的配置文件：<br>Xml代码 </li>
-<li><beans> </beans></li>
-<li><broker xmlns="http://activemq.org/config/1.0" brokername="BugBroker1" usejmx="true"> </broker></li>
-<li></li>
-<li><transportconnectors> </transportconnectors></li>
-<li><transportconnector uri="tcp://localhost:61616"> </transportconnector></li>
-<li> </li>
-<li></li>
-<li><persistenceadapter> </persistenceadapter></li>
-<li><amqpersistenceadapter directory="activemq-data/BugBroker1" maxfilelength="32mb"> </amqpersistenceadapter></li>
-<li> </li>
-<li></li>
-<li> </li>
-<li><br>那么经过一段时间后可能会报出如下错误：<br>ERROR [ActiveMQ Transport: tcp:///127.0.0.1:1843 - RecoveryListenerAdapter.java:58 - RecoveryListenerAdapter] Message id ID:versus-1837-1203915536609-0:2:1:1:419 could not be recovered from the data store!<br>Apache官方文档说，此bug已经被修正，预定在5.1.0版本上体现。 </li>
-</ol>
-<h2 id="Broker-clusters"><a href="#Broker-clusters" class="headerlink" title="Broker clusters"></a>Broker clusters</h2><p>一个常见的场景是有多个JMS broker，一个客户连接到其中一个broker。如果这个broker失效，那么客户会自动重新连接到其它的broker。在ActiveMQ中使用<code>failover://</code> 协议来实现这个功能。ActiveMQ3.x版本的<code>reliable://</code>协议已经变更为<code>failover://</code>。<br>如果某个网络上有多个brokers而且客户使用静态发现（使用Static Transport或Failover Transport）或动态发现（使用Discovery Transport），那么客户可以容易地在某个broker失效的情况下切换到其它的brokers。然而，stand alone brokers并不了解其它brokers上的consumers，也就是说如果某个broker上没有consumers，那么这个broker上的消息可能会因得不到处理而积压起来。目前的解决方案是使用Network of brokers，以便在broker之间存储转发消息。ActiveMQ在未来会有更好的特性，用来在客户端处理这个问题。<br>从ActiveMQ1.1版本起，ActiveMQ支持networks of brokers。它支持分布式的queues和topics。一个broker会相同对待所有的订阅（subscription）：不管他们是来自本地的客户连接，还是来自远程broker，它都会递送有关的消息拷贝到每个订阅。远程broker得到这个消息拷贝后，会依次把它递送到其内部的本地连接上。有两种方式配置Network of brokers，一种是使用static transport：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">&lt;broker brokerName=&quot;receiver&quot; persistent=&quot;false&quot; useJmx=&quot;false&quot;&gt; </div><div class="line">        &lt;transportConnectors&gt; </div><div class="line">                &lt;transportConnector uri=&quot;tcp://localhost:62002&quot;/&gt; </div><div class="line">        &lt;/transportConnectors&gt; </div><div class="line">        </div><div class="line">        &lt;networkConnectors&gt; </div><div class="line">                &lt;networkConnector uri=&quot;static:( tcp://localhost:61616,tcp://remotehost:61616)&quot;/&gt; </div><div class="line">        &lt;/networkConnectors&gt; </div><div class="line">… </div><div class="line">&lt;/broker&gt;</div></pre></td></tr></table></figure></p>
-<p>另外一种是使用multicast discovery，如下：<br>Xml代码 </p>
-<ol>
-<li><broker name="sender" persistent="false" usejmx="false"> </broker></li>
-<li><transportconnectors> </transportconnectors></li>
-<li><transportconnector uri="tcp://localhost:0" discoveryuri="multicast://default"> </transportconnector></li>
-<li> </li>
-<li><networkconnectors> </networkconnectors></li>
-<li><networkconnector uri="multicast://default"> </networkconnector></li>
-<li> </li>
-<li>… </li>
-<li><br>Network Connector有以下属性：<br>Property Default Value Description<br>name bridge name of the network - for more than one network connector between the same two brokers - use different names<br>dynamicOnly false if true, only forward messages if a consumer is active on the connected broker<br>decreaseNetworkConsumerPriority false decrease the priority for dispatching to a Queue consumer the further away it is (in network hops) from the producer<br>networkTTL 1 the number of brokers in the network that messages and subscriptions can pass through<br>conduitSubscriptions true multiple consumers subscribing to the same destination are treated as one consumer by the network<br>excludedDestinations empty destinations matching this list won’t be forwarded across the network<br>dynamicallyIncludedDestinations empty destinations that match this list will be forwarded across the network n.b. an empty list means all destinations not in the excluded list will be forwarded<br>staticallyIncludedDestinations empty destinations that match will always be passed across the network - even if no consumers have ever registered an interest<br>duplex false if true, a network connection will be used to both produce AND Consume messages. This is useful for hub and spoke scenarios when the hub is behind a firewall etc.<br>关于conduitSubscriptions属性，这里稍稍说明一下。设想有两个brokers，分别是brokerA和brokerB，它们之间用 forwarding bridge连接。有一个consumer连接到brokerA并订阅queue：Q.TEST。有两个consumers连接到brokerB，也是订 阅queue：Q.TEST。这三个consumers有相同的优先级。然后启动一个producer。</li>
-</ol>
+<h2 id="Persistence"><a href="#Persistence" class="headerlink" title="Persistence"></a>Persistence</h2><h3 id="AMQ-Message-Store"><a href="#AMQ-Message-Store" class="headerlink" title="AMQ Message Store"></a>AMQ Message Store</h3><p>AMQ Message Store是ActiveMQ5.0缺省的持久化存储。Message commands被保存到transactional journal（由rolling data logs组成）。Messages被保存到data logs中，同时被reference store进行索引以提高存取速度。Date logs由一些单独的data log文件组成，缺省的文件大小是32M，如果某个消息的大小超过了data log文件的大小，那么可以修改配置以增加data log文件的大小。如果某个data log文件中所有的消息都被成功消费了，那么这个data log文件将会被标记，以便在下一轮的清理中被删除或者归档。以下是其配置的一个例子：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">&lt;broker brokerName=&quot;broker&quot; persistent=&quot;true&quot; useShutdownHook=&quot;false&quot;&gt; </div><div class="line">        &lt;persistenceAdapter&gt; </div><div class="line">                &lt;amqPersistenceAdapter directory=&quot;$&#123;activemq.base&#125;/data&quot; maxFileLength=&quot;32mb&quot;/&gt; </div><div class="line">        &lt;/persistenceAdapter&gt; </div><div class="line">&lt;/broker&gt;</div></pre></td></tr></table></figure></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Property name</th>
+<th style="text-align:center">Default value</th>
+<th style="text-align:center">Comments</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">directory</td>
+<td style="text-align:center">activemq-data</td>
+<td style="text-align:center">the path to the directory to use to store the message store data and log files</td>
+</tr>
+<tr>
+<td style="text-align:center">useNIO</td>
+<td style="text-align:center">true</td>
+<td style="text-align:center">use NIO to write messages to the data logs</td>
+</tr>
+<tr>
+<td style="text-align:center">syncOnWrite</td>
+<td style="text-align:center">false</td>
+<td style="text-align:center">sync every write to disk</td>
+</tr>
+<tr>
+<td style="text-align:center">maxFileLength</td>
+<td style="text-align:center">32mb</td>
+<td style="text-align:center">a hint to set the maximum size of the message data logs</td>
+</tr>
+<tr>
+<td style="text-align:center">persistentIndex</td>
+<td style="text-align:center">true</td>
+<td style="text-align:center">use a persistent index for the message logs. If this is false, an in-memory structure is maintained</td>
+</tr>
+<tr>
+<td style="text-align:center">maxCheckpointMessageAddSize</td>
+<td style="text-align:center">4kb</td>
+<td style="text-align:center">the maximum number of messages to keep in a transaction before automatically committing</td>
+</tr>
+<tr>
+<td style="text-align:center">cleanupInterval</td>
+<td style="text-align:center">30000</td>
+<td style="text-align:center">time (ms) before checking for a discarding/moving message data logs that are no longer used</td>
+</tr>
+<tr>
+<td style="text-align:center">indexBinSize</td>
+<td style="text-align:center">1024</td>
+<td style="text-align:center">default number of bins used by the index. The bigger the bin size - the better the relative performance of the index</td>
+</tr>
+<tr>
+<td style="text-align:center">indexKeySize</td>
+<td style="text-align:center">96</td>
+<td style="text-align:center">the size of the index key - the key is the message id </td>
+</tr>
+</tbody>
+</table>
+<p>indexPageSize 16kb the size of the index page - the bigger the page - the better the write performance of the index  |<br>| directoryArchive | archive | the path to the directory to use to store discarded data logs |<br>| archiveDataLogs | false | if true data logs are moved to the archive directory instead of being deleted | </p>
+<h3 id="Kaha-Persistence"><a href="#Kaha-Persistence" class="headerlink" title="Kaha Persistence"></a>Kaha Persistence</h3><p>Kaha Persistence 是一个专门针对消息持久化的解决方案。它对典型的消息使用模式进行了优化。在Kaha中，数据被追加到data logs中。当不再需要log文件中的数据的时候，log文件会被丢弃。以下是其配置的一个例子：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">&lt;broker brokerName=&quot;broker&quot; persistent=&quot;true&quot; useShutdownHook=&quot;false&quot;&gt; </div><div class="line">        &lt;persistenceAdapter&gt; </div><div class="line">                &lt;kahaPersistenceAdapter directory=&quot;activemq-data&quot;       maxDataFileLength=&quot;33554432&quot;/&gt; </div><div class="line">        &lt;/persistenceAdapter&gt; </div><div class="line">&lt;/broker&gt;</div></pre></td></tr></table></figure></p>
+<h3 id="JDBC-Persistence"><a href="#JDBC-Persistence" class="headerlink" title="JDBC Persistence"></a>JDBC Persistence</h3><p>目前支持的数据库有Apache Derby, Axion, DB2, HSQL, Informix, MaxDB, MySQL, Oracle, Postgresql, SQLServer, Sybase。<br>如果你使用的数据库不被支持，那么可以调整<code>StatementProvider</code>来保证使用正确的SQL方言（flavour of SQL）。通常绝大多数数据库支持以下adaptor：<br>• org.activemq.store.jdbc.adapter.BlobJDBCAdapter<br>• org.activemq.store.jdbc.adapter.BytesJDBCAdapter<br>• org.activemq.store.jdbc.adapter.DefaultJDBCAdapter<br>• org.activemq.store.jdbc.adapter.ImageJDBCAdapter</p>
+<p>也可以在配置文件中直接指定JDBC adaptor，例如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;jdbcPersistenceAdapter adapterClass=&quot;org.apache.activemq.store.jdbc.adapter.ImageBasedJDBCAdaptor&quot;/&gt;</div></pre></td></tr></table></figure></p>
+<p>以下是其配置的一个例子： </p>
+<pre><code>&lt;persistence&gt; 
+     &lt;jdbcPersistence dataSourceRef=&quot; mysql-ds&quot;/&gt; 
+&lt;/persistence&gt; 
+
+&lt;bean id=&quot;mysql-ds&quot; class=&quot;org.apache.commons.dbcp.BasicDataSource&quot; destroy-method=&quot;close&quot;&gt; 
+     &lt;property name=&quot;driverClassName&quot; value=&quot;com.mysql.jdbc.Driver&quot;/&gt; 
+     &lt;property name=&quot;url&quot; value=&quot;jdbc:mysql://localhost/activemq?relaxAutoCommit=true&quot;/&gt; 
+     &lt;property name=&quot;username&quot; value=&quot;activemq&quot;/&gt; 
+     &lt;property name=&quot;password&quot; value=&quot;activemq&quot;/&gt; 
+     &lt;property name=&quot;poolPreparedStatements&quot; value=&quot;true&quot;/&gt; 
+&lt;/bean&gt; 
+</code></pre><p>需要注意的是，如果使用MySQL，那么需要设置<code>relaxAutoCommit</code>标志为<code>true</code>。 </p>
+<h3 id="Disable-Persistence"><a href="#Disable-Persistence" class="headerlink" title="Disable Persistence"></a>Disable Persistence</h3><p>以下是其配置的一个例子： </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;broker persistent=&quot;false&quot;&gt;&lt;/broker&gt;</div></pre></td></tr></table></figure>
+<h2 id="Security"><a href="#Security" class="headerlink" title="Security"></a>Security</h2><p>ActiveMQ支持可插拔的安全机制，用以在不同的provider之间切换。 </p>
+<h3 id="Simple-Authentication-Plugin"><a href="#Simple-Authentication-Plugin" class="headerlink" title="Simple Authentication Plugin"></a>Simple Authentication Plugin</h3><p>Simple Authentication Plugin适用于简单的认证需求，或者用于建立测试环境。它允许在XML配置文件中指定用户、用户组和密码等信息。以下是ActiveMQ配置的一个例子： </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">&lt;plugins&gt; </div><div class="line">        ... </div><div class="line">        &lt;simpleAuthenticationPlugin&gt; </div><div class="line">                &lt;users&gt; </div><div class="line">                     &lt;authenticationUser username=&quot;system&quot; password=&quot;manager&quot;   groups=&quot;users,admins&quot;/&gt; </div><div class="line">                     &lt;authenticationUser username=&quot;user&quot; password=&quot;password&quot; groups=&quot;users&quot;/&gt; </div><div class="line">                     &lt;authenticationUser username=&quot;guest&quot; password=&quot;password&quot; groups=&quot;guests&quot;/&gt; </div><div class="line">                &lt;/users&gt; </div><div class="line">        &lt;/simpleAuthenticationPlugin&gt; </div><div class="line">&lt;/plugins&gt;</div></pre></td></tr></table></figure>
+<h3 id="JAAS-Authentication-Plugin"><a href="#JAAS-Authentication-Plugin" class="headerlink" title="JAAS Authentication Plugin"></a>JAAS Authentication Plugin</h3><p>JAAS Authentication Plugin依赖标准的JAAS机制来实现认证。通常情况下，你需要通过设置<code>java.security.auth.login.config</code>系统属性来配置login modules的配置文件。如果没有指定这个系统属性，那么JAAS Authentication Plugin会缺省使用<code>login.config</code>作为文件名。以下是一个<code>login.config</code>文件的例子：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">activemq-domain &#123; </div><div class="line">        org.apache.activemq.jaas.PropertiesLoginModule required debug=true org.apache.activemq.jaas.properties.user=&quot;users.properties&quot; org.apache.activemq.jaas.properties.group=&quot;groups.properties&quot;; </div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>这个<code>login.config</code>文件中设置了两个属性：<code>org.apache.activemq.jaas.properties.user</code>和<code>org.apache.activemq.jaas.properties.group</code>分别用来指向<code>user.properties</code>和<code>group.properties</code>文件。需要注意的是，<code>PropertiesLoginModule</code>使用本地文件的查找方式，而且查找时采用的base directory是<code>login.config</code>文件所在的目录。因此这个<code>login.config</code>说明<code>user.properties</code>和<code>group.properties</code>文件存放在跟<code>login.config</code>文件相同的目录里。<br>以下是ActiveMQ配置的一个例子： </p>
+<pre><code>&lt;plugins&gt; 
+        ... 
+        &lt;jaasAuthenticationPlugin configuration=&quot;activemq-domain&quot; /&gt; 
+&lt;/plugins&gt; 
+</code></pre><p>基于以上的配置，在JAAS的<code>LoginContext</code>中会使用<code>activemq-domain</code>中配置的<code>PropertiesLoginModule</code>来进行登陆。<br>ActiveMQ JAAS还支持<code>LDAPLoginModule</code>、<code>CertificateLoginModule</code>、<code>TextFileCertificateLoginModule</code>等login module。 </p>
+<h3 id="Custom-Authentication-Implementation"><a href="#Custom-Authentication-Implementation" class="headerlink" title="Custom Authentication Implementation"></a>Custom Authentication Implementation</h3><p>可以通过编码的方式为ActiveMQ增加认证功能。例如编写一个类继承自<code>XBeanBrokerService</code>。 </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div></pre></td><td class="code"><pre><div class="line">package com.yourpackage; </div><div class="line"></div><div class="line">import java.net.URI; </div><div class="line">import java.util.HashMap; </div><div class="line">import java.util.Map; </div><div class="line"></div><div class="line">import org.apache.activemq.broker.Broker; </div><div class="line">import org.apache.activemq.broker.BrokerFactory; </div><div class="line">import org.apache.activemq.broker.BrokerService; </div><div class="line">import org.apache.activemq.security.SimpleAuthenticationBroker; </div><div class="line">import org.apache.activemq.xbean.XBeanBrokerService; </div><div class="line"></div><div class="line">public class SimpleAuthBroker extends XBeanBrokerService &#123; </div><div class="line">        // </div><div class="line">        private String user; </div><div class="line">        private String password; </div><div class="line"></div><div class="line">        @SuppressWarnings(&quot;unchecked&quot;) </div><div class="line">        protected Broker addInterceptors(Broker broker) throws Exception &#123; </div><div class="line">                broker = super.addInterceptors(broker); </div><div class="line">                Map passwords = new HashMap(); </div><div class="line">                passwords.put(getUser(), getPassword()); </div><div class="line">                broker = new SimpleAuthenticationBroker(broker, passwords, new HashMap()); </div><div class="line">                return broker; </div><div class="line">        &#125; </div><div class="line"></div><div class="line">        public String getUser() &#123; </div><div class="line">              return user; </div><div class="line">        &#125; </div><div class="line"></div><div class="line">        public void setUser(String user) &#123; </div><div class="line">                this.user = user; </div><div class="line">        &#125; </div><div class="line"> </div><div class="line">    public String getPassword() &#123; </div><div class="line">         return password; </div><div class="line">    &#125; </div><div class="line">     </div><div class="line">    public void setPassword(String password) &#123; </div><div class="line">            this.password = password; </div><div class="line">    &#125; </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>以下是ActiveMQ配置文件的一个例子： </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">&lt;beans&gt; </div><div class="line">    … </div><div class="line">    &lt;auth:SimpleAuthBroker </div><div class="line">    xmlns:auth=&quot;java://com.yourpackage&quot; </div><div class="line">    xmlns=&quot;http://activemq.org/config/1.0&quot; brokerName=&quot;SimpleAuthBroker1&quot; user=&quot;user&quot; password=&quot;password&quot; useJmx=&quot;true&quot;&gt; </div><div class="line"></div><div class="line">        &lt;transportConnectors&gt; </div><div class="line">                &lt;transportConnector uri=&quot;tcp://localhost:61616&quot;/&gt; </div><div class="line">        &lt;/transportConnectors&gt; </div><div class="line">    &lt;/auth:SimpleAuthBroker&gt; </div><div class="line">    … </div><div class="line">&lt;/beans&gt;</div></pre></td></tr></table></figure>
+<p>在这个配置文件中增加了一个namespace auth，用于指向之前编写的哪个类。同时为<code>SimpleAuthBroker</code>注入了两个属性值<code>user</code>和<code>password</code>，因此在被<code>SimpleAuthBroker</code>改写的<code>addInterceptors</code>方法里，可以使用这两个属性进行认证了。ActiveMQ提供的<code>SimpleAuthenticationBroker</code>类继承自<code>BrokerFilter</code>可以简单的看成是Broker的Adaptor），它的构造函数中的两个<code>Map</code>分别是<code>userPasswords</code>和<code>userGroups</code>。<br><code>SimpleAuthenticationBroker</code>在<code>addConnection</code>方法中使用<code>userPasswords</code>进行认证，同时会把<code>userGroups</code>的信息保存到<code>ConnectionContext</code>中。</p>
+<h3 id="Authorization-Plugin"><a href="#Authorization-Plugin" class="headerlink" title="Authorization Plugin"></a>Authorization Plugin</h3><p>可以通过Authorization Plugin为认证后的用户授权，以下ActiveMQ配置文件的一个例子：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">&lt;plugins&gt; </div><div class="line">    &lt;jaasAuthenticationPlugin configuration=&quot;activemq-domain&quot;/&gt;  </div><div class="line">    &lt;authorizationPlugin&gt; </div><div class="line">        &lt;map&gt; </div><div class="line">            &lt;authorizationMap&gt; </div><div class="line">                &lt;authorizationEntries&gt; </div><div class="line">                    &lt;authorizationEntry queue=&quot;&gt;&quot; read=&quot;admins&quot; write=&quot;admins&quot; admin=&quot;admins&quot; /&gt; </div><div class="line">                    &lt;authorizationEntry queue=&quot;USERS.&gt;&quot; read=&quot;users&quot; write=&quot;users&quot; admin=&quot;users&quot; /&gt; </div><div class="line">                    &lt;authorizationEntry queue=&quot;GUEST.&gt;&quot; read=&quot;guests&quot; write=&quot;guests,users&quot; admin=&quot;guests,users&quot; /&gt; </div><div class="line">                    &lt;authorizationEntry topic=&quot;&gt;&quot; read=&quot;admins&quot; write=&quot;admins&quot; admin=&quot;admins&quot; /&gt; </div><div class="line">                    &lt;authorizationEntry topic=&quot;USERS.&gt;&quot; read=&quot;users&quot; write=&quot;users&quot; admin=&quot;users&quot; /&gt; </div><div class="line">                    &lt;authorizationEntry topic=&quot;GUEST.&gt;&quot; read=&quot;guests&quot; write=&quot;guests,users&quot; admin=&quot;guests,users&quot; /&gt; </div><div class="line">     </div><div class="line">                    &lt;authorizationEntry topic=&quot;ActiveMQ.Advisory.&gt;&quot; read=&quot;guests,users&quot; write=&quot;guests,users&quot; admin=&quot;guests,users&quot;/&gt; </div><div class="line">                &lt;/authorizationEntries&gt; </div><div class="line">            &lt;/authorizationMap&gt; </div><div class="line">        &lt;/map&gt; </div><div class="line">    &lt;/authorizationPlugin&gt; </div><div class="line">&lt;/plugins&gt;</div></pre></td></tr></table></figure></p>
+<h2 id="Clustering"><a href="#Clustering" class="headerlink" title="Clustering"></a>Clustering</h2><p>ActiveMQ从多种不同的方面提供了集群的支持。 </p>
+<h3 id="Queue-consumer-clusters"><a href="#Queue-consumer-clusters" class="headerlink" title="Queue consumer clusters"></a>Queue consumer clusters</h3><p>ActiveMQ支持订阅同一个queue的consumers上的集群。如果一个consumer失效，那么所有未被确认 （unacknowledged）的消息都会被发送到这个queue上其它的consumers。如果某个consumer的处理速度比其它consumers更快，那么这个consumer就会消费更多的消息。<br>需要注意的是，笔者发现AcitveMQ5.0版本的Queue consumer clusters存在一个bug：采用AMQ Message Store，运行一个producer，两个consumer，并采用如下的配置文件：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">&lt;beans&gt; </div><div class="line">    &lt;broker xmlns=&quot;http://activemq.org/config/1.0&quot; brokerName=&quot;BugBroker1&quot; useJmx=&quot;true&quot;&gt; </div><div class="line"></div><div class="line">        &lt;transportConnectors&gt; </div><div class="line">            &lt;transportConnector uri=&quot;tcp://localhost:61616&quot;/&gt; </div><div class="line">        &lt;/transportConnectors&gt; </div><div class="line"></div><div class="line">        &lt;persistenceAdapter&gt; </div><div class="line">            &lt;amqPersistenceAdapter directory=&quot;activemq-data/BugBroker1&quot; maxFileLength=&quot;32mb&quot;/&gt; </div><div class="line">        &lt;/persistenceAdapter&gt; </div><div class="line">     </div><div class="line">    &lt;/broker&gt; </div><div class="line">&lt;/beans&gt;</div></pre></td></tr></table></figure></p>
+<p>那么经过一段时间后可能会报出如下错误：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ERROR [ActiveMQ Transport: tcp:///127.0.0.1:1843 - RecoveryListenerAdapter.java:58 - RecoveryListenerAdapter] Message id ID:versus-1837-1203915536609-0:2:1:1:419 could not be recovered from the data store!</div></pre></td></tr></table></figure></p>
+<p>Apache官方文档说，此bug已经被修正，预定在5.1.0版本上体现。 </p>
+<h3 id="Broker-clusters"><a href="#Broker-clusters" class="headerlink" title="Broker clusters"></a>Broker clusters</h3><p>一个常见的场景是有多个JMS broker，一个客户连接到其中一个broker。如果这个broker失效，那么客户会自动重新连接到其它的broker。在ActiveMQ中使用<code>failover://</code> 协议来实现这个功能。ActiveMQ3.x版本的<code>reliable://</code>协议已经变更为<code>failover://</code>。<br>如果某个网络上有多个brokers而且客户使用静态发现（使用Static Transport或Failover Transport）或动态发现（使用Discovery Transport），那么客户可以容易地在某个broker失效的情况下切换到其它的brokers。然而，stand alone brokers并不了解其它brokers上的consumers，也就是说如果某个broker上没有consumers，那么这个broker上的消息可能会因得不到处理而积压起来。目前的解决方案是使用Network of brokers，以便在broker之间存储转发消息。ActiveMQ在未来会有更好的特性，用来在客户端处理这个问题。<br>从ActiveMQ1.1版本起，ActiveMQ支持networks of brokers。它支持分布式的queues和topics。一个broker会相同对待所有的订阅（subscription）：不管他们是来自本地的客户连接，还是来自远程broker，它都会递送有关的消息拷贝到每个订阅。远程broker得到这个消息拷贝后，会依次把它递送到其内部的本地连接上。有两种方式配置Network of brokers，一种是使用static transport：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">&lt;broker brokerName=&quot;receiver&quot; persistent=&quot;false&quot; useJmx=&quot;false&quot;&gt; </div><div class="line">        &lt;transportConnectors&gt; </div><div class="line">                &lt;transportConnector uri=&quot;tcp://localhost:62002&quot;/&gt; </div><div class="line">        &lt;/transportConnectors&gt; </div><div class="line">        </div><div class="line">        &lt;networkConnectors&gt; </div><div class="line">                &lt;networkConnector uri=&quot;static:( tcp://localhost:61616,tcp://remotehost:61616)&quot;/&gt; </div><div class="line">        &lt;/networkConnectors&gt; </div><div class="line">… </div><div class="line">&lt;/broker&gt;</div></pre></td></tr></table></figure></p>
+<p>另外一种是使用multicast discovery，如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">&lt;broker name=&quot;sender&quot; persistent=&quot;false&quot; useJmx=&quot;false&quot;&gt; </div><div class="line">    &lt;transportConnectors&gt; </div><div class="line">        &lt;transportConnector uri=&quot;tcp://localhost:0&quot; discoveryUri=&quot;multicast://default&quot;/&gt; </div><div class="line">    &lt;/transportConnectors&gt; </div><div class="line">    &lt;networkConnectors&gt; </div><div class="line">        &lt;networkConnector uri=&quot;multicast://default&quot;/&gt; </div><div class="line">    &lt;/networkConnectors&gt; </div><div class="line">... </div><div class="line">&lt;/broker&gt;</div></pre></td></tr></table></figure></p>
+<p>Network Connector有以下属性： </p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Property</th>
+<th style="text-align:center">Default Value</th>
+<th style="text-align:center">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">name</td>
+<td style="text-align:center">bridge</td>
+<td style="text-align:center">name of the network - for more than one network connector between the same two brokers - use different names</td>
+</tr>
+<tr>
+<td style="text-align:center">dynamicOnly</td>
+<td style="text-align:center">false</td>
+<td style="text-align:center">if true, only forward messages if a consumer is active on the connected broker</td>
+</tr>
+<tr>
+<td style="text-align:center">decreaseNetworkConsumerPriority</td>
+<td style="text-align:center">false</td>
+<td style="text-align:center">decrease the priority for dispatching to a Queue consumer the further away it is (in network hops) from the producer</td>
+</tr>
+<tr>
+<td style="text-align:center">networkTTL</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">the number of brokers in the network that messages and subscriptions can pass through</td>
+</tr>
+<tr>
+<td style="text-align:center">conduitSubscriptions</td>
+<td style="text-align:center">true</td>
+<td style="text-align:center">multiple consumers subscribing to the same destination are treated as one consumer by the network</td>
+</tr>
+<tr>
+<td style="text-align:center">excludedDestinations</td>
+<td style="text-align:center">empty</td>
+<td style="text-align:center">destinations matching this list won’t be forwarded across the network</td>
+</tr>
+<tr>
+<td style="text-align:center">dynamicallyIncludedDestinations</td>
+<td style="text-align:center">empty</td>
+<td style="text-align:center">destinations that match this list will be forwarded across the network n.b. an empty list means all destinations not in the excluded list will be forwarded</td>
+</tr>
+<tr>
+<td style="text-align:center">staticallyIncludedDestinations</td>
+<td style="text-align:center">empty</td>
+<td style="text-align:center">destinations that match will always be passed across the network - even if no consumers have ever registered an interest</td>
+</tr>
+<tr>
+<td style="text-align:center">duplex</td>
+<td style="text-align:center">false</td>
+<td style="text-align:center">if true, a network connection will be used to both produce AND Consume messages. This is useful for hub and spoke scenarios when the hub is behind a firewall etc.</td>
+</tr>
+</tbody>
+</table>
+<p>关于conduitSubscriptions属性，这里稍稍说明一下。设想有两个brokers，分别是brokerA和brokerB，它们之间用 forwarding bridge连接。有一个consumer连接到brokerA并订阅queue：<code>Q.TEST</code>。有两个consumers连接到brokerB，也是订 阅queue：<code>Q.TEST</code>。这三个consumers有相同的优先级。然后启动一个producer。</p>
 
       
     </div>
@@ -990,7 +983,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Running-Broker"><span class="nav-number">1.</span> <span class="nav-text">Running Broker</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Embedded-Broker"><span class="nav-number">2.</span> <span class="nav-text">Embedded Broker</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#可以通过BrokerFactory来创建broker，例如："><span class="nav-number">3.</span> <span class="nav-text">可以通过BrokerFactory来创建broker，例如：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Monitoring-Broker"><span class="nav-number">4.</span> <span class="nav-text">Monitoring Broker</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#JMX"><span class="nav-number">4.1.</span> <span class="nav-text">JMX</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Web-Console"><span class="nav-number">4.2.</span> <span class="nav-text">Web Console</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Advisory-Message"><span class="nav-number">4.3.</span> <span class="nav-text">Advisory Message</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Command-Agent"><span class="nav-number">4.4.</span> <span class="nav-text">Command Agent</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Visualization-plugin"><span class="nav-number">4.5.</span> <span class="nav-text">Visualization plugin</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Transport"><span class="nav-number">5.</span> <span class="nav-text">Transport</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#VM-Transport"><span class="nav-number">5.1.</span> <span class="nav-text">VM Transport</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TCP-Transport"><span class="nav-number">5.2.</span> <span class="nav-text">TCP Transport</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Failover-Transport"><span class="nav-number">5.3.</span> <span class="nav-text">Failover Transport</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Discovery-transport"><span class="nav-number">5.4.</span> <span class="nav-text">Discovery transport</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Persistence"><span class="nav-number">6.</span> <span class="nav-text">Persistence</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#AMQ-Message-Store"><span class="nav-number">6.1.</span> <span class="nav-text">AMQ Message Store</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Broker-clusters"><span class="nav-number">7.</span> <span class="nav-text">Broker clusters</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Running-Broker"><span class="nav-number">1.</span> <span class="nav-text">Running Broker</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Embedded-Broker"><span class="nav-number">2.</span> <span class="nav-text">Embedded Broker</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#可以通过BrokerFactory来创建broker，例如："><span class="nav-number">3.</span> <span class="nav-text">可以通过BrokerFactory来创建broker，例如：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Monitoring-Broker"><span class="nav-number">4.</span> <span class="nav-text">Monitoring Broker</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#JMX"><span class="nav-number">4.1.</span> <span class="nav-text">JMX</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Web-Console"><span class="nav-number">4.2.</span> <span class="nav-text">Web Console</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Advisory-Message"><span class="nav-number">4.3.</span> <span class="nav-text">Advisory Message</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Command-Agent"><span class="nav-number">4.4.</span> <span class="nav-text">Command Agent</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Visualization-plugin"><span class="nav-number">4.5.</span> <span class="nav-text">Visualization plugin</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Transport"><span class="nav-number">5.</span> <span class="nav-text">Transport</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#VM-Transport"><span class="nav-number">5.1.</span> <span class="nav-text">VM Transport</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TCP-Transport"><span class="nav-number">5.2.</span> <span class="nav-text">TCP Transport</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Failover-Transport"><span class="nav-number">5.3.</span> <span class="nav-text">Failover Transport</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Discovery-transport"><span class="nav-number">5.4.</span> <span class="nav-text">Discovery transport</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Persistence"><span class="nav-number">6.</span> <span class="nav-text">Persistence</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#AMQ-Message-Store"><span class="nav-number">6.1.</span> <span class="nav-text">AMQ Message Store</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Kaha-Persistence"><span class="nav-number">6.2.</span> <span class="nav-text">Kaha Persistence</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JDBC-Persistence"><span class="nav-number">6.3.</span> <span class="nav-text">JDBC Persistence</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Disable-Persistence"><span class="nav-number">6.4.</span> <span class="nav-text">Disable Persistence</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Security"><span class="nav-number">7.</span> <span class="nav-text">Security</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Simple-Authentication-Plugin"><span class="nav-number">7.1.</span> <span class="nav-text">Simple Authentication Plugin</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JAAS-Authentication-Plugin"><span class="nav-number">7.2.</span> <span class="nav-text">JAAS Authentication Plugin</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Custom-Authentication-Implementation"><span class="nav-number">7.3.</span> <span class="nav-text">Custom Authentication Implementation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Authorization-Plugin"><span class="nav-number">7.4.</span> <span class="nav-text">Authorization Plugin</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Clustering"><span class="nav-number">8.</span> <span class="nav-text">Clustering</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Queue-consumer-clusters"><span class="nav-number">8.1.</span> <span class="nav-text">Queue consumer clusters</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Broker-clusters"><span class="nav-number">8.2.</span> <span class="nav-text">Broker clusters</span></a></li></ol></li></ol></div>
             
 
           </div>
