@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://jishusuishouji.github.io/"/>
-  <updated>2017-04-05T05:28:03.286Z</updated>
+  <updated>2017-04-05T05:28:39.827Z</updated>
   <id>http://jishusuishouji.github.io/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://jishusuishouji.github.io/2017/04/05/activemq/%E6%B7%B1%E5%85%A5%E6%B5%85%E5%87%BAJMS_%E4%B8%80_--JMS%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/"/>
     <id>http://jishusuishouji.github.io/2017/04/05/activemq/深入浅出JMS_一_--JMS基本概念/</id>
     <published>2017-04-05T05:15:49.000Z</published>
-    <updated>2017-04-05T05:28:03.286Z</updated>
+    <updated>2017-04-05T05:28:39.827Z</updated>
     
     <content type="html"><![CDATA[<blockquote>
 <p>The Java Message Service (JMS) API is a messaging standard that allows application components based on the Java Platform Enterprise Edition (Java EE) to create, send, receive, and read messages. It enables distributed communication that is loosely coupled, reliable, and asynchronous.</p>
@@ -73,6 +73,7 @@
 <p>(7) <code>MessageListener</code></p>
 <p>消息监听器。如果注册了消息监听器，一旦消息到达，将自动调用监听器的<code>onMessage</code>方法。EJB中的MDB（Message-Driven Bean）就是一种<code>MessageListener</code>。</p>
 <h2 id="企业消息系统的好处"><a href="#企业消息系统的好处" class="headerlink" title="企业消息系统的好处"></a>企业消息系统的好处</h2><p>应用程序A将Message发送到服务器上，然后应用程序B从服务器中接收A发来的消息： </p>
+<p><img src="/img/企业消息系统的好处" alt="企业消息系统的好处"></p>
 <ul>
 <li>提供消息灵活性</li>
 <li>松散耦合</li>
