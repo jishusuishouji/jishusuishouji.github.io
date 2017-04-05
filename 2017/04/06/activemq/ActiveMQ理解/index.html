@@ -95,7 +95,7 @@
 <meta property="og:url" content="http://jishusuishouji.github.io/2017/04/06/activemq/ActiveMQ理解/index.html">
 <meta property="og:site_name" content="技术随手记">
 <meta property="og:description" content="ActiveMQ理解">
-<meta property="og:updated_time" content="2017-04-05T21:19:56.991Z">
+<meta property="og:updated_time" content="2017-04-05T21:44:16.866Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ActiveMQ理解">
 <meta name="twitter:description" content="ActiveMQ理解">
@@ -461,44 +461,27 @@
 <p>把它替换成 </p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">set SUNJMX=-Dcom.sun.management.jmxremote.port=1616 -Dcom.sun.management.jmxremote.authenticate=true -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.password.file=%ACTIVEMQ_BASE%/conf/jmx.password -Dcom.sun.management.jmxremote.access.file=%ACTIVEMQ_BASE%/conf/jmx.access</div></pre></td></tr></table></figure>
 <p>最后重启ActiveMQ和jconsole，这时候需要强制login。如果在启动activemq的过程中出现以下错误，那么需要为这个文件增加访问控制。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Error: Password file read access must be restricted: D:\apache-activemq-5.0.0\bin\../conf/jmx.password</div></pre></td></tr></table></figure></p>
-<h3 id="Web-Console"><a href="#Web-Console" class="headerlink" title="Web Console"></a>Web Console</h3><p>Web Console被集成到了ActiveMQ的二进制发布包中，因此缺省访问<code>http://localhost:8161/admin</code>即可访问Web Console。<br>在配置文件中，可以通过修改<code>nioConnector</code>的<code>port</code>属性来修改Web console的缺省端口：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&lt;jetty xmlns=&quot;http://mortbay.com/schemas/jetty/1.0&quot;&gt; </div><div class="line">        &lt;connectors&gt; </div><div class="line">                &lt;nioConnector port=&quot;8161&quot; /&gt; </div><div class="line">        &lt;/connectors&gt; </div><div class="line">        ... </div><div class="line">&lt;/jetty&gt;</div></pre></td></tr></table></figure></p>
-<p>出于安全性或者可靠性的考虑，Web Console 可以被部署到不同于ActiveMQ的进程中。例如把<code>activemq-web-console.war</code>部署到一个单独的web容器中 （Tomcat，Jetty等）。在ActiveMQ5.0的二进制发布包中不包含<code>activemq-web-console.war</code>，因此需要下载 ActiveMQ的源码，然后进入到<code>${activemq.base}/src/activemq-web-console</code>目录中执行<code>mvn instanll</code>。如果一切正常，那么缺省会在<code>${activemq.base}/src/activemq-web-console/target</code>目录中生成<code>activemq-web-console-5.0.0.war</code>。然后将<code>activemq-web-console-5.0.0.war</code>拷贝到Tomcat的<code>webapps</code>目录中，并重命名成<code>activemq-web-console.war</code>。<br>需要注意的是，要将<code>activemq-all-5.0.0.jar</code>拷贝到<code>WEB-INF\lib</code>目录中（可能还需要拷贝<code>jms.jar</code>）。还要为Tomcat设置以下五个系统属性（修改<code>catalina.bat</code>文件）：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">set JAVA_OPTS=%JAVA_OPTS% -Dwebconsole.type=&quot;properties&quot; </div><div class="line">set JAVA_OPTS=%JAVA_OPTS% -Dwebconsole.jms.url=&quot;tcp://localhost:61616&quot; </div><div class="line">set JAVA_OPTS=%JAVA_OPTS% -Dwebconsole.jmx.url=&quot;service:jmx:rmi:///jndi/rmi://localhost:1099/jmxrmi&quot; </div><div class="line">set JAVA_OPTS=%JAVA_OPTS% -Dwebconsole.jmx.role=&quot;&quot; </div><div class="line">set JAVA_OPTS=%JAVA_OPTS% -Dwebconsole.jmx.password=&quot;&quot;</div></pre></td></tr></table></figure></p>
+<h3 id="Web-Console"><a href="#Web-Console" class="headerlink" title="Web Console"></a>Web Console</h3><p>Web Console被集成到了ActiveMQ的二进制发布包中，因此缺省访问<code>http://localhost:8161/admin</code>即可访问Web Console。<br>在配置文件中，可以通过修改<code>nioConnector</code>的<code>port</code>属性来修改Web console的缺省端口： </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&lt;jetty xmlns=&quot;http://mortbay.com/schemas/jetty/1.0&quot;&gt; </div><div class="line">        &lt;connectors&gt; </div><div class="line">                &lt;nioConnector port=&quot;8161&quot; /&gt; </div><div class="line">        &lt;/connectors&gt; </div><div class="line">        ... </div><div class="line">&lt;/jetty&gt;</div></pre></td></tr></table></figure>
+<p>出于安全性或者可靠性的考虑，Web Console可以被部署到不同于ActiveMQ的进程中。例如把<code>activemq-web-console.war</code>部署到一个单独的web容器中（Tomcat，Jetty等）。在ActiveMQ5.0的二进制发布包中不包含<code>activemq-web-console.war</code>，因此需要下载 ActiveMQ的源码，然后进入到<code>${activemq.base}/src/activemq-web-console</code>目录中执行<code>mvn instanll</code>。如果一切正常，那么缺省会在<code>${activemq.base}/src/activemq-web-console/target</code>目录中生成<code>activemq-web-console-5.0.0.war</code>。然后将<code>activemq-web-console-5.0.0.war</code>拷贝到Tomcat的<code>webapps</code>目录中，并重命名成<code>activemq-web-console.war</code>。<br>需要注意的是，要将<code>activemq-all-5.0.0.jar</code>拷贝到<code>WEB-INF\lib</code>目录中（可能还需要拷贝<code>jms.jar</code>）。还要为Tomcat设置以下五个系统属性（修改<code>catalina.bat</code>文件）：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">set JAVA_OPTS=%JAVA_OPTS% -Dwebconsole.type=&quot;properties&quot; </div><div class="line">set JAVA_OPTS=%JAVA_OPTS% -Dwebconsole.jms.url=&quot;tcp://localhost:61616&quot; </div><div class="line">set JAVA_OPTS=%JAVA_OPTS% -Dwebconsole.jmx.url=&quot;service:jmx:rmi:///jndi/rmi://localhost:1099/jmxrmi&quot; </div><div class="line">set JAVA_OPTS=%JAVA_OPTS% -Dwebconsole.jmx.role=&quot;&quot; </div><div class="line">set JAVA_OPTS=%JAVA_OPTS% -Dwebconsole.jmx.password=&quot;&quot;</div></pre></td></tr></table></figure></p>
 <p>如果JMX没有配置密码保护，那么<code>webconsole.jmx.role</code>和<code>webconsole.jmx.password</code>设置成<code>&quot;&quot;</code>即可。如果broker被配置成了Master/Slave模式，那么可以配置成使用failover transport，例如： </p>
 <pre><code>-Dwebconsole.jms.url=failover:(tcp://serverA:61616,tcp://serverB:61616)
-</code></pre><p>顺便说一下，由于webconsole.type 属性是properties，因此实际上起作用的Web Console的配置文件是<code>WEB-INF/ webconsole-properties.xml</code>。最后启动被监控的ActiveMQ，访问<code>http://localhost:8080 /activemq-web-console/</code>，查看显示是否正常。 </p>
-<h4 id="Advisory-Message"><a href="#Advisory-Message" class="headerlink" title="Advisory Message"></a>Advisory Message</h4><p>ActiveMQ 支持Advisory Messages，它允许你通过标准的JMS 消息来监控系统。目前的Advisory Messages支持：<br>• consumers, producers and connections starting and stopping<br>• temporary destinations being created and destroyed<br>• messages expiring on topics and queues<br>• brokers sending messages to destinations with no consumers.<br>• connections starting and stopping </p>
-<p>Advisory Messages可以被想象成某种的管理通道，通过它你可以得到关于JMS provider、producers、consumers和destinations的信息。Advisory topics都使用ActiveMQ.Advisory.这个前缀，以下是目前支持的topics：<br>Client based advisories<br>Advisory Topics Description<br>ActiveMQ.Advisory.Connection Connection start &amp; stop messages<br>ActiveMQ.Advisory.Producer.Queue Producer start &amp; stop messages on a Queue<br>ActiveMQ.Advisory.Producer.Topic Producer start &amp; stop messages on a Topic<br>ActiveMQ.Advisory.Consumer.Queue Consumer start &amp; stop messages on a Queue<br>ActiveMQ.Advisory.Consumer.Topic Consumer start &amp; stop messages on a Topic </p>
-<p>在消费者启动/停止的Advisory Messages的消息头中有个consumerCount属性，他用来指明目前desination上活跃的consumer的数量。<br>Destination and Message based advisories<br>Advisory Topics Description<br>ActiveMQ.Advisory.Queue Queue create &amp; destroy<br>ActiveMQ.Advisory.Topic Topic create &amp; destroy<br>ActiveMQ.Advisory.TempQueue Temporary Queue create &amp; destroy<br>ActiveMQ.Advisory.TempTopic Temporary Topic create &amp; destroy<br>ActiveMQ.Advisory.Expired.Queue Expired messages on a Queue<br>ActiveMQ.Advisory.Expired.Topic Expired messages on a Topic<br>ActiveMQ.Advisory.NoConsumer.Queue No consumer is available to process messages being sent on a Queue<br>ActiveMQ.Advisory.NoConsumer.Topic No consumer is available to process messages being sent on a Topic<br>以上的这些destnations都可以用来作为前缀，在其后面追加其它的重要信息，例如topic、queue、clientID、 producderID和consumerID等。这令你可以利用Wildcards 和 Selectors 来过滤Advisory Messages（关于Wildcard和Selector会在稍后介绍）。<br>例如，如果你希望订阅FOO.BAR这个queue上Consumer的start/stop的消息，那么可以订阅 ActiveMQ.Advisory.Consumer.Queue.FOO.BAR；如果希望订阅所有queue上的start/stop消息，那么可 以订阅ActiveMQ.Advisory.Consumer.Queue.&gt;；如果希望订阅所有queue或者topic上的 start/stop消息，那么可以订阅ActiveMQ.Advisory.Consumer. &gt;。<br>org.apache.activemq.advisory.AdvisorySupport类上有如下的helper methods，用来在程序中得到advisory destination objects。<br>Java代码 </p>
-<ol>
-<li>AdvisorySupport.getConsumerAdvisoryTopic() </li>
-<li>AdvisorySupport.getProducerAdvisoryTopic() </li>
-<li>AdvisorySupport.getDestinationAdvisoryTopic() </li>
-<li>AdvisorySupport.getExpiredTopicMessageAdvisoryTopic() </li>
-<li>AdvisorySupport.getExpiredQueueMessageAdvisoryTopic() </li>
-<li>AdvisorySupport.getNoTopicConsumersAdvisoryTopic() </li>
-<li>AdvisorySupport.getNoQueueConsumersAdvisoryTopic()<br>以下是段使用Advisory Messages的程序代码：<br>Java代码 </li>
-<li>Destination advisoryDestination = AdvisorySupport.getProducerAdvisoryTopic(destination) </li>
-<li>MessageConsumer consumer = session.createConsumer(advisoryDestination); </li>
-<li>consumer.setMessageListener(this); </li>
-<li>… </li>
-<li>public void onMessage(Message msg){ </li>
-<li>if (msg instanceof ActiveMQMessage){ </li>
-<li>try { </li>
-<li>ActiveMQMessage aMsg = (ActiveMQMessage)msg; </li>
-<li>ProducerInfo prod = (ProducerInfo) aMsg.getDataStructure(); </li>
-<li>} catch (JMSException e) { </li>
-<li>log.error(“Failed to process message: “ + msg); </li>
-<li>} </li>
-<li>} </li>
-<li>} </li>
-</ol>
-<h4 id="Command-Agent"><a href="#Command-Agent" class="headerlink" title="Command Agent"></a>Command Agent</h4><p>在介绍Command Agent前首先简要介绍一下XMPP(Jabber)协议，XMPP是一种基于XML的即时通信协议，它由Jabber软件基金会开发。在配置文件中通过增加<code>transportConnector</code>来支持XMPP协议：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&lt;broker xmlns=&quot;http://activemq.org/config/1.0&quot;&gt; </div><div class="line">        &lt;transportConnectors&gt; </div><div class="line">        ... </div><div class="line">                &lt;transportConnector name=&quot;xmpp&quot; uri=&quot;xmpp://localhost:61222&quot;/&gt; </div><div class="line">        &lt;/transportConnectors&gt; </div><div class="line">&lt;/broker&gt;</div></pre></td></tr></table></figure></p>
-<p>ActiveMQ提供了ActiveMQ messages和XMPP之间的双向桥接：<br>• 如果客户加入了一个聊天室，那么这个聊天室的名字会被映射到一个JMS topic。<br>• 尝试在聊天室内发送消息会导致一个JMS消息被发送到这个topic。<br>• 呆在一个聊天室中意味着这将保持一个对相应JMS topic的订阅。因此发送到这个topic的JMS消息也会被发送到聊天室。<br>从4.2版本起，ActiveMQ支持<code>Command Agent</code>。在配置文件中，通过设置<code>commandAgent</code>来启用Command Agent：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&lt;beans&gt; </div><div class="line">        &lt;broker useJmx=&quot;true&quot; xmlns=&quot;http://activemq.org/config/1.0&quot;&gt; </div><div class="line">        ... </div><div class="line">        &lt;/broker&gt; </div><div class="line">        &lt;commandAgent xmlns=&quot;http://activemq.org/config/1.0&quot;/&gt; </div><div class="line">&lt;/beans&gt;</div></pre></td></tr></table></figure></p>
-<p>启用了Command Agent的broker上会有一个来自Command Agent的连接，它同时订阅topic：ActiveMQ.Agent。在你启动XMPP客户端，加入到ActiveMQ.Agent聊天室后，就可以同broker进行交谈了。通过在XMPP 客户端中键入help，可以得到帮助信息。<br>需要注意的是，ActiveMQ5.0版本有个小bug，如果broker没有采用缺省的用户名和密码，那么Command Agent便无法正常启动。Apache官方文档说，此bug已经被修正，预定在5.2.0版本上体现。修改方式如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;commandAgent xmlns=&quot;http://activemq.org/config/1.0&quot; brokerUser=&quot;user&quot; brokerPassword=&quot;passward&quot;/&gt;</div></pre></td></tr></table></figure></p>
-<h4 id="Visualization-plugin"><a href="#Visualization-plugin" class="headerlink" title="Visualization plugin"></a>Visualization plugin</h4><p>ActiveMQ支持以broker插件的形式生成DOT文件(可以用agrviewer来查看)，以图表的方式描述connections、sessions、producers、consumers、destinations等信息。配置方式如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">&lt;broker xmlns=&quot;http://activemq.org/config/1.0&quot; brokerName=&quot;localhost&quot; useJmx=&quot;true&quot;&gt; </div><div class="line">        ... </div><div class="line">    &lt;plugins&gt; </div><div class="line">        &lt;connectionDotFilePlugin file=&quot;connection.dot&quot;/&gt; </div><div class="line">        &lt;destinationDotFilePlugin file=&quot;destination.dot&quot;/&gt; </div><div class="line">        &lt;/plugins&gt; </div><div class="line">&lt;/broker&gt;</div></pre></td></tr></table></figure></p>
+</code></pre><p>顺便说一下，由于<code>webconsole.type</code>属性是<code>properties</code>，因此实际上起作用的Web Console的配置文件是<code>WEB-INF/webconsole-properties.xml</code>。最后启动被监控的ActiveMQ，访问<code>http://localhost:8080 /activemq-web-console/</code>，查看显示是否正常。 </p>
+<h3 id="Advisory-Message"><a href="#Advisory-Message" class="headerlink" title="Advisory Message"></a>Advisory Message</h3><p>ActiveMQ支持Advisory Messages，它允许你通过标准的JMS消息来监控系统。目前的Advisory Messages支持：<br>• consumers, producers and connections starting and stopping<br>• temporary destinations being created and destroyed<br>• messages expiring on topics and queues<br>• brokers sending messages to destinations with no consumers.<br>• connections starting and stopping </p>
+<p>Advisory Messages可以被想象成某种的管理通道，通过它你可以得到关于JMS provider、producers、consumers和destinations的信息。Advisory topics都使用<code>ActiveMQ.Advisory.</code>这个前缀，以下是目前支持的topics： </p>
+<p>Client based advisories<br>Advisory Topics Description<br>ActiveMQ.Advisory.Connection Connection start &amp; stop messages<br>ActiveMQ.Advisory.Producer.Queue Producer start &amp; stop messages on a Queue<br>ActiveMQ.Advisory.Producer.Topic Producer start &amp; stop messages on a Topic<br>ActiveMQ.Advisory.Consumer.Queue Consumer start &amp; stop messages on a Queue<br>ActiveMQ.Advisory.Consumer.Topic Consumer start &amp; stop messages on a Topic </p>
+<p>在消费者启动/停止的Advisory Messages的消息头中有个<code>consumerCount</code>属性，它用来指明目前desination上活跃的consumer的数量。<br>Destination and Message based advisories<br>Advisory Topics Description<br>ActiveMQ.Advisory.Queue Queue create &amp; destroy<br>ActiveMQ.Advisory.Topic Topic create &amp; destroy<br>ActiveMQ.Advisory.TempQueue Temporary Queue create &amp; destroy<br>ActiveMQ.Advisory.TempTopic Temporary Topic create &amp; destroy<br>ActiveMQ.Advisory.Expired.Queue Expired messages on a Queue<br>ActiveMQ.Advisory.Expired.Topic Expired messages on a Topic<br>ActiveMQ.Advisory.NoConsumer.Queue No consumer is available to process messages being sent on a Queue<br>ActiveMQ.Advisory.NoConsumer.Topic No consumer is available to process messages being sent on a Topic </p>
+<p>以上的这些destnations都可以用来作为前缀，在其后面追加其它的重要信息，例如topic、queue、clientID、 producderID和consumerID等。这令你可以利用Wildcards和Selectors来过滤Advisory Messages。<br>例如，如果你希望订阅<code>FOO.BAR</code>这个queue上Consumer的start/stop的消息，那么可以订阅<code>ActiveMQ.Advisory.Consumer.Queue.FOO.BAR</code>；如果希望订阅所有queue上的start/stop消息，那么可以订阅<code>ActiveMQ.Advisory.Consumer.Queue.</code>；如果希望订阅所有queue或者topic上的start/stop消息，那么可以订阅<code>ActiveMQ.Advisory.Consumer.</code>。<br><code>org.apache.activemq.advisory.AdvisorySupport</code>类上有如下的helper methods，用来在程序中得到advisory destination objects。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">AdvisorySupport.getConsumerAdvisoryTopic() </div><div class="line">AdvisorySupport.getProducerAdvisoryTopic() </div><div class="line">AdvisorySupport.getDestinationAdvisoryTopic() </div><div class="line">AdvisorySupport.getExpiredTopicMessageAdvisoryTopic() </div><div class="line">AdvisorySupport.getExpiredQueueMessageAdvisoryTopic() </div><div class="line">AdvisorySupport.getNoTopicConsumersAdvisoryTopic() </div><div class="line">AdvisorySupport.getNoQueueConsumersAdvisoryTopic()</div></pre></td></tr></table></figure></p>
+<p>以下是段使用Advisory Messages的程序代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">Destination advisoryDestination = AdvisorySupport.getProducerAdvisoryTopic(destination) </div><div class="line">MessageConsumer consumer = session.createConsumer(advisoryDestination); </div><div class="line">consumer.setMessageListener(this); </div><div class="line">... </div><div class="line">public void onMessage(Message msg)&#123; </div><div class="line">        if (msg instanceof ActiveMQMessage)&#123; </div><div class="line">                try &#123; </div><div class="line">                        ActiveMQMessage aMsg = (ActiveMQMessage)msg; </div><div class="line">                        ProducerInfo prod = (ProducerInfo) aMsg.getDataStructure(); </div><div class="line">                &#125; catch (JMSException e) &#123; </div><div class="line">                        log.error(&quot;Failed to process message: &quot; + msg); </div><div class="line">                &#125; </div><div class="line">        &#125; </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="Command-Agent"><a href="#Command-Agent" class="headerlink" title="Command Agent"></a>Command Agent</h3><p>在介绍Command Agent前首先简要介绍一下XMPP(Jabber)协议，XMPP是一种基于XML的即时通信协议，它由Jabber软件基金会开发。在配置文件中通过增加<code>transportConnector</code>来支持XMPP协议：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&lt;broker xmlns=&quot;http://activemq.org/config/1.0&quot;&gt; </div><div class="line">        &lt;transportConnectors&gt; </div><div class="line">        ... </div><div class="line">                &lt;transportConnector name=&quot;xmpp&quot; uri=&quot;xmpp://localhost:61222&quot;/&gt; </div><div class="line">        &lt;/transportConnectors&gt; </div><div class="line">&lt;/broker&gt;</div></pre></td></tr></table></figure></p>
+<p>ActiveMQ提供了ActiveMQ messages和XMPP之间的双向桥接：<br>• 如果客户加入了一个聊天室，那么这个聊天室的名字会被映射到一个JMS topic。<br>• 尝试在聊天室内发送消息会导致一个JMS消息被发送到这个topic。<br>• 呆在一个聊天室中意味着这将保持一个对相应JMS topic的订阅。因此发送到这个topic的JMS消息也会被发送到聊天室。</p>
+<p>从4.2版本起，ActiveMQ支持<code>Command Agent</code>。在配置文件中，通过设置<code>commandAgent</code>来启用Command Agent： </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&lt;beans&gt; </div><div class="line">        &lt;broker useJmx=&quot;true&quot; xmlns=&quot;http://activemq.org/config/1.0&quot;&gt; </div><div class="line">        ... </div><div class="line">        &lt;/broker&gt; </div><div class="line">        &lt;commandAgent xmlns=&quot;http://activemq.org/config/1.0&quot;/&gt; </div><div class="line">&lt;/beans&gt;</div></pre></td></tr></table></figure>
+<p>启用了Command Agent的broker上会有一个来自Command Agent的连接，它同时订阅topic：<code>ActiveMQ.Agent</code>。在你启动XMPP客户端，加入到<code>ActiveMQ.Agent</code>聊天室后，就可以同broker进行交谈了。通过在XMPP客户端中键入help，可以得到帮助信息。<br>需要注意的是，ActiveMQ5.0版本有个小bug，如果broker没有采用缺省的用户名和密码，那么Command Agent便无法正常启动。Apache官方文档说，此bug已经被修正，预定在5.2.0版本上体现。修改方式如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;commandAgent xmlns=&quot;http://activemq.org/config/1.0&quot; brokerUser=&quot;user&quot; brokerPassword=&quot;passward&quot;/&gt;</div></pre></td></tr></table></figure></p>
+<h3 id="Visualization-plugin"><a href="#Visualization-plugin" class="headerlink" title="Visualization plugin"></a>Visualization plugin</h3><p>ActiveMQ支持以broker插件的形式生成DOT文件(可以用agrviewer来查看)，以图表的方式描述connections、sessions、producers、consumers、destinations等信息。配置方式如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">&lt;broker xmlns=&quot;http://activemq.org/config/1.0&quot; brokerName=&quot;localhost&quot; useJmx=&quot;true&quot;&gt; </div><div class="line">        ... </div><div class="line">    &lt;plugins&gt; </div><div class="line">        &lt;connectionDotFilePlugin file=&quot;connection.dot&quot;/&gt; </div><div class="line">        &lt;destinationDotFilePlugin file=&quot;destination.dot&quot;/&gt; </div><div class="line">        &lt;/plugins&gt; </div><div class="line">&lt;/broker&gt;</div></pre></td></tr></table></figure></p>
 <p>需要注意的是，笔者认为ActiveMQ5.0版本的Visualization Plugin尚不稳定，存在诸多问题。例如：如果使用<code>connectionDotFilePlugin</code>，那么<code>brokerName</code>必须是<code>localhost</code>；如果使用<code>destinationDotFilePlugin</code>可能会导致<code>ArrayStoreException</code>。 </p>
 <h2 id="Transport"><a href="#Transport" class="headerlink" title="Transport"></a>Transport</h2><p>ActiveMQ目前支持的transport有：VM Transport、TCP Transport、SSL Transport、Peer Transport、UDP Transport、Multicast Transport、HTTP and HTTPS Transport、Failover Transport、Fanout Transport、Discovery Transport、ZeroConf Transport等。</p>
-<h3 id="VM-Transport"><a href="#VM-Transport" class="headerlink" title="VM Transport"></a>VM Transport</h3><p>VM transport允许在VM内部通信，从而避免了网络传输的开销。这时候采用的连接不是socket连接，而是直接地方法调用。 第一个创建VM 连接的客户会启动一个embed VM broker，接下来所有使用相同的broker name的VM连接都会使用这个broker。当这个broker上所有的连接都关闭的时候，这个broker也会自动关闭。 </p>
+<h3 id="VM-Transport"><a href="#VM-Transport" class="headerlink" title="VM Transport"></a>VM Transport</h3><p>VM transport允许在VM内部通信，从而避免了网络传输的开销。这时候采用的连接不是socket连接，而是直接地方法调用。 第一个创建VM连接的客户会启动一个embed VM broker，接下来所有使用相同的broker name的VM连接都会使用这个broker。当这个broker上所有的连接都关闭的时候，这个broker也会自动关闭。 </p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">vm://brokerName?transportOptions</div></pre></td></tr></table></figure>
 <p>例如：<code>vm://broker1?marshal=false&amp;broker.persistent=false</code><br>Transport Options的可选值如下： </p>
 <table>
@@ -527,32 +510,133 @@
 <p>例如：<code>vm:(broker:(tcp://localhost:6000)?persistent=false)?marshal=false</code> </p>
 <p>使用配置文件的配置语法：<br><code>vm://localhost?brokerConfig=xbean:activemq.xml</code><br>例如：<code>vm:// localhost?brokerConfig=xbean:com/test/activemq.xml</code></p>
 <p>使用Spring的配置：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">&lt;bean id=&quot;broker&quot; class=&quot;org.apache.activemq.xbean.BrokerFactoryBean&quot;&gt; </div><div class="line">        &lt;property name=&quot;config&quot; value=&quot;classpath:org/apache/activemq/xbean/activemq.xml&quot; /&gt; </div><div class="line">        &lt;property name=&quot;start&quot; value=&quot;true&quot; /&gt; </div><div class="line">        &lt;/bean&gt; </div><div class="line"></div><div class="line">&lt;bean id=&quot;connectionFactory&quot; class=&quot;org.apache.activemq.ActiveMQConnectionFactory&quot; depends-on=&quot;broker&quot;&gt; </div><div class="line">&lt;property name=&quot;brokerURL&quot; value=&quot;vm://localhost&quot;/&gt; </div><div class="line">&lt;/bean&gt;</div></pre></td></tr></table></figure></p>
-<p>如果persistent是true，那么ActiveMQ会在当前目录下创建一个缺省值是activemq-data的目录用于持久化保存数据。需要注 意的是，如果程序中启动了多个不同名字的VM broker，那么可能会有如下警告：Failed to start jmx connector: Cannot bind to URL [rmi://localhost:1099/jmxrmi]: javax.naming.NameAlreadyBoundException…可以通过在transportOptions中追加 broker.useJmx=false来禁用JMX来避免这个警告。 </p>
-<p>2．2．2 TCP Transport<br>TCP transport 允许客户端通过TCP socket连接到远程的broker。以下是配置语法：<br>tcp://hostname:port?transportOptions<br>Transport Options的可选值如下：<br>Option Name Default Value Description<br>minmumWireFormatVersion 0 The minimum version wireformat that is allowed<br>trace false Causes all commands that are sent over the transport to be logged<br>useLocalHost true When true, it causes the local machines name to resolve to “localhost”.<br>socketBufferSize 64 <em> 1024 Sets the socket buffer size in bytes<br>soTimeout 0 sets the socket timeout in milliseconds<br>connectionTimeout 30000 A non-zero value specifies the connection timeout in milliseconds. A zero value means wait forever for the connection to be established. Negative values are ignored.<br>wireFormat default The name of the WireFormat to use<br>wireFormat.</em> All the properties with this prefix are used to configure the wireFormat. See Configuring Wire Formats for more information<br>例如：tcp://localhost:61616?trace=false </p>
-<p>2．2．3 Failover Transport<br>Failover Transport是一种重新连接的机制，它工作于其它transport的上层，用于建立可靠的传输。它的配置语法允许制定任意多个复合的URI。 Failover transport会自动选择其中的一个URI来尝试建立连接。如果没有成功，那么会选择一个其它的URI来建立一个新的连接。以下是配置语法：<br>failover:(uri1,…,uriN)?transportOptions<br>failover:uri1,…,uriN<br>Transport Options的可选值如下：<br>Option Name Default Value Description<br>initialReconnectDelay 10 How long to wait before the first reconnect attempt (in ms)<br>maxReconnectDelay 30000 The maximum amount of time we ever wait between reconnect attempts (in ms)<br>useExponentialBackOff true Should an exponential backoff be used between reconnect attempts<br>backOffMultiplier 2 The exponent used in the exponential backoff attempts<br>maxReconnectAttempts 0 If not 0, then this is the maximum number of reconnect attempts before an error is sent back to the client<br>randomize true use a random algorithm to choose the URI to use for reconnect from the list provided<br>backup false initialize and hold a second transport connection - to enable fast failover<br>例如：failover:(tcp://localhost:61616,tcp://remotehost:61616)?initialReconnectDelay=100 </p>
-<p>2．2．4 Discovery transport<br>Discovery transport是可靠的tranport。它使用Discovery transport来定位用来连接的URI列表。以下是配置语法：<br>discovery:(discoveryAgentURI)?transportOptions<br>discovery:discoveryAgentURI<br>Transport Options的可选值如下：<br>Option Name Default Value Description<br>initialReconnectDelay 10 How long to wait before the first reconnect attempt<br>maxReconnectDelay 30000 The maximum amount of time we ever wait between reconnect attempts<br>useExponentialBackOff true Should an exponential backoff be used btween reconnect attempts<br>backOffMultiplier 2 The exponent used in the exponential backoff attempts<br>maxReconnectAttempts 0 If not 0, then this is the maximum number of reconnect attempts before an error is sent back to the client<br>例如：discovery:(multicast://default)?initialReconnectDelay=100<br>为了使用Discovery来发现broker，需要为broker启用discovery agent。 以下是XML配置文件中的一个例子：<br>Xml代码 </p>
+<p>如果<code>persistent</code>是<code>true</code>，那么ActiveMQ会在当前目录下创建一个缺省值是<code>activemq-data</code>的目录用于持久化保存数据。需要注意的是，如果程序中启动了多个不同名字的VM broker，那么可能会有如下警告：<code>Failed to start jmx connector: Cannot bind to URL [rmi://localhost:1099/jmxrmi]:javax.naming.NameAlreadyBoundException…</code>可以通过在<code>transportOptions</code>中追加<code>broker.useJmx=false</code>来禁用JMX来避免这个警告。 </p>
+<h3 id="TCP-Transport"><a href="#TCP-Transport" class="headerlink" title="TCP Transport"></a>TCP Transport</h3><p>TCP transport 允许客户端通过TCP socket连接到远程的broker。以下是配置语法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">tcp://hostname:port?transportOptions</div></pre></td></tr></table></figure></p>
+<p>Transport Options的可选值如下： </p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Option Name</th>
+<th style="text-align:center">Default Value</th>
+<th style="text-align:center">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">minmumWireFormatVersion</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">The minimum version wireformat that is allowed</td>
+</tr>
+<tr>
+<td style="text-align:center">trace</td>
+<td style="text-align:center">false</td>
+<td style="text-align:center">Causes all commands that are sent over the transport to be logged</td>
+</tr>
+<tr>
+<td style="text-align:center">useLocalHost</td>
+<td style="text-align:center">true</td>
+<td style="text-align:center">When true, it causes the local machines name to resolve to “localhost”.</td>
+</tr>
+<tr>
+<td style="text-align:center">socketBufferSize</td>
+<td style="text-align:center">64 * 1024</td>
+<td style="text-align:center">Sets the socket buffer size in bytes </td>
+</tr>
+</tbody>
+</table>
+<p>soTimeout 0 sets the socket timeout in milliseconds |<br>| connectionTimeout | 30000 | A non-zero value specifies the connection timeout in milliseconds. A zero value means wait forever for the connection to be established. Negative values are ignored. |<br>| wireFormat | default | The name of the WireFormat to use wireFormat.* All the properties with this prefix are used to configure the wireFormat. See Configuring Wire Formats for more information  | </p>
+<p>例如：<code>tcp://localhost:61616?trace=false</code> </p>
+<h3 id="Failover-Transport"><a href="#Failover-Transport" class="headerlink" title="Failover Transport"></a>Failover Transport</h3><p>Failover Transport是一种重新连接的机制，它工作于其它transport的上层，用于建立可靠的传输。它的配置语法允许制定任意多个复合的URI。Failover transport会自动选择其中的一个URI来尝试建立连接。如果没有成功，那么会选择一个其它的URI来建立一个新的连接。以下是配置语法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">failover:(uri1,...,uriN)?transportOptions </div><div class="line">failover:uri1,...,uriN</div></pre></td></tr></table></figure></p>
+<p>Transport Options的可选值如下： </p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Option Name</th>
+<th style="text-align:center">Default Value</th>
+<th style="text-align:center">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">initialReconnectDelay</td>
+<td style="text-align:center">10</td>
+<td style="text-align:center">How long to wait before the first reconnect attempt (in ms)</td>
+</tr>
+<tr>
+<td style="text-align:center">maxReconnectDelay</td>
+<td style="text-align:center">30000</td>
+<td style="text-align:center">The maximum amount of time we ever wait between reconnect attempts (in ms)</td>
+</tr>
+<tr>
+<td style="text-align:center">useExponentialBackOff</td>
+<td style="text-align:center">true</td>
+<td style="text-align:center">Should an exponential backoff be used between reconnect attempts</td>
+</tr>
+<tr>
+<td style="text-align:center">backOffMultiplier</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">The exponent used in the exponential backoff attempts</td>
+</tr>
+<tr>
+<td style="text-align:center">maxReconnectAttempts</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">If not 0, then this is the maximum number of reconnect attempts before an error is sent back to the client</td>
+</tr>
+<tr>
+<td style="text-align:center">randomize</td>
+<td style="text-align:center">true</td>
+<td style="text-align:center">use a random algorithm to choose the URI to use for reconnect from the list provided</td>
+</tr>
+<tr>
+<td style="text-align:center">backup</td>
+<td style="text-align:center">false</td>
+<td style="text-align:center">initialize and hold a second transport connection - to enable fast failover</td>
+</tr>
+</tbody>
+</table>
+<p>例如：<code>failover:(tcp://localhost:61616,tcp://remotehost:61616)?initialReconnectDelay=100</code></p>
+<h3 id="Discovery-transport"><a href="#Discovery-transport" class="headerlink" title="Discovery transport"></a>Discovery transport</h3><p>Discovery transport是可靠的tranport。它使用Discovery transport来定位用来连接的URI列表。以下是配置语法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">discovery:(discoveryAgentURI)?transportOptions </div><div class="line">discovery:discoveryAgentURI</div></pre></td></tr></table></figure></p>
+<p>Transport Options的可选值如下： </p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Option Name</th>
+<th style="text-align:center">Default Value</th>
+<th style="text-align:center">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">initialReconnectDelay</td>
+<td style="text-align:center">10</td>
+<td style="text-align:center">How long to wait before the first reconnect attempt</td>
+</tr>
+<tr>
+<td style="text-align:center">maxReconnectDelay</td>
+<td style="text-align:center">30000</td>
+<td style="text-align:center">The maximum amount of time we ever wait between reconnect attempts</td>
+</tr>
+<tr>
+<td style="text-align:center">useExponentialBackOff</td>
+<td style="text-align:center">true</td>
+<td style="text-align:center">Should an exponential backoff be used btween reconnect attempts</td>
+</tr>
+<tr>
+<td style="text-align:center">backOffMultiplier</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">The exponent used in the exponential backoff attempts</td>
+</tr>
+<tr>
+<td style="text-align:center">maxReconnectAttempts</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">If not 0, then this is the maximum number of reconnect attempts before an error is sent back to the client</td>
+</tr>
+</tbody>
+</table>
+<p>例如：<code>discovery:(multicast://default)?initialReconnectDelay=100</code><br>为了使用Discovery来发现broker，需要为broker启用discovery agent。 以下是XML配置文件中的一个例子：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&lt;broker name=&quot;foo&quot;&gt; </div><div class="line">        &lt;transportConnectors&gt; </div><div class="line">                &lt;transportConnector uri=&quot;tcp://localhost:0&quot; discoveryUri=&quot;multicast://default&quot;/&gt; </div><div class="line">        &lt;/transportConnectors&gt; </div><div class="line">... </div><div class="line">&lt;/broker&gt;</div></pre></td></tr></table></figure></p>
+<p>在使用Failover Transport或Discovery transport等能够自动重连的transport的时候，需要注意的是：设想有两个broker，它们都启用AMQ Message Store作为持久化存储，有一个producer和一个consumer连接到某个queue。当因其中一个broker失效时而切换到另一个 broker的时候，如果失效的broker的queue中还有未被consumer消费的消息，那么这个queue里的消息仍然滞留在失效broker 的中，直到失效的broker被修复并重新切换回这个被修复的broker后，之前被保留的消息才会被consumer消费掉。如果被处理的消息有时序限制，那么应用程序就需要处理这个问题。另外也可以通过ActiveMQ集群来解决这个问题。<br>在transport重连的时候，可以在connection上注册<code>TransportListener</code>来获得回调，例如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">(ActiveMQConnection)connection).addTransportListener(new TransportListener() &#123; </div><div class="line">public void onCommand(Object cmd) &#123; </div><div class="line">&#125; </div><div class="line"></div><div class="line">public void onException(IOException exp) &#123; </div><div class="line">&#125; </div><div class="line"></div><div class="line">public void transportInterupted() &#123; </div><div class="line">// The transport has suffered an interruption from which it hopes to recover. </div><div class="line">&#125; </div><div class="line"> </div><div class="line">public void transportResumed() &#123; </div><div class="line">// The transport has resumed after an interruption. </div><div class="line">&#125; </div><div class="line">&#125;);</div></pre></td></tr></table></figure></p>
+<h2 id="Persistence"><a href="#Persistence" class="headerlink" title="Persistence"></a>Persistence</h2><h3 id="AMQ-Message-Store"><a href="#AMQ-Message-Store" class="headerlink" title="AMQ Message Store"></a>AMQ Message Store</h3><p>AMQ Message Store是ActiveMQ5.0缺省的持久化存储。Message commands被保存到transactional journal（由rolling data logs组成）。Messages被保存到data logs中，同时被reference store进行索引以提高存取速度。Date logs由一些单独的data log文件组成，缺省的文件大小是32M，如果某个消息的大小超过了data log文件的大小，那么可以修改配置以增加data log文件的大小。如果某个data log文件中所有的消息都被成功消费了，那么这个data log文件将会被标记，以便在下一轮的清理中被删除或者归档。以下是其配置的一个例子：<br>Xml代码 </p>
 <ol>
-<li><broker name="foo"> </broker></li>
-<li><transportconnectors> </transportconnectors></li>
-<li><transportconnector uri="tcp://localhost:0" discoveryuri="multicast://default"> </transportconnector></li>
-<li> </li>
-<li>… </li>
-<li><br>在使用Failover Transport或Discovery transport等能够自动重连的transport的时候，需要注意的是：设想有两个broker，它们都启用AMQ Message Store作为持久化存储，有一个producer和一个consumer连接到某个queue。当因其中一个broker失效时而切换到另一个 broker的时候，如果失效的broker的queue中还有未被consumer消费的消息，那么这个queue里的消息仍然滞留在失效broker 的中，直到失效的broker被修复并重新切换回这个被修复的broker后，之前被保留的消息才会被consumer消费掉。如果被处理的消息有时序限 制，那么应用程序就需要处理这个问题。另外也可以通过ActiveMQ集群来解决这个问题。<br>在transport重连的时候，可以在connection上注册TransportListener来获得回调，例如：<br>Java代码 </li>
-<li>(ActiveMQConnection)connection).addTransportListener(new TransportListener() { </li>
-<li>public void onCommand(Object cmd) { </li>
-<li>} </li>
-<li></li>
-<li>public void onException(IOException exp) { </li>
-<li>} </li>
-<li></li>
-<li>public void transportInterupted() { </li>
-<li>// The transport has suffered an interruption from which it hopes to recover. </li>
-<li>} </li>
-<li></li>
-<li>public void transportResumed() { </li>
-<li>// The transport has resumed after an interruption. </li>
-<li>} </li>
-<li>});<br>2．3 Persistence<br>2．3．1 AMQ Message Store<br>AMQ Message Store是ActiveMQ5.0缺 省的持久化存储。Message commands被保存到transactional journal（由rolling data logs组成）。Messages被保存到data logs中，同时被reference store进行索引以提高存取速度。Date logs由一些单独的data log文件组成，缺省的文件大小是32M，如果某个消息的大小超过了data log文件的大小，那么可以修改配置以增加data log文件的大小。如果某个data log文件中所有的消息都被成功消费了，那么这个data log文件将会被标记，以便在下一轮的清理中被删除或者归档。以下是其配置的一个例子：<br>Xml代码 </li>
 <li><broker brokername="broker" persistent="true" useshutdownhook="false"> </broker></li>
 <li><persistenceadapter> </persistenceadapter></li>
 <li><amqpersistenceadapter directory="${activemq.base}/data" maxfilelength="32mb"> </amqpersistenceadapter></li>
@@ -712,7 +796,7 @@
 <li><networkconnector uri="multicast://default"> </networkconnector></li>
 <li> </li>
 <li>… </li>
-<li><br>Network Connector有以下属性：<br>Property Default Value Description<br>name bridge name of the network - for more than one network connector between the same two brokers - use different names<br>dynamicOnly false if true, only forward messages if a consumer is active on the connected broker<br>decreaseNetworkConsumerPriority false decrease the priority for dispatching to a Queue consumer the further away it is (in network hops) from the producer<br>networkTTL 1 the number of brokers in the network that messages and subscriptions can pass through<br>conduitSubscriptions true multiple consumers subscribing to the same destination are treated as one consumer by the network<br>excludedDestinations empty destinations matching this list won’t be forwarded across the network<br>dynamicallyIncludedDestinations empty destinations that match this list will be forwarded across the network n.b. an empty list means all destinations not in the excluded list will be forwarded<br>staticallyIncludedDestinations empty destinations that match will always be passed across the network - even if no consumers have ever registered an interest<br>duplex false if true, a network connection will be used to both produce AND Consume messages. This is useful for hub and spoke scenarios when the hub is behind a firewall etc.<br>关于conduitSubscriptions属性，这里稍稍说明一下。设想有两个brokers，分别是brokerA和brokerB，它们之间用 forwarding bridge连接。有一个consumer连接到brokerA并订阅queue：Q.TEST。有两个consumers连接到brokerB，也是订 阅queue：Q.TEST。这三个consumers有相同的优先级。然后启动一个producer。<br>顶<br>1<br>踩</li>
+<li><br>Network Connector有以下属性：<br>Property Default Value Description<br>name bridge name of the network - for more than one network connector between the same two brokers - use different names<br>dynamicOnly false if true, only forward messages if a consumer is active on the connected broker<br>decreaseNetworkConsumerPriority false decrease the priority for dispatching to a Queue consumer the further away it is (in network hops) from the producer<br>networkTTL 1 the number of brokers in the network that messages and subscriptions can pass through<br>conduitSubscriptions true multiple consumers subscribing to the same destination are treated as one consumer by the network<br>excludedDestinations empty destinations matching this list won’t be forwarded across the network<br>dynamicallyIncludedDestinations empty destinations that match this list will be forwarded across the network n.b. an empty list means all destinations not in the excluded list will be forwarded<br>staticallyIncludedDestinations empty destinations that match will always be passed across the network - even if no consumers have ever registered an interest<br>duplex false if true, a network connection will be used to both produce AND Consume messages. This is useful for hub and spoke scenarios when the hub is behind a firewall etc.<br>关于conduitSubscriptions属性，这里稍稍说明一下。设想有两个brokers，分别是brokerA和brokerB，它们之间用 forwarding bridge连接。有一个consumer连接到brokerA并订阅queue：Q.TEST。有两个consumers连接到brokerB，也是订 阅queue：Q.TEST。这三个consumers有相同的优先级。然后启动一个producer。</li>
 </ol>
 
       
@@ -906,7 +990,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Running-Broker"><span class="nav-number">1.</span> <span class="nav-text">Running Broker</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Embedded-Broker"><span class="nav-number">2.</span> <span class="nav-text">Embedded Broker</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#可以通过BrokerFactory来创建broker，例如："><span class="nav-number">3.</span> <span class="nav-text">可以通过BrokerFactory来创建broker，例如：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Monitoring-Broker"><span class="nav-number">4.</span> <span class="nav-text">Monitoring Broker</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#JMX"><span class="nav-number">4.1.</span> <span class="nav-text">JMX</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Web-Console"><span class="nav-number">4.2.</span> <span class="nav-text">Web Console</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Advisory-Message"><span class="nav-number">4.2.1.</span> <span class="nav-text">Advisory Message</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Command-Agent"><span class="nav-number">4.2.2.</span> <span class="nav-text">Command Agent</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Visualization-plugin"><span class="nav-number">4.2.3.</span> <span class="nav-text">Visualization plugin</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Transport"><span class="nav-number">5.</span> <span class="nav-text">Transport</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#VM-Transport"><span class="nav-number">5.1.</span> <span class="nav-text">VM Transport</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Broker-clusters"><span class="nav-number">6.</span> <span class="nav-text">Broker clusters</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Running-Broker"><span class="nav-number">1.</span> <span class="nav-text">Running Broker</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Embedded-Broker"><span class="nav-number">2.</span> <span class="nav-text">Embedded Broker</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#可以通过BrokerFactory来创建broker，例如："><span class="nav-number">3.</span> <span class="nav-text">可以通过BrokerFactory来创建broker，例如：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Monitoring-Broker"><span class="nav-number">4.</span> <span class="nav-text">Monitoring Broker</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#JMX"><span class="nav-number">4.1.</span> <span class="nav-text">JMX</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Web-Console"><span class="nav-number">4.2.</span> <span class="nav-text">Web Console</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Advisory-Message"><span class="nav-number">4.3.</span> <span class="nav-text">Advisory Message</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Command-Agent"><span class="nav-number">4.4.</span> <span class="nav-text">Command Agent</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Visualization-plugin"><span class="nav-number">4.5.</span> <span class="nav-text">Visualization plugin</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Transport"><span class="nav-number">5.</span> <span class="nav-text">Transport</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#VM-Transport"><span class="nav-number">5.1.</span> <span class="nav-text">VM Transport</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TCP-Transport"><span class="nav-number">5.2.</span> <span class="nav-text">TCP Transport</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Failover-Transport"><span class="nav-number">5.3.</span> <span class="nav-text">Failover Transport</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Discovery-transport"><span class="nav-number">5.4.</span> <span class="nav-text">Discovery transport</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Persistence"><span class="nav-number">6.</span> <span class="nav-text">Persistence</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#AMQ-Message-Store"><span class="nav-number">6.1.</span> <span class="nav-text">AMQ Message Store</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Broker-clusters"><span class="nav-number">7.</span> <span class="nav-text">Broker clusters</span></a></li></ol></div>
             
 
           </div>
