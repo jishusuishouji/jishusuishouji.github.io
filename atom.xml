@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://jishusuishouji.github.io/"/>
-  <updated>2017-04-05T03:44:57.336Z</updated>
+  <updated>2017-04-05T03:57:55.915Z</updated>
   <id>http://jishusuishouji.github.io/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://jishusuishouji.github.io/2017/04/05/activemq/activemq%E7%9A%84%E5%87%A0%E7%A7%8D%E5%9F%BA%E6%9C%AC%E9%80%9A%E4%BF%A1%E6%96%B9%E5%BC%8F%E6%80%BB%E7%BB%93/"/>
     <id>http://jishusuishouji.github.io/2017/04/05/activemq/activemq的几种基本通信方式总结/</id>
     <published>2017-04-05T03:09:12.000Z</published>
-    <updated>2017-04-05T03:44:57.336Z</updated>
+    <updated>2017-04-05T03:57:55.915Z</updated>
     
     <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>在应用系统集成中，面向消息队列的集成方案是一个总体比较合理的选择。<br>activemq是JMS消息通信规范的一个实现。消息通信模式主要有发布-订阅、点对点。</p>
 <h2 id="基础流程"><a href="#基础流程" class="headerlink" title="基础流程"></a>基础流程</h2><p>activemq启动服务的过程:</p>
@@ -152,40 +152,81 @@ for (String stock : args) {
 <p>在publisher端通过<code>session</code>创建<code>producer</code>，根据指定的参数创建<code>destination</code>，然后将消息和<code>destination</code>作为<code>producer.send()</code>方法的参数发消息。</p>
 <p>在consumer端也要创建类似的<code>connection</code>,session。通过session得到destination，再通过<code>session.createConsumer(destination)</code>来得到一个<code>MessageConsumer</code>对象。有了这个<code>MessageConsumer</code>就可以自行选择是直接同步的receive消息还是注册listener了。</p>
 <p>##p2p</p>
-<p>好比是两个人打电话，这两个人独享这一条通信链路的。一方发送消息，另外一方接收。在实际应用中因为有多个用户对使用p2p的链路，它的通信场景如下图所示：</p>
-<pre><code>我们再来看看一个p2p的示例：
-在p2p的场景里，相互通信的双方是通过一个类似于队列的方式来进行交流。和前面pub-sub的区别在于一个topic有一个发送者和多个接收者，而在p2p里一个queue只有一个发送者和一个接收者。
-</code></pre><p>发送者<br>    和前面的示例非常相似，我们构造函数里需要初始化的内容基本上差不多：</p>
-<p>Java代码  收藏代码<br>public Publisher() throws JMSException {<br>    factory = new ActiveMQConnectionFactory(brokerURL);<br>    connection = factory.createConnection();<br>    connection.start();<br>    session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);<br>    producer = session.createProducer(null);<br>}<br>     发送消息的方法如下：</p>
-<p>Java代码  收藏代码<br>public void sendMessage() throws JMSException {<br>    for(int i = 0; i &lt; jobs.length; i++)<br>    {<br>        String job = jobs[i];<br>        Destination destination = session.createQueue(“JOBS.” + job);<br>        Message message = session.createObjectMessage(i);<br>        System.out.println(“Sending: id: “ + ((ObjectMessage)message).getObject() + “ on queue: “ + destination);<br>        producer.send(destination, message);<br>    }<br>}<br>     这里我们定义了一个jobs的数组，通过遍历这个数组来创建不同的job queue。这样就相当于建立了多个点对点通信的链路。</p>
-<pre><code>消息发送者的启动代码如下：
-</code></pre><p>Java代码  收藏代码<br>public static void main(String[] args) throws JMSException {<br>    Publisher publisher = new Publisher();<br>    for(int i = 0; i &lt; 10; i++) {<br>        publisher.sendMessage();<br>        System.out.println(“Published “ + i + “ job messages”);<br>    try {<br>            Thread.sleep(1000);<br>        } catch (InterruptedException x) {<br>        e.printStackTrace();<br>        }<br>    }<br>    publisher.close();<br>}<br>     我们在这里发送10条消息，当然，在每个sendMessage的方法里实际上是针对每个queue发送了10条。</p>
-<p>接收者<br>     接收者的代码很简单，一个构造函数初始化所有的资源：</p>
-<p>Java代码  收藏代码<br>public Consumer() throws JMSException {<br>        factory = new ActiveMQConnectionFactory(brokerURL);<br>        connection = factory.createConnection();<br>        connection.start();<br>        session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);<br>    }<br>    还有一个就是注册消息处理的对象：</p>
-<p>Java代码  收藏代码<br>public static void main(String[] args) throws JMSException {<br>        Consumer consumer = new Consumer();<br>        for (String job : consumer.jobs) {<br>            Destination destination = consumer.getSession().createQueue(“JOBS.” + job);<br>            MessageConsumer messageConsumer = consumer.getSession().createConsumer(destination);<br>            messageConsumer.setMessageListener(new Listener(job));<br>        }<br>    }  </p>
-<pre><code>public Session getSession() {  
-    return session;  
-}  
- 具体注册的对象处理方法和前面还是类似，实现MessageListener接口就可以了。
-</code></pre><p>Java代码  收藏代码<br>import javax.jms.Message;<br>import javax.jms.MessageListener;<br>import javax.jms.ObjectMessage;  </p>
-<p>public class Listener implements MessageListener {  </p>
-<pre><code>private String job;  
-
-public Listener(String job) {  
-    this.job = job;  
-}  
-
-public void onMessage(Message message) {  
-    try {  
-        //do something here  
-        System.out.println(job + &quot; id:&quot; + ((ObjectMessage)message).getObject());  
-    } catch (Exception e) {  
-        e.printStackTrace();  
+<p><img src="/img/JMS点对点模式示意图.jpg" alt="JMS点对点模式示意图"></p>
+<p>在p2p的场景里，相互通信的双方是通过一个类似于队列的方式来进行交流。和前面pub-sub的区别在于一个消息会发送给订阅此topic的多个订阅者，而在p2p里queue的消息只能被一个接受者接受。</p>
+<h3 id="发送者"><a href="#发送者" class="headerlink" title="发送者"></a>发送者</h3><pre><code>public Publisher() throws JMSException {  
+    factory = new ActiveMQConnectionFactory(brokerURL);  
+    connection = factory.createConnection();  
+    connection.start();  
+    session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);  
+    producer = session.createProducer(null);  
+}
+</code></pre><h4 id="发送消息："><a href="#发送消息：" class="headerlink" title="发送消息："></a>发送消息：</h4><pre><code>public void sendMessage() throws JMSException {  
+    for(int i = 0; i &lt; jobs.length; i++)  
+    {  
+        String job = jobs[i];  
+        Destination destination = session.createQueue(&quot;JOBS.&quot; + job);  
+        Message message = session.createObjectMessage(i);  
+        System.out.println(&quot;Sending: id: &quot; + ((ObjectMessage)message).getObject() + &quot; on queue: &quot; + destination);  
+        producer.send(destination, message);  
     }  
 }  
-</code></pre><p>}<br>     这里代码和前面pub-sub的具体实现代码非常相似，就不再赘述。</p>
-<pre><code>现在如果我们比较一下pub-sub和p2p模式的具体实现步骤的话，我们会发现他们基本的处理流程都是类似的，除了在pub-sub中要通过createTopic来设置topic，而在p2p中要通过createQueue来创建通信队列。他们之间存在着很多的重复之处，在具体的开发过程中，我们是否可以进行一些工程上的优化呢？别急，后面我们会讨论到的。
-</code></pre><p>request-response</p>
+</code></pre><p>####消息发送者的启动代码：</p>
+<pre><code>public static void main(String[] args) throws JMSException {  
+    Publisher publisher = new Publisher();  
+    for(int i = 0; i &lt; 10; i++) {  
+        publisher.sendMessage();  
+        System.out.println(&quot;Published &quot; + i + &quot; job messages&quot;);  
+    try {  
+            Thread.sleep(1000);  
+        } catch (InterruptedException x) {  
+            e.printStackTrace();  
+        }  
+    }  
+    publisher.close();  
+}  
+</code></pre><p>在这里发送10条消息，在每个<code>sendMessage</code>的方法里实际上是针对每个<code>queue</code>发送了10条。</p>
+<h3 id="接收者"><a href="#接收者" class="headerlink" title="接收者"></a>接收者</h3><pre><code>public Consumer() throws JMSException {  
+    factory = new ActiveMQConnectionFactory(brokerURL);  
+    connection = factory.createConnection();  
+    connection.start();  
+    session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);  
+}  
+
+
+public static void main(String[] args) throws JMSException {  
+        Consumer consumer = new Consumer();  
+        for (String job : consumer.jobs) {  
+            Destination destination = consumer.getSession().createQueue(&quot;JOBS.&quot; + job);  
+            MessageConsumer messageConsumer = consumer.getSession().createConsumer(destination);  
+            messageConsumer.setMessageListener(new Listener(job));  
+        }  
+    }  
+
+    public Session getSession() {  
+        return session;  
+    }
+</code></pre><h4 id="MessageListener接口实现类"><a href="#MessageListener接口实现类" class="headerlink" title="MessageListener接口实现类"></a><code>MessageListener</code>接口实现类</h4><pre><code>import javax.jms.Message;  
+import javax.jms.MessageListener;  
+import javax.jms.ObjectMessage;  
+
+public class Listener implements MessageListener {        
+    private String job;  
+
+    public Listener(String job) {  
+        this.job = job;  
+    }  
+
+    public void onMessage(Message message) {  
+        try {  
+            //do something here  
+            System.out.println(job + &quot; id:&quot; + ((ObjectMessage)message).getObject());  
+        } catch (Exception e) {  
+            e.printStackTrace();  
+        }  
+    }        
+}
+</code></pre><h3 id="现在如果我们比较一下pub-sub和p2p模式的具体实现步骤的话，我们会发现他们基本的处理流程都是类似的，除了在pub-sub中要通过createTopic来设置topic，而在p2p中要通过createQueue来创建通信队列。他们之间存在着很多的重复之处，在具体的开发过程中，我们是否可以进行一些工程上的优化呢？别急，后面我们会讨论到的。"><a href="#现在如果我们比较一下pub-sub和p2p模式的具体实现步骤的话，我们会发现他们基本的处理流程都是类似的，除了在pub-sub中要通过createTopic来设置topic，而在p2p中要通过createQueue来创建通信队列。他们之间存在着很多的重复之处，在具体的开发过程中，我们是否可以进行一些工程上的优化呢？别急，后面我们会讨论到的。" class="headerlink" title="现在如果我们比较一下pub-sub和p2p模式的具体实现步骤的话，我们会发现他们基本的处理流程都是类似的，除了在pub-sub中要通过createTopic来设置topic，而在p2p中要通过createQueue来创建通信队列。他们之间存在着很多的重复之处，在具体的开发过程中，我们是否可以进行一些工程上的优化呢？别急，后面我们会讨论到的。"></a>现在如果我们比较一下pub-sub和p2p模式的具体实现步骤的话，我们会发现他们基本的处理流程都是类似的，除了在pub-sub中要通过createTopic来设置topic，而在p2p中要通过createQueue来创建通信队列。他们之间存在着很多的重复之处，在具体的开发过程中，我们是否可以进行一些工程上的优化呢？别急，后面我们会讨论到的。</h3><p>request-response</p>
 <pre><code>和前面两种方式比较起来，request-response的通信方式很常见，但是不是默认提供的一种模式。在前面的两种模式中都是一方负责发送消息而另外一方负责处理。而我们实际中的很多应用相当于一种一应一答的过程，需要双方都能给对方发送消息。于是请求-应答的这种通信方式也很重要。它也应用的很普遍。 
  请求-应答方式并不是JMS规范系统默认提供的一种通信方式，而是通过在现有通信方式的基础上稍微运用一点技巧实现的。下图是典型的请求-应答方式的交互过程：
  在JMS里面，如果要实现请求/应答的方式，可以利用JMSReplyTo和JMSCorrelationID消息头来将通信的双方关联起来。另外，QueueRequestor和TopicRequestor能够支持简单的请求/应答过程。
@@ -281,14 +322,7 @@ private void setupMessageQueueConsumer() {
 一种简单的方式就是通过工厂方法封装这些对象的创建和销毁，然后简单的通过调用工厂方法的方式得到他们。另外，既然基本的流程都是在开头创建资源在结尾销毁，我们也可以采用Template Method模式的思路。通过继承一个抽象类，在抽象类里提供了资源的封装。所有继承的类只要实现怎么去使用这些资源的方法就可以了。Spring中间的JMSTemplate就提供了这种类似思想的封装。具体的实现可以参考这篇文章。
 </code></pre><p>总结</p>
 <pre><code>activemq默认提供了pub-sub, p2p这两种通信的方式。同时也提供了一些对request-response方式的支持。实际上，不仅仅是activemq，对于所有其他实现JMS规范的产品都能够提供类似的功能。这里每种方式都不太复杂，主要是创建和管理资源的步骤显得比较繁琐。
-</code></pre><p>参考资料</p>
-<p>activemq in action<br><a href="http://activemq.apache.org/how-should-i-implement-request-response-with-jms.html" target="_blank" rel="external">http://activemq.apache.org/how-should-i-implement-request-response-with-jms.html</a><br><a href="http://zorro.blog.51cto.com/2139862/831986" target="_blank" rel="external">http://zorro.blog.51cto.com/2139862/831986</a><br>查看图片附件<br>分享到：<br>java I/O总结 | java读取properties文件方法和对比<br>2013-07-07 14:42浏览 122109评论(7)分类:企业架构相关推荐<br>参考知识库</p>
-<p>语音识别与合成知识库<br>205  关注 | 186  收录</p>
-<p>计算机视觉知识库<br>571  关注 | 191  收录</p>
-<p>自然语言理解和处理知识库<br>210  关注 | 85  收录</p>
-<p>知识工程知识库<br>57  关注 | 53  收录<br>评论<br>7 楼 最想一直在你身边 2017-01-04  </p>
-<p>6 楼 king_qing 2016-09-04  </p>
-]]></content>
+</code></pre>]]></content>
     
     <summary type="html">
     
