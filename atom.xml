@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://jishusuishouji.github.io/"/>
-  <updated>2017-04-05T03:41:57.325Z</updated>
+  <updated>2017-04-05T03:44:57.336Z</updated>
   <id>http://jishusuishouji.github.io/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://jishusuishouji.github.io/2017/04/05/activemq/activemq%E7%9A%84%E5%87%A0%E7%A7%8D%E5%9F%BA%E6%9C%AC%E9%80%9A%E4%BF%A1%E6%96%B9%E5%BC%8F%E6%80%BB%E7%BB%93/"/>
     <id>http://jishusuishouji.github.io/2017/04/05/activemq/activemq的几种基本通信方式总结/</id>
     <published>2017-04-05T03:09:12.000Z</published>
-    <updated>2017-04-05T03:41:57.325Z</updated>
+    <updated>2017-04-05T03:44:57.336Z</updated>
     
     <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>在应用系统集成中，面向消息队列的集成方案是一个总体比较合理的选择。<br>activemq是JMS消息通信规范的一个实现。消息通信模式主要有发布-订阅、点对点。</p>
 <h2 id="基础流程"><a href="#基础流程" class="headerlink" title="基础流程"></a>基础流程</h2><p>activemq启动服务的过程:</p>
@@ -148,13 +148,12 @@ for (String stock : args) {
     }  
 }  
 </code></pre><p>实现了<code>MessageListener</code>接口，里面的<code>onMessage</code>方法在接收到消息之后会被调用的方法。</p>
-<h4 id="实现pub-sub模式的步骤"><a href="#实现pub-sub模式的步骤" class="headerlink" title="实现pub-sub模式的步骤"></a>实现pub-sub模式的步骤</h4><p>两者设定一个共同的topic。</p>
+<h3 id="实现pub-sub模式的步骤"><a href="#实现pub-sub模式的步骤" class="headerlink" title="实现pub-sub模式的步骤"></a>实现pub-sub模式的步骤</h3><p>两者设定一个共同的topic。</p>
 <p>在publisher端通过<code>session</code>创建<code>producer</code>，根据指定的参数创建<code>destination</code>，然后将消息和<code>destination</code>作为<code>producer.send()</code>方法的参数发消息。</p>
 <p>在consumer端也要创建类似的<code>connection</code>,session。通过session得到destination，再通过<code>session.createConsumer(destination)</code>来得到一个<code>MessageConsumer</code>对象。有了这个<code>MessageConsumer</code>就可以自行选择是直接同步的receive消息还是注册listener了。</p>
 <p>##p2p</p>
-<pre><code>p2p的过程则理解起来更加简单。它好比是两个人打电话，这两个人是独享这一条通信链路的。一方发送消息，另外一方接收，就这么简单。在实际应用中因为有多个用户对使用p2p的链路，它的通信场景如下图所示：
-
-我们再来看看一个p2p的示例：
+<p>好比是两个人打电话，这两个人独享这一条通信链路的。一方发送消息，另外一方接收。在实际应用中因为有多个用户对使用p2p的链路，它的通信场景如下图所示：</p>
+<pre><code>我们再来看看一个p2p的示例：
 在p2p的场景里，相互通信的双方是通过一个类似于队列的方式来进行交流。和前面pub-sub的区别在于一个topic有一个发送者和多个接收者，而在p2p里一个queue只有一个发送者和一个接收者。
 </code></pre><p>发送者<br>    和前面的示例非常相似，我们构造函数里需要初始化的内容基本上差不多：</p>
 <p>Java代码  收藏代码<br>public Publisher() throws JMSException {<br>    factory = new ActiveMQConnectionFactory(brokerURL);<br>    connection = factory.createConnection();<br>    connection.start();<br>    session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);<br>    producer = session.createProducer(null);<br>}<br>     发送消息的方法如下：</p>
