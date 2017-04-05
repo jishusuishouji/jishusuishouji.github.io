@@ -1,0 +1,1035 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="activeMQ," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="技术随手记" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="activemq的几种基本通信方式总结">
+<meta property="og:type" content="article">
+<meta property="og:title" content="activemq的几种基本通信方式总结">
+<meta property="og:url" content="http://jishusuishouji.github.io/2017/04/05/activemq/activemq的几种基本通信方式总结/index.html">
+<meta property="og:site_name" content="技术随手记">
+<meta property="og:description" content="activemq的几种基本通信方式总结">
+<meta property="og:image" content="http://jishusuishouji.github.io/img/JMS发布订阅模式示意图.jpg">
+<meta property="og:updated_time" content="2017-04-05T03:41:57.325Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="activemq的几种基本通信方式总结">
+<meta name="twitter:description" content="activemq的几种基本通信方式总结">
+<meta name="twitter:image" content="http://jishusuishouji.github.io/img/JMS发布订阅模式示意图.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://jishusuishouji.github.io/2017/04/05/activemq/activemq的几种基本通信方式总结/"/>
+
+
+
+
+
+  <title> activemq的几种基本通信方式总结 | 技术随手记 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">技术随手记</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://jishusuishouji.github.io/2017/04/05/activemq/activemq的几种基本通信方式总结/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="技术随手记">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="技术随手记">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+            
+            
+              
+                activemq的几种基本通信方式总结
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-05T11:09:12+08:00">
+                2017-04-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/JMS，ActiveMQ/" itemprop="url" rel="index">
+                    <span itemprop="name">JMS，ActiveMQ</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            <!--noindex-->
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/04/05/activemq/activemq的几种基本通信方式总结/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count hc-comment-count" data-xid="2017/04/05/activemq/activemq的几种基本通信方式总结/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+              <!--/noindex-->
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  activemq的几种基本通信方式总结
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>在应用系统集成中，面向消息队列的集成方案是一个总体比较合理的选择。<br>activemq是JMS消息通信规范的一个实现。消息通信模式主要有发布-订阅、点对点。</p>
+<h2 id="基础流程"><a href="#基础流程" class="headerlink" title="基础流程"></a>基础流程</h2><p>activemq启动服务的过程:</p>
+<ol>
+<li>获得JMS connection factory.通过提供特定环境的连接信息来构造factory。</li>
+<li>利用factory构造JMS connection.</li>
+<li>启动connection</li>
+<li>通过connection创建JMS session.</li>
+<li>指定JMS destination.</li>
+<li>创建JMS producer或者创建JMS message并提供destination.</li>
+<li>创建JMS consumer或注册JMS message listener.</li>
+<li>发送和接收JMS message.</li>
+<li>关闭所有JMS资源，包括connection, session, producer, consumer等。</li>
+</ol>
+<h2 id="publish-subscribe"><a href="#publish-subscribe" class="headerlink" title="publish-subscribe"></a>publish-subscribe</h2><p>发布订阅模式类似于订阅报纸。每年到年尾的时候，邮局就会发一本报纸集合让我们来选择订阅哪一个。在这个表里头列了所有出版发行的报纸，对于每一个订阅者来说，可以选择一份或者多份报纸。这些我们订阅的报纸，就相当于发布订阅模式里的<code>topic</code>。有很多个人订阅报纸，也有人可能和我订阅了相同的报纸。那么，在这里，相当于我们在同一个<code>topic</code>里注册了。对于一份报纸发行方来说，它和所有的订阅者就构成了一个1对多的关系。这种关系如下图所示：<br><img src="/img/JMS发布订阅模式示意图.jpg" alt="JMS发布订阅模式示意图"></p>
+<h3 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h3><p>首先定义<code>publisher</code>.</p>
+<h4 id="publisher"><a href="#publisher" class="headerlink" title="publisher"></a>publisher</h4><p>publisher是属于发布信息的一方，它通过定义一个或者多个topic，然后给这些topic发送消息。<br>publisher的构造函数如下：</p>
+<pre><code>public Publisher() throws JMSException {  
+    factory = new ActiveMQConnectionFactory(brokerURL);  
+    connection = factory.createConnection();  
+    try {  
+        connection.start();  
+    } catch (JMSException jmse) {  
+        connection.close();  
+        throw jmse;  
+    }  
+    session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);  
+    producer = session.createProducer(null);  
+}
+</code></pre><p>按照前面说的流程定义了基本的<code>connectionFactory</code>, <code>connection</code>,<code>session</code>,<code>producer</code>。。</p>
+<h4 id="接着定义一系列的topic让所有的consumer来订阅"><a href="#接着定义一系列的topic让所有的consumer来订阅" class="headerlink" title="接着定义一系列的topic让所有的consumer来订阅"></a>接着定义一系列的topic让所有的consumer来订阅</h4><pre><code>protected void setTopics(String[] stocks) throws JMSException {  
+    destinations = new Destination[stocks.length];  
+    for(int i = 0; i &lt; stocks.length; i++) {  
+        destinations[i] = session.createTopic(&quot;STOCKS.&quot; + stocks[i]);  
+    }  
+}  
+</code></pre><h4 id="定义好topic之后要给这些指定的topic发消息："><a href="#定义好topic之后要给这些指定的topic发消息：" class="headerlink" title="定义好topic之后要给这些指定的topic发消息："></a>定义好topic之后要给这些指定的topic发消息：</h4><pre><code>protected void sendMessage(String[] stocks) throws JMSException {  
+    for(int i = 0; i &lt; stocks.length; i++) {  
+        Message message = createStockMessage(stocks[i], session);  
+        System.out.println(&quot;Sending: &quot; + ((ActiveMQMapMessage)message).getContentMap() + &quot; on destination: &quot; + destinations[i]);  
+        producer.send(destinations[i], message);  
+    }  
+}  
+
+protected Message createStockMessage(String stock, Session session) throws JMSException {  
+    MapMessage message = session.createMapMessage();  
+    message.setString(&quot;stock&quot;, stock);  
+    message.setDouble(&quot;price&quot;, 1.00);  
+    message.setDouble(&quot;offer&quot;, 0.01);  
+    message.setBoolean(&quot;up&quot;, true);          
+    return message;  
+}  
+</code></pre><p>在<code>sendMessage</code>方法里遍历每个<code>topic</code>，然后给每个<code>topic</code>发送定义的<code>Message</code>消息。</p>
+<h4 id="publisher发布消息"><a href="#publisher发布消息" class="headerlink" title="publisher发布消息"></a>publisher发布消息</h4><pre><code>public static void main(String[] args) throws JMSException {  
+    if(args.length &lt; 1)  
+        throw new IllegalArgumentException();  
+
+    // Create publisher       
+    Publisher publisher = new Publisher();  
+
+    // Set topics  
+    publisher.setTopics(args);  
+
+    for(int i = 0; i &lt; 10; i++) {  
+        publisher.sendMessage(args);  
+        System.out.println(&quot;Publisher &apos;&quot; + i + &quot; price messages&quot;);  
+        try {  
+            Thread.sleep(1000);  
+        } catch(InterruptedException e) {  
+            e.printStackTrace();  
+        }  
+    }  
+    // Close all resources  
+    publisher.close();  
+}  
+</code></pre><h4 id="close方法关闭资源："><a href="#close方法关闭资源：" class="headerlink" title="close方法关闭资源："></a><code>close</code>方法关闭资源：</h4><pre><code>public void close() throws JMSException {  
+    if (connection != null) {  
+        connection.close();  
+    }  
+}  
+</code></pre><h3 id="consumer"><a href="#consumer" class="headerlink" title="consumer"></a>consumer</h3><p>具体的步骤:<br>1.初始化资源。 </p>
+<ol>
+<li>接收消息。 </li>
+<li>必要的时候关闭资源。</li>
+</ol>
+<h4 id="初始化资源放到构造函数里面："><a href="#初始化资源放到构造函数里面：" class="headerlink" title="初始化资源放到构造函数里面："></a>初始化资源放到构造函数里面：</h4><pre><code>public Consumer() throws JMSException {  
+    factory = new ActiveMQConnectionFactory(brokerURL);  
+    connection = factory.createConnection();  
+    connection.start();  
+    session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);  
+}  
+</code></pre><h4 id="接收和处理消息的方法"><a href="#接收和处理消息的方法" class="headerlink" title="接收和处理消息的方法"></a>接收和处理消息的方法</h4><p>分为同步和异步的：</p>
+<ul>
+<li>同步  <code>MessageConsumer.receive()</code>方法</li>
+<li><p>异步  注册<code>MessageListener</code>，使用<code>MessageConsumer.setMessageListener()</code>。</p>
+<p>  public static void main(String[] args) throws JMSException {  </p>
+<pre><code>Consumer consumer = new Consumer();  
+for (String stock : args) {  
+    Destination destination = consumer.getSession().createTopic(&quot;STOCKS.&quot; + stock);  
+    MessageConsumer messageConsumer = consumer.getSession().createConsumer(destination);  
+    messageConsumer.setMessageListener(new Listener());  
+}  
+</code></pre><p>  }  </p>
+<p>  public Session getSession() {  </p>
+<pre><code>return session;  
+</code></pre><p>  }  </p>
+</li>
+</ul>
+<blockquote>
+<p>这里的代码不要当真了，写得很烂</p>
+</blockquote>
+<h4 id="Listener负责处理接收到的消息："><a href="#Listener负责处理接收到的消息：" class="headerlink" title="Listener负责处理接收到的消息："></a><code>Listener</code>负责处理接收到的消息：</h4><pre><code>public class Listener implements MessageListener {  
+    public void onMessage(Message message) {  
+        try {  
+            MapMessage map = (MapMessage)message;  
+            String stock = map.getString(&quot;stock&quot;);  
+            double price = map.getDouble(&quot;price&quot;);  
+            double offer = map.getDouble(&quot;offer&quot;);  
+            boolean up = map.getBoolean(&quot;up&quot;);  
+            DecimalFormat df = new DecimalFormat( &quot;#,###,###,##0.00&quot; );  
+            System.out.println(stock + &quot;\t&quot; + df.format(price) + &quot;\t&quot; + df.format(offer) + &quot;\t&quot; + (up?&quot;up&quot;:&quot;down&quot;));  
+        } catch (Exception e) {  
+            e.printStackTrace();  
+        }  
+    }  
+}  
+</code></pre><p>实现了<code>MessageListener</code>接口，里面的<code>onMessage</code>方法在接收到消息之后会被调用的方法。</p>
+<h4 id="实现pub-sub模式的步骤"><a href="#实现pub-sub模式的步骤" class="headerlink" title="实现pub-sub模式的步骤"></a>实现pub-sub模式的步骤</h4><p>两者设定一个共同的topic。</p>
+<p>在publisher端通过<code>session</code>创建<code>producer</code>，根据指定的参数创建<code>destination</code>，然后将消息和<code>destination</code>作为<code>producer.send()</code>方法的参数发消息。</p>
+<p>在consumer端也要创建类似的<code>connection</code>,session。通过session得到destination，再通过<code>session.createConsumer(destination)</code>来得到一个<code>MessageConsumer</code>对象。有了这个<code>MessageConsumer</code>就可以自行选择是直接同步的receive消息还是注册listener了。</p>
+<p>##p2p</p>
+<pre><code>p2p的过程则理解起来更加简单。它好比是两个人打电话，这两个人是独享这一条通信链路的。一方发送消息，另外一方接收，就这么简单。在实际应用中因为有多个用户对使用p2p的链路，它的通信场景如下图所示：
+
+我们再来看看一个p2p的示例：
+在p2p的场景里，相互通信的双方是通过一个类似于队列的方式来进行交流。和前面pub-sub的区别在于一个topic有一个发送者和多个接收者，而在p2p里一个queue只有一个发送者和一个接收者。
+</code></pre><p>发送者<br>    和前面的示例非常相似，我们构造函数里需要初始化的内容基本上差不多：</p>
+<p>Java代码  收藏代码<br>public Publisher() throws JMSException {<br>    factory = new ActiveMQConnectionFactory(brokerURL);<br>    connection = factory.createConnection();<br>    connection.start();<br>    session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);<br>    producer = session.createProducer(null);<br>}<br>     发送消息的方法如下：</p>
+<p>Java代码  收藏代码<br>public void sendMessage() throws JMSException {<br>    for(int i = 0; i &lt; jobs.length; i++)<br>    {<br>        String job = jobs[i];<br>        Destination destination = session.createQueue(“JOBS.” + job);<br>        Message message = session.createObjectMessage(i);<br>        System.out.println(“Sending: id: “ + ((ObjectMessage)message).getObject() + “ on queue: “ + destination);<br>        producer.send(destination, message);<br>    }<br>}<br>     这里我们定义了一个jobs的数组，通过遍历这个数组来创建不同的job queue。这样就相当于建立了多个点对点通信的链路。</p>
+<pre><code>消息发送者的启动代码如下：
+</code></pre><p>Java代码  收藏代码<br>public static void main(String[] args) throws JMSException {<br>    Publisher publisher = new Publisher();<br>    for(int i = 0; i &lt; 10; i++) {<br>        publisher.sendMessage();<br>        System.out.println(“Published “ + i + “ job messages”);<br>    try {<br>            Thread.sleep(1000);<br>        } catch (InterruptedException x) {<br>        e.printStackTrace();<br>        }<br>    }<br>    publisher.close();<br>}<br>     我们在这里发送10条消息，当然，在每个sendMessage的方法里实际上是针对每个queue发送了10条。</p>
+<p>接收者<br>     接收者的代码很简单，一个构造函数初始化所有的资源：</p>
+<p>Java代码  收藏代码<br>public Consumer() throws JMSException {<br>        factory = new ActiveMQConnectionFactory(brokerURL);<br>        connection = factory.createConnection();<br>        connection.start();<br>        session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);<br>    }<br>    还有一个就是注册消息处理的对象：</p>
+<p>Java代码  收藏代码<br>public static void main(String[] args) throws JMSException {<br>        Consumer consumer = new Consumer();<br>        for (String job : consumer.jobs) {<br>            Destination destination = consumer.getSession().createQueue(“JOBS.” + job);<br>            MessageConsumer messageConsumer = consumer.getSession().createConsumer(destination);<br>            messageConsumer.setMessageListener(new Listener(job));<br>        }<br>    }  </p>
+<pre><code>public Session getSession() {  
+    return session;  
+}  
+ 具体注册的对象处理方法和前面还是类似，实现MessageListener接口就可以了。
+</code></pre><p>Java代码  收藏代码<br>import javax.jms.Message;<br>import javax.jms.MessageListener;<br>import javax.jms.ObjectMessage;  </p>
+<p>public class Listener implements MessageListener {  </p>
+<pre><code>private String job;  
+
+public Listener(String job) {  
+    this.job = job;  
+}  
+
+public void onMessage(Message message) {  
+    try {  
+        //do something here  
+        System.out.println(job + &quot; id:&quot; + ((ObjectMessage)message).getObject());  
+    } catch (Exception e) {  
+        e.printStackTrace();  
+    }  
+}  
+</code></pre><p>}<br>     这里代码和前面pub-sub的具体实现代码非常相似，就不再赘述。</p>
+<pre><code>现在如果我们比较一下pub-sub和p2p模式的具体实现步骤的话，我们会发现他们基本的处理流程都是类似的，除了在pub-sub中要通过createTopic来设置topic，而在p2p中要通过createQueue来创建通信队列。他们之间存在着很多的重复之处，在具体的开发过程中，我们是否可以进行一些工程上的优化呢？别急，后面我们会讨论到的。
+</code></pre><p>request-response</p>
+<pre><code>和前面两种方式比较起来，request-response的通信方式很常见，但是不是默认提供的一种模式。在前面的两种模式中都是一方负责发送消息而另外一方负责处理。而我们实际中的很多应用相当于一种一应一答的过程，需要双方都能给对方发送消息。于是请求-应答的这种通信方式也很重要。它也应用的很普遍。 
+ 请求-应答方式并不是JMS规范系统默认提供的一种通信方式，而是通过在现有通信方式的基础上稍微运用一点技巧实现的。下图是典型的请求-应答方式的交互过程：
+ 在JMS里面，如果要实现请求/应答的方式，可以利用JMSReplyTo和JMSCorrelationID消息头来将通信的双方关联起来。另外，QueueRequestor和TopicRequestor能够支持简单的请求/应答过程。
+現在，如果我们要实现这么一个过程，在发送请求消息并且等待返回结果的client端的流程如下：
+</code></pre><p>Java代码  收藏代码<br>// client side<br>Destination tempDest = session.createTemporaryQueue();<br>MessageConsumer responseConsumer = session.createConsumer(tempDest);<br>…  </p>
+<p>// send a request..<br>message.setJMSReplyTo(tempDest)<br>message.setJMSCorrelationID(myCorrelationID);  </p>
+<p>producer.send(message);<br>     client端创建一个临时队列并在发送的消息里指定了发送返回消息的destination以及correlationID。那么在处理消息的server端得到这个消息后就知道该发送给谁了。Server端的大致流程如下：</p>
+<p>Java代码  收藏代码<br>public void onMessage(Message request) {  </p>
+<p>  Message response = session.createMessage();<br>  response.setJMSCorrelationID(request.getJMSCorrelationID())  </p>
+<p>  producer.send(request.getJMSReplyTo(), response)<br>}<br>    这里我们是用server端注册MessageListener，通过设置返回信息的CorrelationID和JMSReplyTo将信息返回。<br>    以上就是发送和接收消息的双方的大致程序结构。具体的实现代码如下：<br> Client:<br>Java代码  收藏代码<br>public Client() {<br>        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(“tcp://localhost:61616”);<br>        Connection connection;<br>        try {<br>            connection = connectionFactory.createConnection();<br>            connection.start();<br>            Session session = connection.createSession(transacted, ackMode);<br>            Destination adminQueue = session.createQueue(clientQueueName);  </p>
+<pre><code>        //Setup a message producer to send message to the queue the server is consuming from  
+        this.producer = session.createProducer(adminQueue);  
+        this.producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);  
+
+        //Create a temporary queue that this client will listen for responses on then create a consumer  
+        //that consumes message from this temporary queue...for a real application a client should reuse  
+        //the same temp queue for each message to the server...one temp queue per client  
+        Destination tempDest = session.createTemporaryQueue();  
+        MessageConsumer responseConsumer = session.createConsumer(tempDest);  
+
+        //This class will handle the messages to the temp queue as well  
+        responseConsumer.setMessageListener(this);  
+
+        //Now create the actual message you want to send  
+        TextMessage txtMessage = session.createTextMessage();  
+        txtMessage.setText(&quot;MyProtocolMessage&quot;);  
+
+        //Set the reply to field to the temp queue you created above, this is the queue the server  
+        //will respond to  
+        txtMessage.setJMSReplyTo(tempDest);  
+
+        //Set a correlation ID so when you get a response you know which sent message the response is for  
+        //If there is never more than one outstanding message to the server then the  
+        //same correlation ID can be used for all the messages...if there is more than one outstanding  
+        //message to the server you would presumably want to associate the correlation ID with this  
+        //message somehow...a Map works good  
+        String correlationId = this.createRandomString();  
+        txtMessage.setJMSCorrelationID(correlationId);  
+        this.producer.send(txtMessage);  
+    } catch (JMSException e) {  
+        //Handle the exception appropriately  
+    }  
+}  
+这里的代码除了初始化构造函数里的参数还同时设置了两个destination，一个是自己要发送消息出去的destination，在session.createProducer(adminQueue);这一句设置。另外一个是自己要接收的消息destination, 通过Destination tempDest = session.createTemporaryQueue(); responseConsumer = session.createConsumer(tempDest); 这两句指定了要接收消息的目的地。这里是用的一个临时队列。在前面指定了返回消息的通信队列之后，我们需要通知server端知道发送返回消息给哪个队列。于是txtMessage.setJMSReplyTo(tempDest);指定了这一部分，同时txtMessage.setJMSCorrelationID(correlationId);方法主要是为了保证每次发送回来请求的server端能够知道对应的是哪个请求。这里一个请求和一个应答是相当于对应一个相同的序列号一样。
+同时，因为client端在发送消息之后还要接收server端返回的消息，所以它也要实现一个消息receiver的功能。这里采用实现MessageListener接口的方式：
+</code></pre><p>Java代码  收藏代码<br>public void onMessage(Message message) {<br>        String messageText = null;<br>        try {<br>            if (message instanceof TextMessage) {<br>                TextMessage textMessage = (TextMessage) message;<br>                messageText = textMessage.getText();<br>                System.out.println(“messageText = “ + messageText);<br>            }<br>        } catch (JMSException e) {<br>            //Handle the exception appropriately<br>        }<br>    }  </p>
+<p>Server:<br>     这里server端要执行的过程和client端相反，它是先接收消息，在接收到消息后根据提供的JMSCorelationID来发送返回的消息：<br>Java代码  收藏代码<br>public void onMessage(Message message) {<br>        try {<br>            TextMessage response = this.session.createTextMessage();<br>            if (message instanceof TextMessage) {<br>                TextMessage txtMsg = (TextMessage) message;<br>                String messageText = txtMsg.getText();<br>                response.setText(this.messageProtocol.handleProtocolMessage(messageText));<br>            }  </p>
+<pre><code>        //Set the correlation ID from the received message to be the correlation id of the response message  
+        //this lets the client identify which message this is a response to if it has more than  
+        //one outstanding message to the server  
+        response.setJMSCorrelationID(message.getJMSCorrelationID());  
+
+        //Send the response to the Destination specified by the JMSReplyTo field of the received message,  
+        //this is presumably a temporary queue created by the client  
+        this.replyProducer.send(message.getJMSReplyTo(), response);  
+    } catch (JMSException e) {  
+        //Handle the exception appropriately  
+    }  
+}  
+前面，在replyProducer.send()方法里，message.getJMSReplyTo()就得到了要发送消息回去的destination。
+另外，设置这些发送返回信息的replyProducer的信息主要在构造函数相关的方法里实现了：
+</code></pre><p>Java代码  收藏代码<br>public Server() {<br>        try {<br>            //This message broker is embedded<br>            BrokerService broker = new BrokerService();<br>            broker.setPersistent(false);<br>            broker.setUseJmx(false);<br>            broker.addConnector(messageBrokerUrl);<br>            broker.start();<br>        } catch (Exception e) {<br>            //Handle the exception appropriately<br>        }  </p>
+<pre><code>    //Delegating the handling of messages to another class, instantiate it before setting up JMS so it  
+    //is ready to handle messages  
+    this.messageProtocol = new MessageProtocol();  
+    this.setupMessageQueueConsumer();  
+}  
+
+private void setupMessageQueueConsumer() {  
+    ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(messageBrokerUrl);  
+    Connection connection;  
+    try {  
+        connection = connectionFactory.createConnection();  
+        connection.start();  
+        this.session = connection.createSession(this.transacted, ackMode);  
+        Destination adminQueue = this.session.createQueue(messageQueueName);  
+
+        //Setup a message producer to respond to messages from clients, we will get the destination  
+        //to send to from the JMSReplyTo header field from a Message  
+        this.replyProducer = this.session.createProducer(null);  
+        this.replyProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);  
+
+        //Set up a consumer to consume messages off of the admin queue  
+        MessageConsumer consumer = this.session.createConsumer(adminQueue);  
+        consumer.setMessageListener(this);  
+    } catch (JMSException e) {  
+        //Handle the exception appropriately  
+    }  
+}  
+总体来说，整个的交互过程并不复杂，只是比较繁琐。对于请求/应答的方式来说，这种典型交互的过程就是Client端在设定正常发送请求的Queue同时也设定一个临时的Queue。同时在要发送的message里头指定要返回消息的destination以及CorelationID，这些就好比是一封信里面所带的回执。根据这个信息人家才知道怎么给你回信。对于Server端来说则要额外创建一个producer，在处理接收到消息的方法里再利用producer将消息发回去。这一系列的过程看起来很像http协议里面请求-应答的方式，都是一问一答。
+</code></pre><p>一些应用和改进</p>
+<pre><code>回顾前面三种基本的通信方式，我们会发现，他们都存在着一定的共同点，比如说都要初始化ConnectionFactory, Connection, Session等。在使用完之后都要将这些资源关闭。如果每一个实现它的通信端都这么写一通的话，其实是一种简单的重复。从工程的角度来看是完全没有必要的。那么，我们有什么办法可以减少这种重复呢？
+一种简单的方式就是通过工厂方法封装这些对象的创建和销毁，然后简单的通过调用工厂方法的方式得到他们。另外，既然基本的流程都是在开头创建资源在结尾销毁，我们也可以采用Template Method模式的思路。通过继承一个抽象类，在抽象类里提供了资源的封装。所有继承的类只要实现怎么去使用这些资源的方法就可以了。Spring中间的JMSTemplate就提供了这种类似思想的封装。具体的实现可以参考这篇文章。
+</code></pre><p>总结</p>
+<pre><code>activemq默认提供了pub-sub, p2p这两种通信的方式。同时也提供了一些对request-response方式的支持。实际上，不仅仅是activemq，对于所有其他实现JMS规范的产品都能够提供类似的功能。这里每种方式都不太复杂，主要是创建和管理资源的步骤显得比较繁琐。
+</code></pre><p>参考资料</p>
+<p>activemq in action<br><a href="http://activemq.apache.org/how-should-i-implement-request-response-with-jms.html" target="_blank" rel="external">http://activemq.apache.org/how-should-i-implement-request-response-with-jms.html</a><br><a href="http://zorro.blog.51cto.com/2139862/831986" target="_blank" rel="external">http://zorro.blog.51cto.com/2139862/831986</a><br>查看图片附件<br>分享到：<br>java I/O总结 | java读取properties文件方法和对比<br>2013-07-07 14:42浏览 122109评论(7)分类:企业架构相关推荐<br>参考知识库</p>
+<p>语音识别与合成知识库<br>205  关注 | 186  收录</p>
+<p>计算机视觉知识库<br>571  关注 | 191  收录</p>
+<p>自然语言理解和处理知识库<br>210  关注 | 85  收录</p>
+<p>知识工程知识库<br>57  关注 | 53  收录<br>评论<br>7 楼 最想一直在你身边 2017-01-04  </p>
+<p>6 楼 king_qing 2016-09-04  </p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/activeMQ/" rel="tag"># activeMQ</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/04/03/thrift/基于ZooKeeper和Thrift构建动态RPC调用/" rel="next" title="基于ZooKeeper和Thrift构建动态RPC调用">
+                <i class="fa fa-chevron-left"></i> 基于ZooKeeper和Thrift构建动态RPC调用
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="hypercomments_widget"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="技术随手记" />
+          <p class="site-author-name" itemprop="name">技术随手记</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+           
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">34</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">30</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">33</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基础流程"><span class="nav-number">2.</span> <span class="nav-text">基础流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#publish-subscribe"><span class="nav-number">3.</span> <span class="nav-text">publish-subscribe</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#例子"><span class="nav-number">3.1.</span> <span class="nav-text">例子</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#publisher"><span class="nav-number">3.1.1.</span> <span class="nav-text">publisher</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#接着定义一系列的topic让所有的consumer来订阅"><span class="nav-number">3.1.2.</span> <span class="nav-text">接着定义一系列的topic让所有的consumer来订阅</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#定义好topic之后要给这些指定的topic发消息："><span class="nav-number">3.1.3.</span> <span class="nav-text">定义好topic之后要给这些指定的topic发消息：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#publisher发布消息"><span class="nav-number">3.1.4.</span> <span class="nav-text">publisher发布消息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#close方法关闭资源："><span class="nav-number">3.1.5.</span> <span class="nav-text">close方法关闭资源：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#consumer"><span class="nav-number">3.2.</span> <span class="nav-text">consumer</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#初始化资源放到构造函数里面："><span class="nav-number">3.2.1.</span> <span class="nav-text">初始化资源放到构造函数里面：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#接收和处理消息的方法"><span class="nav-number">3.2.2.</span> <span class="nav-text">接收和处理消息的方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Listener负责处理接收到的消息："><span class="nav-number">3.2.3.</span> <span class="nav-text">Listener负责处理接收到的消息：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#实现pub-sub模式的步骤"><span class="nav-number">3.2.4.</span> <span class="nav-text">实现pub-sub模式的步骤</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">技术随手记</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+		<script type="text/javascript">
+		_hcwp = window._hcwp || [];
+
+		_hcwp.push({widget:"Bloggerstream", widget_id: 89144, selector:".hc-comment-count", label: "{\%COUNT%\}" });
+
+		
+		_hcwp.push({widget:"Stream", widget_id: 89144, xid: "2017/04/05/activemq/activemq的几种基本通信方式总结/"});
+		
+
+		(function() {
+		if("HC_LOAD_INIT" in window)return;
+		HC_LOAD_INIT = true;
+		var lang = (navigator.language || navigator.systemLanguage || navigator.userLanguage || "en").substr(0, 2).toLowerCase();
+		var hcc = document.createElement("script"); hcc.type = "text/javascript"; hcc.async = true;
+		hcc.src = ("https:" == document.location.protocol ? "https" : "http")+"://w.hypercomments.com/widget/hc/89144/"+lang+"/widget.js";
+		var s = document.getElementsByTagName("script")[0];
+		s.parentNode.insertBefore(hcc, s.nextSibling);
+		})();
+		</script>
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

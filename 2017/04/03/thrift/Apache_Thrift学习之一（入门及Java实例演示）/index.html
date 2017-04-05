@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="facebook,Thrift,RPC," />
+  <meta name="keywords" content="Thrift,facebook,RPC," />
 
 
 
@@ -95,7 +95,7 @@
 <meta property="og:url" content="http://jishusuishouji.github.io/2017/04/03/thrift/Apache_Thrift学习之一（入门及Java实例演示）/index.html">
 <meta property="og:site_name" content="技术随手记">
 <meta property="og:description" content="Apache Thrift学习之一（入门及Java实例演示）">
-<meta property="og:updated_time" content="2017-04-03T10:38:28.242Z">
+<meta property="og:updated_time" content="2017-04-04T14:33:34.955Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Apache Thrift学习之一（入门及Java实例演示）">
 <meta name="twitter:description" content="Apache Thrift学习之一（入门及Java实例演示）">
@@ -393,7 +393,7 @@
 
       
         <h2 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h2><p>Apache Thrift是Facebook实现的一种高效的、支持多种编程语言的远程服务调用的框架。Thrift是由Facebook开发的，并在2008年捐给了Apache基金会，成为了一个孵化器项目。</p>
-<p>Thrift是一个软件框架，用来进行可扩展且跨语言的服务的开发。它结合了功能强大的软件堆栈和代码生成引擎，</p>
+<p>Thrift是一个软件框架，用来进行可扩展且跨语言的服务开发。它结合了功能强大的软件堆栈和代码生成引擎，</p>
 <p>Thrift是一个驱动层接口，它提供了用于客户端使用多种语言实现的API。<br>Thrift是个代码生成库，支持的客户端语言包括C++, Java, Python, PHP, Ruby, Erlang, Perl, Haskell, C#, Cocoa, JavaScript, Node.js, Smalltalk, and OCaml 。它的目标是为了各种流行的语言提供便利的RPC调用机制，而不需要使用那些开销巨大的方式，比如SOAP。</p>
 <p>要使用Thrift，就要使用一个语言中立的服务定义文件，描述数据类型和服务接口。这个文件会被用作引擎的输入，编译器为每种支持的语言生成代码。这种静态生成的设计让它非常容易被开发者所使用，而且因为类型验证都发生在编译期而非运行期，所以代码可以很有效率地运行。</p>
 <p>Thrift的设计提供了以下这些特性：<br>1、语言无关的类型<br>因为类型是使用定义文件按照语言中立的方式规定的，所以它们可以被不同的语言分享。比如，C++的结构可以和Python的字典类型相互交换数据。<br>2、通用传输接口<br>不论你使用的是磁盘文件、内存数据还是socket流，都可以使用同一段应用代码。<br>3、协议无关<br>Thrift会对数据类型进行编码和解码，可以跨协议使用。<br>4、支持版本<br>数据类型可以加入版本信息，来支持客户端API的更新。</p>
@@ -440,259 +440,19 @@
 <h3 id="4-TThreadPoolServer-服务模型"><a href="#4-TThreadPoolServer-服务模型" class="headerlink" title="4.TThreadPoolServer 服务模型"></a>4.TThreadPoolServer 服务模型</h3><p>线程池服务模型，使用标准的阻塞式IO，预先创建一组线程处理请求。</p>
 <h4 id="编写服务端代码：HelloServerDemo2-java"><a href="#编写服务端代码：HelloServerDemo2-java" class="headerlink" title="编写服务端代码：HelloServerDemo2.java"></a>编写服务端代码：<code>HelloServerDemo2.java</code></h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line">package com.dxz.thrift.demo;</div><div class="line"></div><div class="line">import org.apache.thrift.TProcessor;</div><div class="line">import org.apache.thrift.protocol.TBinaryProtocol;</div><div class="line">import org.apache.thrift.server.TServer;</div><div class="line">import org.apache.thrift.server.TThreadPoolServer;</div><div class="line">import org.apache.thrift.transport.TServerSocket;</div><div class="line"></div><div class="line">public class HelloServerDemo2 &#123;</div><div class="line">    public static final int SERVER_PORT = 8090;</div><div class="line"></div><div class="line">    public void startServer() &#123;</div><div class="line">        try &#123;</div><div class="line">            System.out.println(&quot;HelloWorld TThreadPoolServer start ....&quot;);</div><div class="line"></div><div class="line">            TProcessor tprocessor = new HelloWorldService.Processor&lt;HelloWorldService.Iface&gt;(new HelloWorldImpl());</div><div class="line"></div><div class="line">            TServerSocket serverTransport = new TServerSocket(SERVER_PORT);</div><div class="line">            TThreadPoolServer.Args ttpsArgs = new TThreadPoolServer.Args(serverTransport);</div><div class="line">            ttpsArgs.processor(tprocessor);</div><div class="line">            ttpsArgs.protocolFactory(new TBinaryProtocol.Factory());</div><div class="line"></div><div class="line">            // 线程池服务模型，使用标准的阻塞式IO，预先创建一组线程处理请求。</div><div class="line">            TServer server = new TThreadPoolServer(ttpsArgs);</div><div class="line">            server.serve();</div><div class="line"></div><div class="line">        &#125; catch (Exception e) &#123;</div><div class="line">            System.out.println(&quot;Server start error!!!&quot;);</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public static void main(String[] args) &#123;</div><div class="line">        HelloServerDemo2 server = new HelloServerDemo2();</div><div class="line">        server.startServer();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>客户端Client代码和之前的一样，只要数据传输的协议一致即可，客户端测试成功，结果如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Thrify client result =: Hi,china welcome to thrift world.</div></pre></td></tr></table></figure></p>
-<h3 id="5-TNonblockingServer-服务模型"><a href="#5-TNonblockingServer-服务模型" class="headerlink" title="5.TNonblockingServer 服务模型"></a>5.TNonblockingServer 服务模型</h3><p>使用非阻塞式IO，服务端和客户端需要指定 TFramedTransport 数据传输的方式。</p>
-<p>编写服务端代码：HelloServerDemo3.java</p>
-<p>复制代码<br>package com.dxz.thrift.demo;</p>
-<p>import org.apache.thrift.TProcessor;<br>import org.apache.thrift.protocol.TBinaryProtocol;<br>import org.apache.thrift.protocol.TCompactProtocol;<br>import org.apache.thrift.server.TNonblockingServer;<br>import org.apache.thrift.server.TServer;<br>import org.apache.thrift.server.TThreadPoolServer;<br>import org.apache.thrift.transport.TFramedTransport;<br>import org.apache.thrift.transport.TNonblockingServerSocket;<br>import org.apache.thrift.transport.TServerSocket;</p>
-<p>public class HelloServerDemo3 {<br>    public static final int SERVER_PORT = 8090;</p>
-<pre><code>public void startServer() {
-    try {
-        System.out.println(&quot;HelloWorld TNonblockingServer start ....&quot;);
-
-        TProcessor tprocessor = new HelloWorldService.Processor&lt;HelloWorldService.Iface&gt;(new HelloWorldImpl());
-
-        TNonblockingServerSocket tnbSocketTransport = new TNonblockingServerSocket(SERVER_PORT);
-        TNonblockingServer.Args tnbArgs = new TNonblockingServer.Args(tnbSocketTransport);
-        tnbArgs.processor(tprocessor);
-        tnbArgs.transportFactory(new TFramedTransport.Factory());
-        tnbArgs.protocolFactory(new TCompactProtocol.Factory());
-
-        // 使用非阻塞式IO，服务端和客户端需要指定TFramedTransport数据传输的方式
-        TServer server = new TNonblockingServer(tnbArgs);
-        server.serve();
-
-    } catch (Exception e) {
-        System.out.println(&quot;Server start error!!!&quot;);
-        e.printStackTrace();
-    }
-}
-
-/**
- * @param args
- */
-public static void main(String[] args) {
-    HelloServerDemo3 server = new HelloServerDemo3();
-    server.startServer();
-}
-</code></pre><p>}<br>复制代码<br>编写客户端代码：HelloClientDemo3.java</p>
-<p>复制代码<br>package com.dxz.thrift.demo;</p>
-<p>import org.apache.thrift.TException;<br>import org.apache.thrift.protocol.TBinaryProtocol;<br>import org.apache.thrift.protocol.TCompactProtocol;<br>import org.apache.thrift.protocol.TJSONProtocol;<br>import org.apache.thrift.protocol.TProtocol;<br>import org.apache.thrift.transport.TSocket;<br>import org.apache.thrift.transport.TTransport;<br>import org.apache.thrift.transport.TTransportException;<br>import org.apache.thrift.TException;<br>import org.apache.thrift.protocol.TCompactProtocol;<br>import org.apache.thrift.protocol.TProtocol;<br>import org.apache.thrift.transport.TFramedTransport;<br>import org.apache.thrift.transport.TSocket;<br>import org.apache.thrift.transport.TTransport;<br>import org.apache.thrift.transport.TTransportException;</p>
-<p>public class HelloClientDemo3 {</p>
-<pre><code>public static final String SERVER_IP = &quot;localhost&quot;;
-public static final int SERVER_PORT = 8090;
-public static final int TIMEOUT = 30000;
-
-public void startClient(String userName) {
-    TTransport transport = null;
-    try {
-        transport = new TFramedTransport(new TSocket(SERVER_IP, SERVER_PORT, TIMEOUT));
-        // 协议要和服务端一致
-        TProtocol protocol = new TCompactProtocol(transport);
-        HelloWorldService.Client client = new HelloWorldService.Client(protocol);
-        transport.open();
-        String result = client.sayHello(userName);
-        System.out.println(&quot;Thrify client result =: &quot; + result);
-    } catch (TTransportException e) {
-        e.printStackTrace();
-    } catch (TException e) {
-        e.printStackTrace();
-    } finally {
-        if (null != transport) {
-            transport.close();
-        }
-    }
-}
-
-/**
- * @param args
- */
-public static void main(String[] args) {
-    HelloClientDemo3 client = new HelloClientDemo3();
-    client.startClient(&quot;HelloClientDemo3&quot;);
-
-}
-</code></pre><p>}<br>复制代码<br>客户端的测试成功，结果如下：</p>
-<p>Thrify client result =: Hi,HelloClientDemo3 welcome to thrift world.</p>
-<h3 id="6-THsHaServer服务模型"><a href="#6-THsHaServer服务模型" class="headerlink" title="6.THsHaServer服务模型"></a>6.THsHaServer服务模型</h3><p>半同步半异步的服务端模型，需要指定为： TFramedTransport 数据传输的方式。</p>
-<p>编写服务端代码：HelloServerDemo4.java</p>
-<p>复制代码<br>package com.dxz.thrift.demo;</p>
-<p>import org.apache.thrift.TProcessor;<br>import org.apache.thrift.protocol.TBinaryProtocol;<br>import org.apache.thrift.protocol.TCompactProtocol;<br>import org.apache.thrift.server.THsHaServer;<br>import org.apache.thrift.server.TNonblockingServer;<br>import org.apache.thrift.server.TServer;<br>import org.apache.thrift.server.TSimpleServer;<br>import org.apache.thrift.server.TThreadPoolServer;<br>import org.apache.thrift.transport.TFramedTransport;<br>import org.apache.thrift.transport.TNonblockingServerSocket;<br>import org.apache.thrift.transport.TServerSocket;</p>
-<p>public class HelloServerDemo4 {<br>    public static final int SERVER_PORT = 8090;</p>
-<pre><code>public void startServer() {
-    try {
-        System.out.println(&quot;HelloWorld THsHaServer start ....&quot;);
-
-        TProcessor tprocessor = new HelloWorldService.Processor&lt;HelloWorldService.Iface&gt;(new HelloWorldImpl());
-
-        TNonblockingServerSocket tnbSocketTransport = new TNonblockingServerSocket(SERVER_PORT);
-        THsHaServer.Args thhsArgs = new THsHaServer.Args(tnbSocketTransport);
-        thhsArgs.processor(tprocessor);
-        thhsArgs.transportFactory(new TFramedTransport.Factory());
-        thhsArgs.protocolFactory(new TBinaryProtocol.Factory());
-
-        // 半同步半异步的服务模型
-        TServer server = new THsHaServer(thhsArgs);
-        server.serve();
-
-    } catch (Exception e) {
-        System.out.println(&quot;Server start error!!!&quot;);
-        e.printStackTrace();
-    }
-}
-
-/**
- * @param args
- */
-public static void main(String[] args) {
-    HelloServerDemo4 server = new HelloServerDemo4();
-    server.startServer();
-}
-</code></pre><p>}<br>复制代码<br>客户端代码HelloClientDemo4.java</p>
-<p>复制代码<br>package com.dxz.thrift.demo;</p>
-<p>import java.io.IOException;</p>
-<p>import org.apache.thrift.TException;<br>import org.apache.thrift.protocol.TBinaryProtocol;<br>import org.apache.thrift.protocol.TCompactProtocol;<br>import org.apache.thrift.protocol.TProtocol;<br>import org.apache.thrift.transport.TSocket;<br>import org.apache.thrift.transport.TTransport;<br>import org.apache.thrift.transport.TTransportException;</p>
-<p>public class HelloClientDemo4 {</p>
-<pre><code>public static final String SERVER_IP = &quot;localhost&quot;;
-public static final int SERVER_PORT = 8090;
-public static final int TIMEOUT = 30000;
-
-public void startClient(String userName) {
-    TTransport transport = null;
-    try {
-        transport = new TFramedTransport(new TSocket(SERVER_IP, SERVER_PORT, TIMEOUT));
-        // 协议要和服务端一致
-        TProtocol protocol = new TBinaryProtocol(transport);
-        // TProtocol protocol = new TCompactProtocol(transport);
-        // TProtocol protocol = new TJSONProtocol(transport);
-        HelloWorldService.Client client = new HelloWorldService.Client(protocol);
-        transport.open();
-        String result = client.sayHello(userName);
-        System.out.println(&quot;Thrify client result =: &quot; + result);
-    } catch (TTransportException e) {
-        e.printStackTrace();
-    } catch (TException e) {
-        e.printStackTrace();
-    } finally {
-        if (null != transport) {
-            transport.close();
-        }
-    }
-}
-
-/**
- * @param args
- */
-public static void main(String[] args) {
-    HelloClientDemo4 client = new HelloClientDemo4();
-    client.startClient(&quot;HelloClientDemo4&quot;);
-
-}
-</code></pre><p>}<br>复制代码</p>
+<h3 id="5-TNonblockingServer-服务模型"><a href="#5-TNonblockingServer-服务模型" class="headerlink" title="5.TNonblockingServer 服务模型"></a>5.TNonblockingServer 服务模型</h3><p>使用非阻塞式IO，服务端和客户端需要指定<code>TFramedTransport</code>数据传输的方式。</p>
+<h4 id="编写服务端代码：HelloServerDemo3-java"><a href="#编写服务端代码：HelloServerDemo3-java" class="headerlink" title="编写服务端代码：HelloServerDemo3.java"></a>编写服务端代码：<code>HelloServerDemo3.java</code></h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div></pre></td><td class="code"><pre><div class="line">package com.dxz.thrift.demo;</div><div class="line"></div><div class="line">import org.apache.thrift.TProcessor;</div><div class="line">import org.apache.thrift.protocol.TBinaryProtocol;</div><div class="line">import org.apache.thrift.protocol.TCompactProtocol;</div><div class="line">import org.apache.thrift.server.TNonblockingServer;</div><div class="line">import org.apache.thrift.server.TServer;</div><div class="line">import org.apache.thrift.server.TThreadPoolServer;</div><div class="line">import org.apache.thrift.transport.TFramedTransport;</div><div class="line">import org.apache.thrift.transport.TNonblockingServerSocket;</div><div class="line">import org.apache.thrift.transport.TServerSocket;</div><div class="line"></div><div class="line">public class HelloServerDemo3 &#123;</div><div class="line">    public static final int SERVER_PORT = 8090;</div><div class="line"></div><div class="line">    public void startServer() &#123;</div><div class="line">        try &#123;</div><div class="line">            System.out.println(&quot;HelloWorld TNonblockingServer start ....&quot;);</div><div class="line"></div><div class="line">            TProcessor tprocessor = new HelloWorldService.Processor&lt;HelloWorldService.Iface&gt;(new HelloWorldImpl());</div><div class="line"></div><div class="line">            TNonblockingServerSocket tnbSocketTransport = new TNonblockingServerSocket(SERVER_PORT);</div><div class="line">            TNonblockingServer.Args tnbArgs = new TNonblockingServer.Args(tnbSocketTransport);</div><div class="line">            tnbArgs.processor(tprocessor);</div><div class="line">            tnbArgs.transportFactory(new TFramedTransport.Factory());</div><div class="line">            tnbArgs.protocolFactory(new TCompactProtocol.Factory());</div><div class="line"></div><div class="line">            // 使用非阻塞式IO，服务端和客户端需要指定TFramedTransport数据传输的方式</div><div class="line">            TServer server = new TNonblockingServer(tnbArgs);</div><div class="line">            server.serve();</div><div class="line"></div><div class="line">        &#125; catch (Exception e) &#123;</div><div class="line">            System.out.println(&quot;Server start error!!!&quot;);</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    /**</div><div class="line">     * @param args</div><div class="line">     */</div><div class="line">    public static void main(String[] args) &#123;</div><div class="line">        HelloServerDemo3 server = new HelloServerDemo3();</div><div class="line">        server.startServer();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="编写客户端代码：HelloClientDemo3-java"><a href="#编写客户端代码：HelloClientDemo3-java" class="headerlink" title="编写客户端代码：HelloClientDemo3.java"></a>编写客户端代码：<code>HelloClientDemo3.java</code></h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div></pre></td><td class="code"><pre><div class="line">package com.dxz.thrift.demo;</div><div class="line"></div><div class="line">import org.apache.thrift.TException;</div><div class="line">import org.apache.thrift.protocol.TBinaryProtocol;</div><div class="line">import org.apache.thrift.protocol.TCompactProtocol;</div><div class="line">import org.apache.thrift.protocol.TJSONProtocol;</div><div class="line">import org.apache.thrift.protocol.TProtocol;</div><div class="line">import org.apache.thrift.transport.TSocket;</div><div class="line">import org.apache.thrift.transport.TTransport;</div><div class="line">import org.apache.thrift.transport.TTransportException;</div><div class="line">import org.apache.thrift.TException;</div><div class="line">import org.apache.thrift.protocol.TCompactProtocol;</div><div class="line">import org.apache.thrift.protocol.TProtocol;</div><div class="line">import org.apache.thrift.transport.TFramedTransport;</div><div class="line">import org.apache.thrift.transport.TSocket;</div><div class="line">import org.apache.thrift.transport.TTransport;</div><div class="line">import org.apache.thrift.transport.TTransportException;</div><div class="line"></div><div class="line">public class HelloClientDemo3 &#123;</div><div class="line"></div><div class="line">    public static final String SERVER_IP = &quot;localhost&quot;;</div><div class="line">    public static final int SERVER_PORT = 8090;</div><div class="line">    public static final int TIMEOUT = 30000;</div><div class="line"></div><div class="line">    public void startClient(String userName) &#123;</div><div class="line">        TTransport transport = null;</div><div class="line">        try &#123;</div><div class="line">            transport = new TFramedTransport(new TSocket(SERVER_IP, SERVER_PORT, TIMEOUT));</div><div class="line">            // 协议要和服务端一致</div><div class="line">            TProtocol protocol = new TCompactProtocol(transport);</div><div class="line">            HelloWorldService.Client client = new HelloWorldService.Client(protocol);</div><div class="line">            transport.open();</div><div class="line">            String result = client.sayHello(userName);</div><div class="line">            System.out.println(&quot;Thrify client result =: &quot; + result);</div><div class="line">        &#125; catch (TTransportException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125; catch (TException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125; finally &#123;</div><div class="line">            if (null != transport) &#123;</div><div class="line">                transport.close();</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    /**</div><div class="line">     * @param args</div><div class="line">     */</div><div class="line">    public static void main(String[] args) &#123;</div><div class="line">        HelloClientDemo3 client = new HelloClientDemo3();</div><div class="line">        client.startClient(&quot;HelloClientDemo3&quot;);</div><div class="line"></div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>客户端的测试成功，结果如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Thrify client result =: Hi,HelloClientDemo3 welcome to thrift world.</div></pre></td></tr></table></figure></p>
+<h3 id="6-THsHaServer服务模型"><a href="#6-THsHaServer服务模型" class="headerlink" title="6.THsHaServer服务模型"></a>6.THsHaServer服务模型</h3><p>半同步半异步的服务端模型，需要指定为：<code>TFramedTransport</code>数据传输的方式。</p>
+<h4 id="编写服务端代码：HelloServerDemo4-java"><a href="#编写服务端代码：HelloServerDemo4-java" class="headerlink" title="编写服务端代码：HelloServerDemo4.java"></a>编写服务端代码：<code>HelloServerDemo4.java</code></h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div></pre></td><td class="code"><pre><div class="line">package com.dxz.thrift.demo;</div><div class="line"></div><div class="line">import org.apache.thrift.TProcessor;</div><div class="line">import org.apache.thrift.protocol.TBinaryProtocol;</div><div class="line">import org.apache.thrift.protocol.TCompactProtocol;</div><div class="line">import org.apache.thrift.server.THsHaServer;</div><div class="line">import org.apache.thrift.server.TNonblockingServer;</div><div class="line">import org.apache.thrift.server.TServer;</div><div class="line">import org.apache.thrift.server.TSimpleServer;</div><div class="line">import org.apache.thrift.server.TThreadPoolServer;</div><div class="line">import org.apache.thrift.transport.TFramedTransport;</div><div class="line">import org.apache.thrift.transport.TNonblockingServerSocket;</div><div class="line">import org.apache.thrift.transport.TServerSocket;</div><div class="line"></div><div class="line">public class HelloServerDemo4 &#123;</div><div class="line">    public static final int SERVER_PORT = 8090;</div><div class="line"></div><div class="line">    public void startServer() &#123;</div><div class="line">        try &#123;</div><div class="line">            System.out.println(&quot;HelloWorld THsHaServer start ....&quot;);</div><div class="line"></div><div class="line">            TProcessor tprocessor = new HelloWorldService.Processor&lt;HelloWorldService.Iface&gt;(new HelloWorldImpl());</div><div class="line"></div><div class="line">            TNonblockingServerSocket tnbSocketTransport = new TNonblockingServerSocket(SERVER_PORT);</div><div class="line">            THsHaServer.Args thhsArgs = new THsHaServer.Args(tnbSocketTransport);</div><div class="line">            thhsArgs.processor(tprocessor);</div><div class="line">            thhsArgs.transportFactory(new TFramedTransport.Factory());</div><div class="line">            thhsArgs.protocolFactory(new TBinaryProtocol.Factory());</div><div class="line"></div><div class="line">            // 半同步半异步的服务模型</div><div class="line">            TServer server = new THsHaServer(thhsArgs);</div><div class="line">            server.serve();</div><div class="line"></div><div class="line">        &#125; catch (Exception e) &#123;</div><div class="line">            System.out.println(&quot;Server start error!!!&quot;);</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    /**</div><div class="line">     * @param args</div><div class="line">     */</div><div class="line">    public static void main(String[] args) &#123;</div><div class="line">        HelloServerDemo4 server = new HelloServerDemo4();</div><div class="line">        server.startServer();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="客户端代码HelloClientDemo4-java"><a href="#客户端代码HelloClientDemo4-java" class="headerlink" title="客户端代码HelloClientDemo4.java"></a>客户端代码<code>HelloClientDemo4.java</code></h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line">package com.dxz.thrift.demo;</div><div class="line"></div><div class="line">import java.io.IOException;</div><div class="line"></div><div class="line">import org.apache.thrift.TException;</div><div class="line">import org.apache.thrift.protocol.TBinaryProtocol;</div><div class="line">import org.apache.thrift.protocol.TCompactProtocol;</div><div class="line">import org.apache.thrift.protocol.TProtocol;</div><div class="line">import org.apache.thrift.transport.TSocket;</div><div class="line">import org.apache.thrift.transport.TTransport;</div><div class="line">import org.apache.thrift.transport.TTransportException;</div><div class="line"></div><div class="line">public class HelloClientDemo4 &#123;</div><div class="line"></div><div class="line">    public static final String SERVER_IP = &quot;localhost&quot;;</div><div class="line">    public static final int SERVER_PORT = 8090;</div><div class="line">    public static final int TIMEOUT = 30000;</div><div class="line"></div><div class="line">    public void startClient(String userName) &#123;</div><div class="line">        TTransport transport = null;</div><div class="line">        try &#123;</div><div class="line">            transport = new TFramedTransport(new TSocket(SERVER_IP, SERVER_PORT, TIMEOUT));</div><div class="line">            // 协议要和服务端一致</div><div class="line">            TProtocol protocol = new TBinaryProtocol(transport);</div><div class="line">            // TProtocol protocol = new TCompactProtocol(transport);</div><div class="line">            // TProtocol protocol = new TJSONProtocol(transport);</div><div class="line">            HelloWorldService.Client client = new HelloWorldService.Client(protocol);</div><div class="line">            transport.open();</div><div class="line">            String result = client.sayHello(userName);</div><div class="line">            System.out.println(&quot;Thrify client result =: &quot; + result);</div><div class="line">        &#125; catch (TTransportException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125; catch (TException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125; finally &#123;</div><div class="line">            if (null != transport) &#123;</div><div class="line">                transport.close();</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    /**</div><div class="line">     * @param args</div><div class="line">     */</div><div class="line">    public static void main(String[] args) &#123;</div><div class="line">        HelloClientDemo4 client = new HelloClientDemo4();</div><div class="line">        client.startClient(&quot;HelloClientDemo4&quot;);</div><div class="line"></div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>结果：Thrify client result =: Hi,HelloClientDemo4 welcome to thrift world.</p>
 <h3 id="7-异步客户端"><a href="#7-异步客户端" class="headerlink" title="7.异步客户端"></a>7.异步客户端</h3><p>编写服务端代码：HelloServerDemo5.java</p>
-<p>复制代码<br>package com.dxz.thrift.demo;</p>
-<p>import org.apache.thrift.TProcessor;<br>import org.apache.thrift.protocol.TCompactProtocol;<br>import org.apache.thrift.server.TNonblockingServer;<br>import org.apache.thrift.server.TServer;<br>import org.apache.thrift.transport.TFramedTransport;<br>import org.apache.thrift.transport.TNonblockingServerSocket;</p>
-<p>public class HelloServerDemo5 {<br>    public static final int SERVER_PORT = 8090;</p>
-<pre><code>public void startServer() {
-    try {
-        System.out.println(&quot;HelloWorld TNonblockingServer start ....&quot;);
-
-        TProcessor tprocessor = new HelloWorldService.Processor&lt;HelloWorldService.Iface&gt;(new HelloWorldImpl());
-
-        TNonblockingServerSocket tnbSocketTransport = new TNonblockingServerSocket(SERVER_PORT);
-        TNonblockingServer.Args tnbArgs = new TNonblockingServer.Args(tnbSocketTransport);
-        tnbArgs.processor(tprocessor);
-        tnbArgs.transportFactory(new TFramedTransport.Factory());
-        tnbArgs.protocolFactory(new TCompactProtocol.Factory());
-
-        // 使用非阻塞式IO，服务端和客户端需要指定TFramedTransport数据传输的方式
-        TServer server = new TNonblockingServer(tnbArgs);
-        server.serve();
-
-    } catch (Exception e) {
-        System.out.println(&quot;Server start error!!!&quot;);
-        e.printStackTrace();
-    }
-}
-
-/**
- * @param args
- */
-public static void main(String[] args) {
-    HelloServerDemo5 server = new HelloServerDemo5();
-    server.startServer();
-}
-</code></pre><p>}<br>复制代码<br>编写客户端Client代码：HelloAsynClientDemo.java</p>
-<p>复制代码<br>package com.dxz.thrift.demo;</p>
-<p>import java.util.concurrent.CountDownLatch;<br>import java.util.concurrent.TimeUnit;</p>
-<p>import org.apache.thrift.TException;<br>import org.apache.thrift.async.AsyncMethodCallback;<br>import org.apache.thrift.async.TAsyncClientManager;<br>import org.apache.thrift.protocol.TCompactProtocol;<br>import org.apache.thrift.protocol.TProtocolFactory;<br>import org.apache.thrift.transport.TNonblockingSocket;<br>import org.apache.thrift.transport.TNonblockingTransport;<br>import com.dxz.thrift.demo.HelloWorldService.AsyncClient.sayHello_call;</p>
-<p>public class HelloAsynClientDemo {</p>
-<pre><code>public static final String SERVER_IP = &quot;localhost&quot;;
-public static final int SERVER_PORT = 8090;
-public static final int TIMEOUT = 30000;
-
-public void startClient(String userName) {
-    try {
-        TAsyncClientManager clientManager = new TAsyncClientManager();
-        TNonblockingTransport transport = new TNonblockingSocket(SERVER_IP, SERVER_PORT, TIMEOUT);
-
-        TProtocolFactory tprotocol = new TCompactProtocol.Factory();
-        HelloWorldService.AsyncClient asyncClient = new HelloWorldService.AsyncClient(tprotocol, clientManager,
-                transport);
-        System.out.println(&quot;Client start .....&quot;);
-
-        CountDownLatch latch = new CountDownLatch(1);
-        AsynCallback callBack = new AsynCallback(latch);
-        System.out.println(&quot;call method sayHello start ...&quot;);
-        asyncClient.sayHello(userName, callBack);
-        System.out.println(&quot;call method sayHello .... end&quot;);
-        boolean wait = latch.await(30, TimeUnit.SECONDS);
-        System.out.println(&quot;latch.await =:&quot; + wait);
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-    System.out.println(&quot;startClient end.&quot;);
-}
-
-public class AsynCallback implements AsyncMethodCallback&lt;sayHello_call&gt; {
-    private CountDownLatch latch;
-
-    public AsynCallback(CountDownLatch latch) {
-        this.latch = latch;
-    }
-
-    @Override
-    public void onComplete(sayHello_call response) {
-        System.out.println(&quot;onComplete&quot;);
-        try {
-            // Thread.sleep(1000L * 1);
-            System.out.println(&quot;AsynCall result =:&quot; + response.getResult().toString());
-        } catch (TException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            latch.countDown();
-        }
-    }
-
-    @Override
-    public void onError(Exception exception) {
-        System.out.println(&quot;onError :&quot; + exception.getMessage());
-        latch.countDown();
-    }
-}
-
-/**
- * @param args
- */
-public static void main(String[] args) {
-    HelloAsynClientDemo client = new HelloAsynClientDemo();
-    client.startClient(&quot;HelloAsynClientDemo&quot;);
-
-}
-</code></pre><p>}<br>复制代码<br>先运行服务程序，再运行客户端程序，测试结果如下：</p>
-<p>复制代码<br>Client start …..<br>call method sayHello start …<br>call method sayHello …. end<br>onComplete<br>AsynCall result =:Hi,HelloAsynClientDemo welcome to thrift world.<br>latch.await =:true<br>startClient end.<br>复制代码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div></pre></td><td class="code"><pre><div class="line">package com.dxz.thrift.demo;</div><div class="line"></div><div class="line">import org.apache.thrift.TProcessor;</div><div class="line">import org.apache.thrift.protocol.TCompactProtocol;</div><div class="line">import org.apache.thrift.server.TNonblockingServer;</div><div class="line">import org.apache.thrift.server.TServer;</div><div class="line">import org.apache.thrift.transport.TFramedTransport;</div><div class="line">import org.apache.thrift.transport.TNonblockingServerSocket;</div><div class="line"></div><div class="line">public class HelloServerDemo5 &#123;</div><div class="line">    public static final int SERVER_PORT = 8090;</div><div class="line"></div><div class="line">    public void startServer() &#123;</div><div class="line">        try &#123;</div><div class="line">            System.out.println(&quot;HelloWorld TNonblockingServer start ....&quot;);</div><div class="line"></div><div class="line">            TProcessor tprocessor = new HelloWorldService.Processor&lt;HelloWorldService.Iface&gt;(new HelloWorldImpl());</div><div class="line"></div><div class="line">            TNonblockingServerSocket tnbSocketTransport = new TNonblockingServerSocket(SERVER_PORT);</div><div class="line">            TNonblockingServer.Args tnbArgs = new TNonblockingServer.Args(tnbSocketTransport);</div><div class="line">            tnbArgs.processor(tprocessor);</div><div class="line">            tnbArgs.transportFactory(new TFramedTransport.Factory());</div><div class="line">            tnbArgs.protocolFactory(new TCompactProtocol.Factory());</div><div class="line"></div><div class="line">            // 使用非阻塞式IO，服务端和客户端需要指定TFramedTransport数据传输的方式</div><div class="line">            TServer server = new TNonblockingServer(tnbArgs);</div><div class="line">            server.serve();</div><div class="line"></div><div class="line">        &#125; catch (Exception e) &#123;</div><div class="line">            System.out.println(&quot;Server start error!!!&quot;);</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    /**</div><div class="line">     * @param args</div><div class="line">     */</div><div class="line">    public static void main(String[] args) &#123;</div><div class="line">        HelloServerDemo5 server = new HelloServerDemo5();</div><div class="line">        server.startServer();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>编写客户端Client代码：<code>HelloAsynClientDemo.java</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div></pre></td><td class="code"><pre><div class="line">package com.dxz.thrift.demo;</div><div class="line"></div><div class="line">import java.util.concurrent.CountDownLatch;</div><div class="line">import java.util.concurrent.TimeUnit;</div><div class="line"></div><div class="line">import org.apache.thrift.TException;</div><div class="line">import org.apache.thrift.async.AsyncMethodCallback;</div><div class="line">import org.apache.thrift.async.TAsyncClientManager;</div><div class="line">import org.apache.thrift.protocol.TCompactProtocol;</div><div class="line">import org.apache.thrift.protocol.TProtocolFactory;</div><div class="line">import org.apache.thrift.transport.TNonblockingSocket;</div><div class="line">import org.apache.thrift.transport.TNonblockingTransport;</div><div class="line">import com.dxz.thrift.demo.HelloWorldService.AsyncClient.sayHello_call;</div><div class="line"></div><div class="line">public class HelloAsynClientDemo &#123;</div><div class="line"></div><div class="line">    public static final String SERVER_IP = &quot;localhost&quot;;</div><div class="line">    public static final int SERVER_PORT = 8090;</div><div class="line">    public static final int TIMEOUT = 30000;</div><div class="line"></div><div class="line">    public void startClient(String userName) &#123;</div><div class="line">        try &#123;</div><div class="line">            TAsyncClientManager clientManager = new TAsyncClientManager();</div><div class="line">            TNonblockingTransport transport = new TNonblockingSocket(SERVER_IP, SERVER_PORT, TIMEOUT);</div><div class="line"></div><div class="line">            TProtocolFactory tprotocol = new TCompactProtocol.Factory();</div><div class="line">            HelloWorldService.AsyncClient asyncClient = new HelloWorldService.AsyncClient(tprotocol, clientManager,</div><div class="line">                    transport);</div><div class="line">            System.out.println(&quot;Client start .....&quot;);</div><div class="line"></div><div class="line">            CountDownLatch latch = new CountDownLatch(1);</div><div class="line">            AsynCallback callBack = new AsynCallback(latch);</div><div class="line">            System.out.println(&quot;call method sayHello start ...&quot;);</div><div class="line">            asyncClient.sayHello(userName, callBack);</div><div class="line">            System.out.println(&quot;call method sayHello .... end&quot;);</div><div class="line">            boolean wait = latch.await(30, TimeUnit.SECONDS);</div><div class="line">            System.out.println(&quot;latch.await =:&quot; + wait);</div><div class="line">        &#125; catch (Exception e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125;</div><div class="line">        System.out.println(&quot;startClient end.&quot;);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public class AsynCallback implements AsyncMethodCallback&lt;sayHello_call&gt; &#123;</div><div class="line">        private CountDownLatch latch;</div><div class="line"></div><div class="line">        public AsynCallback(CountDownLatch latch) &#123;</div><div class="line">            this.latch = latch;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        @Override</div><div class="line">        public void onComplete(sayHello_call response) &#123;</div><div class="line">            System.out.println(&quot;onComplete&quot;);</div><div class="line">            try &#123;</div><div class="line">                // Thread.sleep(1000L * 1);</div><div class="line">                System.out.println(&quot;AsynCall result =:&quot; + response.getResult().toString());</div><div class="line">            &#125; catch (TException e) &#123;</div><div class="line">                e.printStackTrace();</div><div class="line">            &#125; catch (Exception e) &#123;</div><div class="line">                e.printStackTrace();</div><div class="line">            &#125; finally &#123;</div><div class="line">                latch.countDown();</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        @Override</div><div class="line">        public void onError(Exception exception) &#123;</div><div class="line">            System.out.println(&quot;onError :&quot; + exception.getMessage());</div><div class="line">            latch.countDown();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    /**</div><div class="line">     * @param args</div><div class="line">     */</div><div class="line">    public static void main(String[] args) &#123;</div><div class="line">        HelloAsynClientDemo client = new HelloAsynClientDemo();</div><div class="line">        client.startClient(&quot;HelloAsynClientDemo&quot;);</div><div class="line"></div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>先运行服务程序，再运行客户端程序，测试结果如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">Client start .....</div><div class="line">call method sayHello start ...</div><div class="line">call method sayHello .... end</div><div class="line">onComplete</div><div class="line">AsynCall result =:Hi,HelloAsynClientDemo welcome to thrift world.</div><div class="line">latch.await =:true</div><div class="line">startClient end.</div></pre></td></tr></table></figure></p>
 
       
     </div>
@@ -722,9 +482,9 @@ public static void main(String[] args) {
       
         <div class="post-tags">
           
-            <a href="/tags/facebook/" rel="tag"># facebook</a>
-          
             <a href="/tags/Thrift/" rel="tag"># Thrift</a>
+          
+            <a href="/tags/facebook/" rel="tag"># facebook</a>
           
             <a href="/tags/RPC/" rel="tag"># RPC</a>
           
@@ -825,7 +585,7 @@ public static void main(String[] args) {
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">33</span>
+                <span class="site-state-item-count">34</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -836,7 +596,7 @@ public static void main(String[] args) {
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">29</span>
+                <span class="site-state-item-count">30</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -847,7 +607,7 @@ public static void main(String[] args) {
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">32</span>
+                <span class="site-state-item-count">33</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
@@ -889,7 +649,7 @@ public static void main(String[] args) {
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、概述"><span class="nav-number">1.</span> <span class="nav-text">一、概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、下载配置"><span class="nav-number">2.</span> <span class="nav-text">二、下载配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1）安装thrift：到thrift官网下载exe文件，然后将文件重命名为thrift-exe-拷贝到D-EBOOK-thrift目录下-或者任何目录下-，然后就可以在dos环境下使用了"><span class="nav-number">2.1.</span> <span class="nav-text">1）安装thrift：到thrift官网下载exe文件，然后将文件重命名为thrift.exe,拷贝到D:\EBOOK\thrift目录下(或者任何目录下)，然后就可以在dos环境下使用了</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2）下载相关依赖包"><span class="nav-number">2.2.</span> <span class="nav-text">2）下载相关依赖包</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1）libthrift-jar-，下载地址：http-repo1-maven-org-maven2-org-apache-thrift-libthrift-0-9-0"><span class="nav-number">2.2.1.</span> <span class="nav-text">2.1）libthrift.jar ，下载地址：http://repo1.maven.org/maven2/org/apache/thrift/libthrift/0.9.0/</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2）slf4j-api-jar"><span class="nav-number">2.2.2.</span> <span class="nav-text">2.2）slf4j-api.jar</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3）slf4j-simple-jar"><span class="nav-number">2.2.3.</span> <span class="nav-text">2.3）slf4j-simple.jar</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Maven项目设置依赖包"><span class="nav-number">2.3.</span> <span class="nav-text">3) Maven项目设置依赖包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-手动编译"><span class="nav-number">2.4.</span> <span class="nav-text">4).手动编译</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、基本概念"><span class="nav-number">3.</span> <span class="nav-text">三、基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-数据类型"><span class="nav-number">3.1.</span> <span class="nav-text">1.数据类型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#基本类型："><span class="nav-number">3.1.1.</span> <span class="nav-text">基本类型：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#结构体类型："><span class="nav-number">3.1.2.</span> <span class="nav-text">结构体类型：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#容器类型："><span class="nav-number">3.1.3.</span> <span class="nav-text">容器类型：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#异常类型："><span class="nav-number">3.1.4.</span> <span class="nav-text">异常类型：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#服务类型："><span class="nav-number">3.1.5.</span> <span class="nav-text">服务类型：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-服务端编码基本步骤："><span class="nav-number">3.2.</span> <span class="nav-text">2.服务端编码基本步骤：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-客户端编码基本步骤："><span class="nav-number">3.3.</span> <span class="nav-text">3.客户端编码基本步骤：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-数据传输协议"><span class="nav-number">3.4.</span> <span class="nav-text">4.数据传输协议</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-thrift生成代码"><span class="nav-number">3.5.</span> <span class="nav-text">1. thrift生成代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-实现接口Iface"><span class="nav-number">3.6.</span> <span class="nav-text">2. 实现接口Iface</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-TSimpleServer服务端"><span class="nav-number">3.7.</span> <span class="nav-text">3.TSimpleServer服务端</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#简单的单线程服务模型，一般用于测试。"><span class="nav-number">3.7.1.</span> <span class="nav-text">简单的单线程服务模型，一般用于测试。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#编写客户端Client代码：HelloClientDemo-java"><span class="nav-number">3.7.2.</span> <span class="nav-text">编写客户端Client代码：HelloClientDemo.java</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-TThreadPoolServer-服务模型"><span class="nav-number">3.8.</span> <span class="nav-text">4.TThreadPoolServer 服务模型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#编写服务端代码：HelloServerDemo2-java"><span class="nav-number">3.8.1.</span> <span class="nav-text">编写服务端代码：HelloServerDemo2.java</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-TNonblockingServer-服务模型"><span class="nav-number">3.9.</span> <span class="nav-text">5.TNonblockingServer 服务模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-THsHaServer服务模型"><span class="nav-number">3.10.</span> <span class="nav-text">6.THsHaServer服务模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-异步客户端"><span class="nav-number">3.11.</span> <span class="nav-text">7.异步客户端</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、概述"><span class="nav-number">1.</span> <span class="nav-text">一、概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、下载配置"><span class="nav-number">2.</span> <span class="nav-text">二、下载配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1）安装thrift：到thrift官网下载exe文件，然后将文件重命名为thrift-exe-拷贝到D-EBOOK-thrift目录下-或者任何目录下-，然后就可以在dos环境下使用了"><span class="nav-number">2.1.</span> <span class="nav-text">1）安装thrift：到thrift官网下载exe文件，然后将文件重命名为thrift.exe,拷贝到D:\EBOOK\thrift目录下(或者任何目录下)，然后就可以在dos环境下使用了</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2）下载相关依赖包"><span class="nav-number">2.2.</span> <span class="nav-text">2）下载相关依赖包</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1）libthrift-jar-，下载地址：http-repo1-maven-org-maven2-org-apache-thrift-libthrift-0-9-0"><span class="nav-number">2.2.1.</span> <span class="nav-text">2.1）libthrift.jar ，下载地址：http://repo1.maven.org/maven2/org/apache/thrift/libthrift/0.9.0/</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2）slf4j-api-jar"><span class="nav-number">2.2.2.</span> <span class="nav-text">2.2）slf4j-api.jar</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3）slf4j-simple-jar"><span class="nav-number">2.2.3.</span> <span class="nav-text">2.3）slf4j-simple.jar</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Maven项目设置依赖包"><span class="nav-number">2.3.</span> <span class="nav-text">3) Maven项目设置依赖包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-手动编译"><span class="nav-number">2.4.</span> <span class="nav-text">4).手动编译</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、基本概念"><span class="nav-number">3.</span> <span class="nav-text">三、基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-数据类型"><span class="nav-number">3.1.</span> <span class="nav-text">1.数据类型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#基本类型："><span class="nav-number">3.1.1.</span> <span class="nav-text">基本类型：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#结构体类型："><span class="nav-number">3.1.2.</span> <span class="nav-text">结构体类型：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#容器类型："><span class="nav-number">3.1.3.</span> <span class="nav-text">容器类型：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#异常类型："><span class="nav-number">3.1.4.</span> <span class="nav-text">异常类型：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#服务类型："><span class="nav-number">3.1.5.</span> <span class="nav-text">服务类型：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-服务端编码基本步骤："><span class="nav-number">3.2.</span> <span class="nav-text">2.服务端编码基本步骤：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-客户端编码基本步骤："><span class="nav-number">3.3.</span> <span class="nav-text">3.客户端编码基本步骤：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-数据传输协议"><span class="nav-number">3.4.</span> <span class="nav-text">4.数据传输协议</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-thrift生成代码"><span class="nav-number">3.5.</span> <span class="nav-text">1. thrift生成代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-实现接口Iface"><span class="nav-number">3.6.</span> <span class="nav-text">2. 实现接口Iface</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-TSimpleServer服务端"><span class="nav-number">3.7.</span> <span class="nav-text">3.TSimpleServer服务端</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#简单的单线程服务模型，一般用于测试。"><span class="nav-number">3.7.1.</span> <span class="nav-text">简单的单线程服务模型，一般用于测试。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#编写客户端Client代码：HelloClientDemo-java"><span class="nav-number">3.7.2.</span> <span class="nav-text">编写客户端Client代码：HelloClientDemo.java</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-TThreadPoolServer-服务模型"><span class="nav-number">3.8.</span> <span class="nav-text">4.TThreadPoolServer 服务模型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#编写服务端代码：HelloServerDemo2-java"><span class="nav-number">3.8.1.</span> <span class="nav-text">编写服务端代码：HelloServerDemo2.java</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-TNonblockingServer-服务模型"><span class="nav-number">3.9.</span> <span class="nav-text">5.TNonblockingServer 服务模型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#编写服务端代码：HelloServerDemo3-java"><span class="nav-number">3.9.1.</span> <span class="nav-text">编写服务端代码：HelloServerDemo3.java</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#编写客户端代码：HelloClientDemo3-java"><span class="nav-number">3.9.2.</span> <span class="nav-text">编写客户端代码：HelloClientDemo3.java</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-THsHaServer服务模型"><span class="nav-number">3.10.</span> <span class="nav-text">6.THsHaServer服务模型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#编写服务端代码：HelloServerDemo4-java"><span class="nav-number">3.10.1.</span> <span class="nav-text">编写服务端代码：HelloServerDemo4.java</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#客户端代码HelloClientDemo4-java"><span class="nav-number">3.10.2.</span> <span class="nav-text">客户端代码HelloClientDemo4.java</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-异步客户端"><span class="nav-number">3.11.</span> <span class="nav-text">7.异步客户端</span></a></li></ol></li></ol></div>
             
 
           </div>
