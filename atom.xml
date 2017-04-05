@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://jishusuishouji.github.io/"/>
-  <updated>2017-04-05T22:12:57.502Z</updated>
+  <updated>2017-04-05T22:38:29.304Z</updated>
   <id>http://jishusuishouji.github.io/</id>
   
   <author>
@@ -14,6 +14,143 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>ActiveMQ实现负载均衡+高可用部署方案</title>
+    <link href="http://jishusuishouji.github.io/2017/04/06/activemq/ActiveMQ%E5%AE%9E%E7%8E%B0%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1_%E9%AB%98%E5%8F%AF%E7%94%A8%E9%83%A8%E7%BD%B2%E6%96%B9%E6%A1%88/"/>
+    <id>http://jishusuishouji.github.io/2017/04/06/activemq/ActiveMQ实现负载均衡_高可用部署方案/</id>
+    <published>2017-04-05T22:29:04.000Z</published>
+    <updated>2017-04-05T22:38:29.304Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="一、架构和技术介绍"><a href="#一、架构和技术介绍" class="headerlink" title="一、架构和技术介绍"></a>一、架构和技术介绍</h2><h3 id="1、简介"><a href="#1、简介" class="headerlink" title="1、简介"></a>1、简介</h3><p>ActiveMQ完全支持JMS1.1和J2EE 1.4规范的JMS Provider实现。</p>
+<h3 id="2、activemq的特性"><a href="#2、activemq的特性" class="headerlink" title="2、activemq的特性"></a>2、activemq的特性</h3><ol>
+<li>多种语言和协议编写客户端。语言: Java, C, C++, C#, Ruby, Perl, Python,PHP。应用协议: OpenWire,Stomp REST,WS Notification,XMPP,AMQP</li>
+<li>完全支持JMS1.1和J2EE 1.4规范 (持久化,XA消息,事务)</li>
+<li>对Spring的支持,ActiveMQ可以很容易内嵌到使用Spring的系统里面去,而且也支持Spring2.0的特性</li>
+<li>通过了常见J2EE服务器(如 Geronimo,JBoss 4, GlassFish,WebLogic)的测试,其中通过JCA 1.5 resourceadaptors的配置,可以让ActiveMQ可以自动地部署到任何兼容J2EE1.4商业服务器上</li>
+<li>支持多种传送协议:in-VM,TCP,SSL,NIO,UDP,JGroups,JXTA</li>
+<li>支持通过JDBC和journal提供高速的消息持久化</li>
+<li>从设计上保证了高性能的集群,客户端-服务器,点对点</li>
+<li>支持Ajax</li>
+<li>支持与Axis的整合</li>
+<li>可以很容易得调用内嵌JMS provider,进行测试</li>
+</ol>
+<h3 id="3、下载和安装ActiveMQ"><a href="#3、下载和安装ActiveMQ" class="headerlink" title="3、下载和安装ActiveMQ"></a>3、下载和安装ActiveMQ</h3><h4 id="1、下载"><a href="#1、下载" class="headerlink" title="1、下载"></a>1、下载</h4><h4 id="2、安装"><a href="#2、安装" class="headerlink" title="2、安装"></a>2、安装</h4><p>如果是在windows系统中运行，可以直接解压apache-activemq-5.9.0-bin.zip，并运行bin目录下的activemq.bat文件，此时使用的是默认的服务端口：61616和默认的console端口：8161。</p>
+<p>如果是在linux或unix下运行，在bin目录下执行命令：<code>./activemq setup</code></p>
+<h4 id="3、修改ActiveMQ的服务端口和console端口"><a href="#3、修改ActiveMQ的服务端口和console端口" class="headerlink" title="3、修改ActiveMQ的服务端口和console端口"></a>3、修改ActiveMQ的服务端口和console端口</h4><p>A、修改服务端口：打开<code>conf/activemq.xml</code>文件<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"> &lt;transportConnectors&gt;</div><div class="line">    &lt;transportConnector name=&quot;openwire&quot; uri=&quot;tcp://10.42.220.72:61618&quot;discoveryUri=&quot;multicast://default&quot;/&gt;</div><div class="line">&lt;/transportConnectors&gt;</div></pre></td></tr></table></figure></p>
+<p>B、修改console的地址和端口:打开<code>conf/jetty.xml</code>文件<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">   &lt;bean id=&quot;jettyPort&quot;class=&quot;org.apache.activemq.web.WebConsolePort&quot;init-method=&quot;start&quot;&gt;</div><div class="line">      &lt;property name=&quot;port&quot; value=&quot;8162&quot;/&gt;</div><div class="line">&lt;/bean&gt;</div></pre></td></tr></table></figure></p>
+<h4 id="4、通过客户端代码试用ActiveMQ"><a href="#4、通过客户端代码试用ActiveMQ" class="headerlink" title="4、通过客户端代码试用ActiveMQ"></a>4、通过客户端代码试用ActiveMQ</h4><p>需要提前将activemq解压包中的lib目录下的相关包引入到工程中，再进行如下编码：</p>
+<h5 id="1、发送端的代码："><a href="#1、发送端的代码：" class="headerlink" title="1、发送端的代码："></a>1、发送端的代码：</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div></pre></td><td class="code"><pre><div class="line">importjavax.jms.Connection;</div><div class="line">importjavax.jms.ConnectionFactory;</div><div class="line">importjavax.jms.DeliveryMode;</div><div class="line">importjavax.jms.Destination;</div><div class="line">importjavax.jms.MessageProducer;</div><div class="line">importjavax.jms.Session;</div><div class="line">importjavax.jms.TextMessage;</div><div class="line">importorg.apache.activemq.ActiveMQConnection;</div><div class="line">importorg.apache.activemq.ActiveMQConnectionFactory;</div><div class="line"></div><div class="line">publicclass Sender &#123;</div><div class="line">    private static finalint SEND_NUMBER = 5;</div><div class="line"></div><div class="line">    publicstaticvoid main(String[] args) &#123;</div><div class="line">        // ConnectionFactory：连接工厂，JMS用它创建连接</div><div class="line">        ConnectionFactory connectionFactory;</div><div class="line">        // Connection：JMS客户端到JMS Provider的连接</div><div class="line">        Connection connection = null;</div><div class="line">        // Session：一个发送或接收消息的线程</div><div class="line">        Session session;</div><div class="line">        // Destination：消息的目的地;消息发送给谁.</div><div class="line">        Destination destination;</div><div class="line">        // MessageProducer：消息发送者</div><div class="line">        MessageProducer producer;</div><div class="line">        TextMessage message;</div><div class="line">    </div><div class="line">        //构造ConnectionFactory实例对象，此处采用ActiveMq的实现jar</div><div class="line">        connectionFactory = new ActiveMQConnectionFactory(</div><div class="line">                ActiveMQConnection.DEFAULT_USER,</div><div class="line">                ActiveMQConnection.DEFAULT_PASSWORD,</div><div class="line">                &quot;failover:(tcp://10.42.220.72:61617,tcp://10.42.220.72:61618)&quot;);</div><div class="line">        try &#123;</div><div class="line">            //构造从工厂得到连接对象</div><div class="line">            connection =connectionFactory.createConnection();</div><div class="line">            //启动</div><div class="line">            connection.start();</div><div class="line">            //获取操作连接</div><div class="line">            session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);</div><div class="line">            //获取session</div><div class="line">            destination = session.createQueue(&quot;FirstQueue&quot;);</div><div class="line">            //得到消息生成者【发送者】</div><div class="line">            producer =session.createProducer(destination);</div><div class="line">            //设置不持久化，此处学习，实际根据项目决定</div><div class="line">            producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);</div><div class="line">            //构造消息，此处写死，项目就是参数，或者方法获取</div><div class="line">            sendMessage(session, producer);</div><div class="line">            session.commit();</div><div class="line">        &#125; catch (Exception e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125; finally &#123;</div><div class="line">            try &#123;</div><div class="line">                if (null != connection)</div><div class="line">                    connection.close();</div><div class="line">            &#125; catch (Throwable ignore) &#123;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">    publicstaticvoid sendMessage(Session session,MessageProducer producer)</div><div class="line">            throws Exception &#123;</div><div class="line">        for (int i = 1; i &lt;=SEND_NUMBER; i++) &#123;</div><div class="line">            TextMessage message = session</div><div class="line">                    .createTextMessage(&quot;ActiveMq发送的消息&quot; + i);</div><div class="line">            //发送消息到目的地方</div><div class="line">            System.out.println(&quot;发送消息：&quot; + &quot;ActiveMq 发送的消息&quot; + i);</div><div class="line">            producer.send(message);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="2、接收端代码："><a href="#2、接收端代码：" class="headerlink" title="2、接收端代码："></a>2、接收端代码：</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div></pre></td><td class="code"><pre><div class="line">importjavax.jms.Connection;</div><div class="line">importjavax.jms.ConnectionFactory;</div><div class="line">importjavax.jms.Destination;</div><div class="line">importjavax.jms.MessageConsumer;</div><div class="line">importjavax.jms.Session;</div><div class="line">importjavax.jms.TextMessage;</div><div class="line">importorg.apache.activemq.ActiveMQConnection;</div><div class="line">importorg.apache.activemq.ActiveMQConnectionFactory;</div><div class="line"> </div><div class="line"></div><div class="line">publicclass Receive &#123;</div><div class="line">    publicstaticvoid main(String[] args) &#123;</div><div class="line">        // ConnectionFactory：连接工厂，JMS用它创建连接</div><div class="line">        ConnectionFactory connectionFactory;</div><div class="line">        // Connection：JMS客户端到JMS Provider的连接</div><div class="line">        Connection connection = null;</div><div class="line">        // Session：一个发送或接收消息的线程</div><div class="line">        Session session;</div><div class="line">        // Destination：消息的目的地;消息发送给谁.</div><div class="line">        Destination destination;</div><div class="line">        //消费者，消息接收者</div><div class="line">        MessageConsumer consumer;</div><div class="line">        connectionFactory = new ActiveMQConnectionFactory(</div><div class="line">                ActiveMQConnection.DEFAULT_USER,</div><div class="line">                ActiveMQConnection.DEFAULT_PASSWORD,</div><div class="line">                &quot;failover:(tcp://10.42.220.72:61617,tcp://10.42.220.72:61618)&quot;);</div><div class="line"></div><div class="line">        try &#123;</div><div class="line">            //构造从工厂得到连接对象</div><div class="line">            connection =connectionFactory.createConnection();</div><div class="line">            //启动</div><div class="line">            connection.start();</div><div class="line">            //获取操作连接</div><div class="line">            session = connection.createSession(false,</div><div class="line">                    Session.AUTO_ACKNOWLEDGE);</div><div class="line">            //获取session</div><div class="line">            destination = session.createQueue(&quot;FirstQueue&quot;);</div><div class="line">            consumer =session.createConsumer(destination);</div><div class="line">            while (true) &#123;</div><div class="line">                //设置接收者接收消息的时间，为了便于测试，这里谁定为100s</div><div class="line">                TextMessage message =(TextMessage) consumer.receive(100000);</div><div class="line">                if (null != message) &#123;</div><div class="line">                    System.out.println(&quot;收到消息&quot; + message.getText());</div><div class="line">                &#125; else &#123;</div><div class="line">                    break;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125; catch (Exception e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125; finally &#123;</div><div class="line">            try &#123;</div><div class="line">                if (null != connection)</div><div class="line">                    connection.close();</div><div class="line">            &#125; catch (Throwable ignore) &#123;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h5 id="3、通过监控查看消息堆栈的记录："><a href="#3、通过监控查看消息堆栈的记录：" class="headerlink" title="3、通过监控查看消息堆栈的记录："></a>3、通过监控查看消息堆栈的记录：</h5><p>登陆<code>http://localhost:8162/admin/queues.jsp</code>，默认的用户名和密码：<code>admin/admin</code></p>
+<h2 id="二、ActiveMQ的多种部署方式"><a href="#二、ActiveMQ的多种部署方式" class="headerlink" title="二、ActiveMQ的多种部署方式"></a>二、ActiveMQ的多种部署方式</h2><pre><code>单点的ActiveMQ作为企业应用无法满足高可用和集群的需求，所以ActiveMQ提供了master-slave、broker cluster等多种部署方式，但通过分析多种部署方式之后我认为需要将两种部署方式相结合才能满足我们公司分布式和高可用的需求，所以后面就重点将解如何将两种部署方式相结合。
+</code></pre><p>1、Master-Slave部署方式</p>
+<p>1）shared filesystem Master-Slave部署方式</p>
+<pre><code>主要是通过共享存储目录来实现master和slave的热备，所有的ActiveMQ应用都在不断地获取共享目录的控制权，哪个应用抢到了控制权，它就成为master。
+
+多个共享存储目录的应用，谁先启动，谁就可以最早取得共享目录的控制权成为master，其他的应用就只能作为slave。
+</code></pre><p>p2.png</p>
+<p>2）shared database Master-Slave方式</p>
+<pre><code>与shared filesystem方式类似，只是共享的存储介质由文件系统改成了数据库而已。
+</code></pre><p>3）Replicated LevelDB Store方式</p>
+<pre><code>这种主备方式是ActiveMQ5.9以后才新增的特性，使用ZooKeeper协调选择一个node作为master。被选择的master broker node开启并接受客户端连接。
+</code></pre><p>其他node转入slave模式，连接master并同步他们的存储状态。slave不接受客户端连接。所有的存储操作都将被复制到连接至Master的slaves。</p>
+<p>如果master死了，得到了最新更新的slave被允许成为master。fialed node能够重新加入到网络中并连接master进入slave mode。所有需要同步的disk的消息操作都将等待存储状态被复制到其他法定节点的操作完成才能完成。所以，如果你配置了replicas=3，那么法定大小是(3/2)+1=2. Master将会存储并更新然后等待 (2-1)=1个slave存储和更新完成，才汇报success。至于为什么是2-1，熟悉Zookeeper的应该知道，有一个node要作为观擦者存在。</p>
+<p>单一个新的master被选中，你需要至少保障一个法定node在线以能够找到拥有最新状态的node。这个node将会成为新的master。因此，推荐运行至少3个replica nodes，以防止一个node失败了，服务中断。</p>
+<p>p3.png</p>
+<p>2、Broker-Cluster部署方式</p>
+<pre><code>前面的Master-Slave的方式虽然能解决多服务热备的高可用问题，但无法解决负载均衡和分布式的问题。Broker-Cluster的部署方式就可以解决负载均衡的问题。
+
+Broker-Cluster部署方式中，各个broker通过网络互相连接，并共享queue。当broker-A上面指定的queue-A中接收到一个message处于pending状态，而此时没有consumer连接broker-A时。如果cluster中的broker-B上面由一个consumer在消费queue-A的消息，那么broker-B会先通过内部网络获取到broker-A上面的message，并通知自己的consumer来消费。
+</code></pre><p>1）static Broker-Cluster部署</p>
+<pre><code>在activemq.xml文件中静态指定Broker需要建立桥连接的其他Broker：
+</code></pre><p>1、  首先在Broker-A节点中添加networkConnector节点：</p>
+<networkconnectors><br><br>                <networkconnector uri="static:(tcp:// 0.0.0.0:61617)" duplex="false"><br><br></networkconnector></networkconnectors>
+
+<p>2、  修改Broker-A节点中的服务提供端口为61616：</p>
+<transportconnectors><br><br>         <a href="transportConnectorname=&quot;openwire&quot;uri=&quot;tcp://0.0.0.0:61616?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600&quot;/">transportConnectorname=&quot;openwire&quot;uri=&quot;tcp://0.0.0.0:61616?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600&quot;/</a><br><br></transportconnectors>
+
+<p>3、  在Broker-B节点中添加networkConnector节点：</p>
+<networkconnectors><br><br>                <networkconnector uri="static:(tcp:// 0.0.0.0:61616)" duplex="false"><br><br></networkconnector></networkconnectors>
+
+<p>4、  修改Broker-A节点中的服务提供端口为61617：</p>
+<transportconnectors><br><br>         <a href="transportConnectorname=&quot;openwire&quot;uri=&quot;tcp://0.0.0.0:61617?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600&quot;/">transportConnectorname=&quot;openwire&quot;uri=&quot;tcp://0.0.0.0:61617?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600&quot;/</a><br><br></transportconnectors>
+
+<p>5、分别启动Broker-A和Broker-B。</p>
+<p>2）Dynamic Broker-Cluster部署</p>
+<pre><code>在activemq.xml文件中不直接指定Broker需要建立桥连接的其他Broker，由activemq在启动后动态查找：
+</code></pre><p>1、  首先在Broker-A节点中添加networkConnector节点：</p>
+<networkconnectors><br><br>                <networkconnectoruri="multicast: default"="" dynamiconly="true" networkttl="3" prefetchsize="1" decreasenetworkconsumerpriority="true"><br><br></networkconnectoruri="multicast:></networkconnectors>
+
+<p>2、修改Broker-A节点中的服务提供端口为61616：</p>
+<transportconnectors><br><br>         <transportconnectorname="openwire"uri="tcp: 0.0.0.0:61616?="" "="" discoveryuri="multicast://default"><br><br></transportconnectorname="openwire"uri="tcp:></transportconnectors>
+
+<p>3、在Broker-B节点中添加networkConnector节点：</p>
+<networkconnectors><br><br>                <networkconnectoruri="multicast: default"="" dynamiconly="true" networkttl="3" prefetchsize="1" decreasenetworkconsumerpriority="true"><br><br></networkconnectoruri="multicast:></networkconnectors>
+
+<p>4、修改Broker-B节点中的服务提供端口为61617：</p>
+<transportconnectors><br><br>         <transportconnectorname="openwire"uri="tcp: 0.0.0.0:61617"="" discoveryuri="multicast://default"><br><br></transportconnectorname="openwire"uri="tcp:></transportconnectors>
+
+<p>5、启动Broker-A和Broker-B</p>
+<p>2、Master-Slave与Broker-Cluster相结合的部署方式</p>
+<pre><code>可以看到Master-Slave的部署方式虽然解决了高可用的问题，但不支持负载均衡，Broker-Cluster解决了负载均衡，但当其中一个Broker突然宕掉的话，那么存在于该Broker上处于Pending状态的message将会丢失，无法达到高可用的目的。
+
+由于目前ActiveMQ官网上并没有一个明确的将两种部署方式相结合的部署方案，所以我尝试者把两者结合起来部署：
+
+p4.png
+</code></pre><p>1、部署的配置修改</p>
+<pre><code>这里以Broker-A + Broker-B建立cluster，Broker-C作为Broker-B的slave为例：
+</code></pre><p>1）首先在Broker-A节点中添加networkConnector节点：</p>
+<networkconnectors><br><br>                <networkconnector uri="masterslave:(tcp://0.0.0.0:61617,tcp:// 0.0.0.0:61618)" duplex="false"><br><br></networkconnector></networkconnectors>
+
+<p>2）修改Broker-A节点中的服务提供端口为61616：</p>
+<transportconnectors><br><br>         <a href="transportConnectorname=&quot;openwire&quot;uri=&quot;tcp://0.0.0.0:61616?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600&quot;/">transportConnectorname=&quot;openwire&quot;uri=&quot;tcp://0.0.0.0:61616?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600&quot;/</a><br><br></transportconnectors>
+
+<p>3）在Broker-B节点中添加networkConnector节点：</p>
+<networkconnectors><br><br>                <networkconnector uri="static:(tcp:// 0.0.0.0:61616)" duplex="false"><br><br></networkconnector></networkconnectors>
+
+<p>4）修改Broker-B节点中的服务提供端口为61617：</p>
+<transportconnectors><br><br>         <a href="transportConnectorname=&quot;openwire&quot;uri=&quot;tcp://0.0.0.0:61617?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600&quot;/">transportConnectorname=&quot;openwire&quot;uri=&quot;tcp://0.0.0.0:61617?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600&quot;/</a><br><br></transportconnectors>
+
+<p>5）修改Broker-B节点中的持久化方式：</p>
+<pre><code>&lt;persistenceAdapter&gt;
+
+     &lt;kahaDB directory=&quot;/localhost/kahadb&quot;/&gt;
+
+  &lt;/persistenceAdapter&gt;
+</code></pre><p>6）在Broker-C节点中添加networkConnector节点：</p>
+<networkconnectors><br><br>                <networkconnector uri="static:(tcp:// 0.0.0.0:61616)" duplex="false"><br><br></networkconnector></networkconnectors>
+
+<p>7）修改Broker-C节点中的服务提供端口为61618：</p>
+<transportconnectors><br><br>         <a href="transportConnectorname=&quot;openwire&quot;uri=&quot;tcp://0.0.0.0:61618?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600&quot;/">transportConnectorname=&quot;openwire&quot;uri=&quot;tcp://0.0.0.0:61618?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600&quot;/</a><br><br></transportconnectors>
+
+<p>8）修改Broker-B节点中的持久化方式：</p>
+<pre><code>&lt;persistenceAdapter&gt;
+
+     &lt;kahaDB directory=&quot;/localhost/kahadb&quot;/&gt;
+
+ &lt;/persistenceAdapter&gt;
+</code></pre><p>9）分别启动broker-A、broker-B、broker-C，因为是broker-B先启动，所以“/localhost/kahadb”目录被lock住，broker-C将一直处于挂起状态，当人为停掉broker-B之后，broker-C将获取目录“/localhost/kahadb”的控制权，重新与broker-A组成cluster提供服务。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      ActiveMQ实现负载均衡+高可用部署方案
+    
+    </summary>
+    
+      <category term="java" scheme="http://jishusuishouji.github.io/categories/java/"/>
+    
+      <category term="JMS" scheme="http://jishusuishouji.github.io/categories/java/JMS/"/>
+    
+      <category term="ActiveMQ" scheme="http://jishusuishouji.github.io/categories/java/JMS/ActiveMQ/"/>
+    
+    
+      <category term="java" scheme="http://jishusuishouji.github.io/tags/java/"/>
+    
+      <category term="ActiveMQ" scheme="http://jishusuishouji.github.io/tags/ActiveMQ/"/>
+    
+  </entry>
   
   <entry>
     <title>ActiveMQ理解</title>
@@ -2296,22 +2433,6 @@ try {
     
     
       <category term="ORM" scheme="http://jishusuishouji.github.io/tags/ORM/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>maven 多模块项目</title>
-    <link href="http://jishusuishouji.github.io/2017/03/27/maven/maven_%E5%A4%9A%E6%A8%A1%E5%9D%97%E9%A1%B9%E7%9B%AE/"/>
-    <id>http://jishusuishouji.github.io/2017/03/27/maven/maven_多模块项目/</id>
-    <published>2017-03-27T02:16:27.000Z</published>
-    <updated>2017-03-27T02:16:27.306Z</updated>
-    
-    <summary type="html">
-    
-      maven 多模块项目
-    
-    </summary>
-    
     
   </entry>
   
