@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://jishusuishouji.github.io/"/>
-  <updated>2017-04-05T20:02:46.211Z</updated>
+  <updated>2017-04-05T20:06:46.810Z</updated>
   <id>http://jishusuishouji.github.io/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://jishusuishouji.github.io/2017/04/05/activemq/ActiveMQ_%E5%88%9D%E6%AD%A5%E5%85%A5%E9%97%A8%E5%8F%8A%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5%E7%90%86%E8%A7%A3/"/>
     <id>http://jishusuishouji.github.io/2017/04/05/activemq/ActiveMQ_初步入门及相关概念理解/</id>
     <published>2017-04-05T05:45:24.000Z</published>
-    <updated>2017-04-05T20:02:46.211Z</updated>
+    <updated>2017-04-05T20:06:46.810Z</updated>
     
     <content type="html"><![CDATA[<h2 id="JMS"><a href="#JMS" class="headerlink" title="JMS"></a>JMS</h2><h3 id="JMS的基本构件"><a href="#JMS的基本构件" class="headerlink" title="JMS的基本构件"></a>JMS的基本构件</h3><h4 id="连接工厂"><a href="#连接工厂" class="headerlink" title="连接工厂"></a>连接工厂</h4><p>连接工厂是客户用来创建连接的对象，例如ActiveMQ提供的<code>ActiveMQConnectionFactory</code>。 </p>
 <h4 id="连接"><a href="#连接" class="headerlink" title="连接"></a>连接</h4><p>JMS <code>Connection</code>封装了客户与JMS提供者之间的一个虚拟的连接。 </p>
@@ -41,7 +41,29 @@
 <h4 id="临时目的地"><a href="#临时目的地" class="headerlink" title="临时目的地"></a>临时目的地</h4><p>可以通过会话上的<code>createTemporaryQueue</code>方法和<code>createTemporaryTopic</code>方法来创建临时目的地。它们的存在时间只限于创建它们的连接所保持的时间。只有创建该临时目的地的连接上的消息消费者才能够从临时目的地中提取消息。 </p>
 <h4 id="持久订阅"><a href="#持久订阅" class="headerlink" title="持久订阅"></a>持久订阅</h4><p>首先消息生产者必须使用<code>PERSISTENT</code>提交消息。客户可以通过会话上的<code>createDurableSubscriber</code>方法来创建一个持久订阅，该方法的第一个参数必须是一个<code>topic</code>。第二个参数是订阅的名称。<br>JMS provider会存储发布到持久订阅对应的topic上的消息。如果最初创建持久订阅的客户或者任何其它客户使用相同的连接工厂和连接的客户ID、相同的主题和相同的订阅名再次调用会话上的<code>createDurableSubscriber</code>方法，那么该持久订阅就会被激活。JMS provider会向客户发送客户处于非激活状态时所发布的消息。<br><strong>持久订阅在某个时刻只能有一个激活的订阅者。</strong>持久订阅在创建之后会一直保留，直到应用程序调用会话上的<code>unsubscribe</code>方法。 </p>
 <h4 id="本地事务"><a href="#本地事务" class="headerlink" title="本地事务"></a>本地事务</h4><p>在一个JMS客户端，可以使用本地事务来组合消息的发送和接收。JMS Session接口提供了<code>commit</code>和<code>rollback</code>方法。<br>事务提交意味着生产的所有消息被发送，消费的所有消息被确认；事务回滚意味着生产的所有消息被销毁，消费的所有消息被恢复并重新提交，除非它们已经过期。<br>需要注意的是，如果使用请求/回复机制，即发送一个消息，同时希望在同一个事务中等待接收该消息的回复，那么程序将被挂起，因为直到事务提交，发送操作才会真正执行。<br>所以，消息的生产和消费不能包含在同一个事务中。 </p>
-<h2 id="JMS-规范的变迁"><a href="#JMS-规范的变迁" class="headerlink" title="JMS 规范的变迁"></a>JMS 规范的变迁</h2><p>JMS的最新版本的是1.1。它和同1.0.2版本之间最大的差别是，JMS1.1通过统一的消息传递域简化了消息传递。这不仅简化了JMS API，也有利于开发人员灵活选择消息传递域，同时也有助于程序的重用和维护。<br>以下是不同消息传递域的相应接口：<br>JMS 公共 点对点域 发布/订阅域<br>ConnectionFactory QueueConnectionFactory TopicConnectionFactory<br>Connection QueueConnection TopicConnection<br>Destination Queue Topic<br>Session QueueSession TopicSession<br>MessageProducer QueueSender TopicPublisher<br>MessageConsumer QueueReceiver TopicSubscriber </p>
+<h2 id="JMS-规范的变迁"><a href="#JMS-规范的变迁" class="headerlink" title="JMS 规范的变迁"></a>JMS 规范的变迁</h2><p>JMS最新版本是1.1。它和1.0.2版本最大的差别是，JMS1.1通过统一消息传递域简化了消息传递。这不仅简化了JMS API，也有利于开发人员灵活选择消息传递域，同时也有助于程序的重用和维护。<br>以下是不同消息传递域的相应接口： </p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">JMS公共</th>
+<th style="text-align:center">点对点域</th>
+<th style="text-align:center">发布/订阅域</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><code>ConnectionFactory</code></td>
+<td style="text-align:center"><code>QueueConnectionFactory</code></td>
+<td style="text-align:center"><code>TopicConnectionFactory</code></td>
+</tr>
+<tr>
+<td style="text-align:center"><code>Connection</code></td>
+<td style="text-align:center"><code>QueueConnection</code></td>
+<td style="text-align:center"><code>TopicConnection</code></td>
+</tr>
+</tbody>
+</table>
+<p>Destination Queue Topic<br>Session QueueSession TopicSession<br>MessageProducer QueueSender TopicPublisher<br>MessageConsumer QueueReceiver TopicSubscriber </p>
 <p>2 ActiveMQ<br>2．1 Broker<br>2．1．1 Running Broker<br>ActiveMQ5.0 的二进制发布包中bin目录中包含一个名为activemq的脚本，直接运行这个脚本就可以启动一个broker。<br>此外也可以通过Broker Configuration URI或Broker XBean URI对broker进行配置，以下是一些命令行参数的例子：<br>Example Description<br>activemq Runs a broker using the default ‘xbean:activemq.xml’ as the broker configuration file.<br>activemq xbean:myconfig.xml Runs a broker using the file myconfig.xml as the broker configuration file that is located in the classpath.<br>activemq xbean:file:./conf/broker1.xml Runs a broker using the file broker1.xml as the broker configuration file that is located in the relative file path ./conf/broker1.xml<br>activemq xbean:file:C:/ActiveMQ/conf/broker2.xml Runs a broker using the file broker2.xml as the broker configuration file that is located in the absolute file path C:/ActiveMQ/conf/broker2.xml<br>activemq broker:(tcp://localhost:61616, tcp://localhost:5000)?useJmx=true Runs a broker with two transport connectors and JMX enabled.<br>activemq broker:(tcp://localhost:61616, network:tcp://localhost:5000)?persistent=false Runs a broker with 1 transport connector and 1 network connector with persistence disabled. </p>
 <p>2．1．2 Embedded Broker<br>可以通过在应用程序中以编码的方式启动broker，例如：<br>Java代码 </p>
 <ol>
