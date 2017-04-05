@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://jishusuishouji.github.io/"/>
-  <updated>2017-04-05T04:31:42.668Z</updated>
+  <updated>2017-04-05T04:34:31.275Z</updated>
   <id>http://jishusuishouji.github.io/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://jishusuishouji.github.io/2017/04/05/activemq/activemq%E7%9A%84%E5%87%A0%E7%A7%8D%E5%9F%BA%E6%9C%AC%E9%80%9A%E4%BF%A1%E6%96%B9%E5%BC%8F%E6%80%BB%E7%BB%93/"/>
     <id>http://jishusuishouji.github.io/2017/04/05/activemq/activemq的几种基本通信方式总结/</id>
     <published>2017-04-05T03:09:12.000Z</published>
-    <updated>2017-04-05T04:31:42.668Z</updated>
+    <updated>2017-04-05T04:34:31.275Z</updated>
     
     <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>在应用系统集成中，面向消息队列的集成方案是一个总体比较合理的选择。<br>activemq是JMS消息通信规范的一个实现。消息通信模式主要有发布-订阅、点对点。</p>
 <h2 id="基础流程"><a href="#基础流程" class="headerlink" title="基础流程"></a>基础流程</h2><p>activemq启动服务的过程:</p>
@@ -357,11 +357,10 @@ private void setupMessageQueueConsumer() {
         //Handle the exception appropriately  
     }  
 }
-</code></pre><p>总体来说，整个的交互过程并不复杂，只是比较繁琐。对于请求/应答的方式来说，这种典型交互的过程就是Client端在设定正常发送请求的Queue同时也设定一个临时的Queue。同时在要发送的message里头指定要返回消息的destination以及CorelationID，这些就好比是一封信里面所带的回执。根据这个信息人家才知道怎么给你回信。对于Server端来说则要额外创建一个producer，在处理接收到消息的方法里再利用producer将消息发回去。这一系列的过程看起来很像http协议里面请求-应答的方式，都是一问一答。<br>一些应用和改进</p>
-<pre><code>回顾前面三种基本的通信方式，我们会发现，他们都存在着一定的共同点，比如说都要初始化ConnectionFactory, Connection, Session等。在使用完之后都要将这些资源关闭。如果每一个实现它的通信端都这么写一通的话，其实是一种简单的重复。从工程的角度来看是完全没有必要的。那么，我们有什么办法可以减少这种重复呢？
-一种简单的方式就是通过工厂方法封装这些对象的创建和销毁，然后简单的通过调用工厂方法的方式得到他们。另外，既然基本的流程都是在开头创建资源在结尾销毁，我们也可以采用Template Method模式的思路。通过继承一个抽象类，在抽象类里提供了资源的封装。所有继承的类只要实现怎么去使用这些资源的方法就可以了。Spring中间的JMSTemplate就提供了这种类似思想的封装。具体的实现可以参考这篇文章。
-</code></pre><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><pre><code>activemq默认提供了pub-sub, p2p这两种通信的方式。同时也提供了一些对request-response方式的支持。实际上，不仅仅是activemq，对于所有其他实现JMS规范的产品都能够提供类似的功能。这里每种方式都不太复杂，主要是创建和管理资源的步骤显得比较繁琐。
-</code></pre>]]></content>
+</code></pre><p>对于请求/应答的方式来说，这种典型交互的过程就是Client端在设定正常发送请求的Queue同时也设定一个临时的Queue。同时在要发送的message里头指定要返回消息的destination以及CorelationID，这些就好比是一封信里面所带的回执。根据这个信息人家才知道怎么给你回信。对于Server端来说则要额外创建一个producer，在处理接收到消息的方法里再利用producer将消息发回去。这一系列的过程看起来很像http协议里面请求-应答的方式，都是一问一答。</p>
+<h2 id="一些应用和改进"><a href="#一些应用和改进" class="headerlink" title="一些应用和改进"></a>一些应用和改进</h2><p>回顾前面三种基本的通信方式，发现它们都存在着一定的共同点，比如说都要初始化<code>ConnectionFactory</code>, <code>Connection</code>, <code>Session</code>等。在使用完之后都要将这些资源关闭。如果每一个实现它的通信端都这么写一通的话，其实是一种简单的重复。从工程的角度来看是完全没有必要的。</p>
+<h3 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h3><p>通过工厂方法封装这些对象的创建和销毁，然后简单的通过调用工厂方法的方式得到它们。<br>既然基本的流程都是在开头创建资源在结尾销毁，也可以采用Template Method模式的思路。通过继承一个抽象类，在抽象类里提供了资源的封装。所有继承的类只要实现怎么去使用这些资源的方法就可以了。</p>
+]]></content>
     
     <summary type="html">
     
