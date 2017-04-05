@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="spring,java," />
+  <meta name="keywords" content="JMS," />
 
 
 
@@ -89,16 +89,19 @@
 
 
 
-<meta name="description" content="是该抛弃Spring HibernateTemplate的时候了">
+<meta name="description" content="深入浅出JMS(一)--JMS基本概念">
 <meta property="og:type" content="article">
-<meta property="og:title" content="是该抛弃Spring HibernateTemplate的时候了">
-<meta property="og:url" content="http://jishusuishouji.github.io/2017/01/09/java/spring/是该抛弃Spring_HibernateTemplate的时候了/index.html">
+<meta property="og:title" content="深入浅出JMS(一)--JMS基本概念">
+<meta property="og:url" content="http://jishusuishouji.github.io/2017/04/05/activemq/深入浅出JMS_一_--JMS基本概念/index.html">
 <meta property="og:site_name" content="技术随手记">
-<meta property="og:description" content="是该抛弃Spring HibernateTemplate的时候了">
-<meta property="og:updated_time" content="2017-01-09T14:34:52.368Z">
+<meta property="og:description" content="深入浅出JMS(一)--JMS基本概念">
+<meta property="og:image" content="http://jishusuishouji.github.io/img/JMS P2P模式">
+<meta property="og:image" content="http://jishusuishouji.github.io/img/Pub Sub模式图">
+<meta property="og:updated_time" content="2017-04-05T05:28:03.286Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="是该抛弃Spring HibernateTemplate的时候了">
-<meta name="twitter:description" content="是该抛弃Spring HibernateTemplate的时候了">
+<meta name="twitter:title" content="深入浅出JMS(一)--JMS基本概念">
+<meta name="twitter:description" content="深入浅出JMS(一)--JMS基本概念">
+<meta name="twitter:image" content="http://jishusuishouji.github.io/img/JMS P2P模式">
 
 
 
@@ -126,13 +129,13 @@
 
 
 
-  <link rel="canonical" href="http://jishusuishouji.github.io/2017/01/09/java/spring/是该抛弃Spring_HibernateTemplate的时候了/"/>
+  <link rel="canonical" href="http://jishusuishouji.github.io/2017/04/05/activemq/深入浅出JMS_一_--JMS基本概念/"/>
 
 
 
 
 
-  <title> 是该抛弃Spring HibernateTemplate的时候了 | 技术随手记 </title>
+  <title> 深入浅出JMS(一)--JMS基本概念 | 技术随手记 </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -271,7 +274,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://jishusuishouji.github.io/2017/01/09/java/spring/是该抛弃Spring_HibernateTemplate的时候了/">
+    <link itemprop="mainEntityOfPage" href="http://jishusuishouji.github.io/2017/04/05/activemq/深入浅出JMS_一_--JMS基本概念/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="技术随手记">
@@ -292,7 +295,7 @@
             
             
               
-                是该抛弃Spring HibernateTemplate的时候了
+                深入浅出JMS(一)--JMS基本概念
               
             
           </h2>
@@ -307,8 +310,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-01-09T22:26:48+08:00">
-                2017-01-09
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-05T13:15:49+08:00">
+                2017-04-05
               </time>
             
 
@@ -337,6 +340,17 @@
 
                 
                 
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/JMS/" itemprop="url" rel="index">
+                    <span itemprop="name">JMS</span>
+                  </a>
+                </span>
+
+                
+                
               
             </span>
           
@@ -349,8 +363,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2017/01/09/java/spring/是该抛弃Spring_HibernateTemplate的时候了/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count hc-comment-count" data-xid="2017/01/09/java/spring/是该抛弃Spring_HibernateTemplate的时候了/" itemprop="commentsCount"></span>
+                <a href="/2017/04/05/activemq/深入浅出JMS_一_--JMS基本概念/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count hc-comment-count" data-xid="2017/04/05/activemq/深入浅出JMS_一_--JMS基本概念/" itemprop="commentsCount"></span>
                 </a>
               </span>
               <!--/noindex-->
@@ -366,7 +380,7 @@
 
           
               <div class="post-description">
-                  是该抛弃Spring HibernateTemplate的时候了
+                  深入浅出JMS(一)--JMS基本概念
               </div>
           
 
@@ -381,11 +395,62 @@
       
 
       
-        <p>在spring2.0之前，我们在使用hibernate和spring的时候，都会被<code>HibernateTemplate</code>为我们提供benefits（资源和事务管理以及把那个“丑陋”的checked exception转换为runtime exception-DataAccessException ）而折服，在项目中不由自主、不假思索地使用它和那个经典的callback方法。而如今，hibernate3.0.1+ 、spring 2.0+版本以后，我们可以在数据访问层直接使用hinberate的session API(例如<code>SessionFactory.getCurrentSession</code>)，不并担心session和transaction management。至于error handling可以通过spring的@Repository annotation和post processor-PersistenceExceptionTranslationPostProcessor来解决。让我们来看一些代码片段：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">&lt;bean id=&quot;sessionFactory&quot; class=&quot;org.springframework.orm.hibernate3.  </div><div class="line">LocalSessionFactoryBean&quot;&gt;  </div><div class="line">&lt;!-- the properties setting--&gt;  </div><div class="line">&lt;/bean&gt;  </div><div class="line">   </div><div class="line">&lt;bean id=&quot;accountRepo&quot; class=&quot;com.mycompany.HibernateAccountRepository&quot;&gt;  </div><div class="line">    &lt;constructor-arg ref=&quot;sessionFactory&quot;&gt;&lt;/constructor-arg&gt;  </div><div class="line">&lt;/bean&gt;  </div><div class="line">&lt;bean class=&quot;org.springframework.dao.annotation. PersistenceExceptionTranslationPostProcessor&quot;/&gt;</div></pre></td></tr></table></figure></p>
-<p>数据访问层代码片段：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">@Repository  </div><div class="line">public class HibernateAccountRepository implements AccountRepository &#123;  </div><div class="line">   </div><div class="line">    private SessionFactory factory;  </div><div class="line">   </div><div class="line">    public HibernateAccountRepository(SessionFactory factory) &#123;  </div><div class="line">        this.factory = factory;  </div><div class="line">    &#125;  </div><div class="line">   </div><div class="line">    public Account loadAccount(String username) &#123;  </div><div class="line">        return (Account)factory.getCurrentSession()</div><div class="line">                  .createQuery(&quot;from Account acc where acc.name = :name&quot;)  </div><div class="line">                  .setParameter(&quot;name&quot;, &quot;thethirdpart&quot;).uniqueResult();  </div><div class="line">    &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>在xml配置文件里面通过配置的post processor会自动检测<code>@Repository</code>标注的bean并为该bean打开exception转换功能。    </p>
-<p>如果不支持annotations，可以通过AOP来实现，更方便<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&lt;bean id=&quot;persistenceExceptionInterceptor&quot;  </div><div class="line">class=&quot;org.springframework.dao.support.PersistenceExceptionTranslationInterceptor&quot;/&gt;  </div><div class="line">&lt;aop:config&gt;  </div><div class="line">    &lt;aop:advisor pointcut=&quot;execution(* *..*Repository+.*(..))&quot;  </div><div class="line">                          advice-ref=&quot;persistenceExceptionInterceptor&quot; /&gt;  </div><div class="line">&lt;/aop:config&gt;</div></pre></td></tr></table></figure></p>
-<p>总结，我们应该选择哪种方式呢？还是那句话，根据不同的情况来做最正确的选择。但我建议是丢弃template，而直接使用hibernate的API，毕竟灵活性更大，更何况遇到复杂的情况我们始终得面对hibernate的API。spring并不强制你做任何事情，记得它是一个非侵入性的framework。</p>
+        <blockquote>
+<p>The Java Message Service (JMS) API is a messaging standard that allows application components based on the Java Platform Enterprise Edition (Java EE) to create, send, receive, and read messages. It enables distributed communication that is loosely coupled, reliable, and asynchronous.</p>
+</blockquote>
+<p>JMS（JAVA Message Service,java消息服务）API是一个消息服务的标准(规范)，允许基于JavaEE平台的应用程序组件创建、发送、接收和读取消息。它使分布式通信耦合度更低，消息服务更加可靠并采用异步方式。</p>
+<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><p>JMS是java的消息服务，JMS的客户端之间通过JMS服务进行异步消息传输。</p>
+<h3 id="消息模型"><a href="#消息模型" class="headerlink" title="消息模型"></a>消息模型</h3><ul>
+<li>Point-to-Point(P2P)</li>
+<li>Publish/Subscribe(Pub/Sub)</li>
+</ul>
+<p>即点对点和发布订阅模型</p>
+<h4 id="P2P"><a href="#P2P" class="headerlink" title="P2P"></a>P2P</h4><p><img src="/img/JMS P2P模式" alt="JMS P2P模式"></p>
+<ul>
+<li>消息队列（Queue）</li>
+<li>发送者(Sender)</li>
+<li>接收者(Receiver)</li>
+</ul>
+<p>每个消息都被发送到一个特定的队列，接收者从队列中获取消息。队列保留着消息，直到它们被消费或超时。</p>
+<h5 id="P2P的特点"><a href="#P2P的特点" class="headerlink" title="P2P的特点"></a>P2P的特点</h5><p>每个消息只有一个消费者（Consumer）(即一旦被消费，消息就不再在消息队列中)<br>发送者和接收者之间在时间上没有依赖性，也就是说当发送者发送了消息之后，不管接收者有没有正在运行，它不会影响到消息被发送到队列；接收者在成功接收消息之后需向队列应答成功；如果你希望发送的每个消息都应该被成功处理的话，那么你需要P2P模式。</p>
+<h4 id="Pub-Sub"><a href="#Pub-Sub" class="headerlink" title="Pub/Sub"></a>Pub/Sub</h4><p><img src="/img/Pub Sub模式图" alt="Pub/Sub模式图"> </p>
+<ul>
+<li>主题（Topic）</li>
+<li>发布者（Publisher）</li>
+<li>订阅者（Subscriber） </li>
+</ul>
+<p>多个发布者将消息发送到Topic,系统将这些消息传递给多个订阅者。</p>
+<h5 id="Pub-Sub的特点"><a href="#Pub-Sub的特点" class="headerlink" title="Pub/Sub的特点"></a>Pub/Sub的特点</h5><ul>
+<li>每个消息可以有多个消费者</li>
+<li>发布者和订阅者之间有时间上的依赖性。针对某个主题（Topic）的订阅者，它必须创建一个订阅者之后，才能消费发布者的消息，而且为了消费消息，订阅者必须保持运行的状态。</li>
+<li>为了缓和这样严格的时间相关性，JMS允许订阅者创建一个可持久化的订阅。这样，即使订阅者没有被激活（运行），它也能接收到发布者的消息。</li>
+<li>如果你希望发送的消息可以不被做任何处理、或者被一个消息者处理、或者可以被多个消费者处理的话，那么可以采用Pub/Sub模型</li>
+</ul>
+<h2 id="消息的消费"><a href="#消息的消费" class="headerlink" title="消息的消费"></a>消息的消费</h2><p>在JMS中，消息的产生和消息是异步的。</p>
+<ul>
+<li>同步<br>订阅者或接收者调用<code>receive</code>方法来接收消息，<code>receive</code>方法在能够接收到消息之前（或超时之前）将一直阻塞 </li>
+<li>异步<br>订阅者或接收者可以注册为一个消息监听器。当消息到达之后，系统自动调用监听器的<code>onMessage</code>方法。</li>
+</ul>
+<h2 id="JMS编程模型"><a href="#JMS编程模型" class="headerlink" title="JMS编程模型"></a>JMS编程模型</h2><p>(1) <code>ConnectionFactory</code></p>
+<p>创建<code>Connection</code>对象的工厂，针对两种不同的jms消息模型，分别有<code>QueueConnectionFactory</code>和<code>TopicConnectionFactory</code>两种。可以通过JNDI来查找<code>ConnectionFactory</code>对象。</p>
+<p>(2) <code>Destination</code></p>
+<p><code>Destination</code>的意思是消息生产者的消息发送目标或者说消息消费者的消息来源。对于消息生产者或消费者来说，它的<code>Destination</code>是某个队列（Queue）或某个主题（Topic）。</p>
+<p><code>Destination</code>实际上就是两种类型的对象：<code>Queue</code>、<code>Topic</code>。<br>(3) <code>Connection</code></p>
+<p><code>Connection</code>表示在客户端和JMS系统之间建立的链接（对TCP/IP socket的包装）。<code>Connection</code>可以产生一个或多个<code>Session</code>。跟<code>ConnectionFactory</code>一样，<code>Connection</code>也有两种类型：<code>QueueConnection</code>和<code>TopicConnection</code>。</p>
+<p>(4) <code>Session</code></p>
+<p><code>Session</code>是操作消息的接口。可以通过session创建生产者、消费者、消息等。<code>Session</code>提供了事务的功能。当需要使用session发送/接收多个消息时，可以将这些发送/接收动作放到一个事务中。同样，也分<code>QueueSession</code>和<code>TopicSession</code>。</p>
+<p>(5) 消息的生产者</p>
+<p>消息生产者由<code>Session</code>创建，并用于将消息发送到<code>Destination</code>。同样，消息生产者分两种类型：<code>QueueSender</code>和<code>TopicPublisher</code>。可以调用消息生产者的方法（<code>send</code>或<code>publish</code>方法）发送消息。</p>
+<p>(6) 消息消费者</p>
+<p>消息消费者由<code>Session</code>创建，用于接收被发送到<code>Destination</code>的消息。两种类型：<code>QueueReceiver</code>和<code>TopicSubscriber</code>。可分别通过<code>session</code>的<code>createReceiver(Queue)</code>或<code>createSubscriber(Topic)</code>来创建。当然，也可以<code>session</code>的<code>creatDurableSubscriber</code>方法来创建持久化的订阅者。</p>
+<p>(7) <code>MessageListener</code></p>
+<p>消息监听器。如果注册了消息监听器，一旦消息到达，将自动调用监听器的<code>onMessage</code>方法。EJB中的MDB（Message-Driven Bean）就是一种<code>MessageListener</code>。</p>
+<h2 id="企业消息系统的好处"><a href="#企业消息系统的好处" class="headerlink" title="企业消息系统的好处"></a>企业消息系统的好处</h2><p>应用程序A将Message发送到服务器上，然后应用程序B从服务器中接收A发来的消息： </p>
+<ul>
+<li>提供消息灵活性</li>
+<li>松散耦合</li>
+<li>异步性</li>
+</ul>
 
       
     </div>
@@ -415,9 +480,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/spring/" rel="tag"># spring</a>
-          
-            <a href="/tags/java/" rel="tag"># java</a>
+            <a href="/tags/JMS/" rel="tag"># JMS</a>
           
         </div>
       
@@ -430,8 +493,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/01/09/java/spring/So_should_you_still_use_Spring_s_HibernateTemplate_and_or_JpaTemplate__/" rel="next" title="So should you still use Spring's HibernateTemplate and/or JpaTemplate??">
-                <i class="fa fa-chevron-left"></i> So should you still use Spring's HibernateTemplate and/or JpaTemplate??
+              <a href="/2017/04/05/activemq/ActiveMQ入门实例/" rel="next" title="ActiveMQ入门实例">
+                <i class="fa fa-chevron-left"></i> ActiveMQ入门实例
               </a>
             
           </div>
@@ -439,10 +502,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017/01/09/java/spring/Spring_MVC事务配置/" rel="prev" title="Spring MVC事务配置">
-                Spring MVC事务配置 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -491,8 +550,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview sidebar-panel sidebar-panel-active">
+      <section class="site-overview sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="/images/avatar.gif"
@@ -561,6 +629,22 @@
 
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#基本概念"><span class="nav-number">1.</span> <span class="nav-text">基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#消息模型"><span class="nav-number">1.1.</span> <span class="nav-text">消息模型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#P2P"><span class="nav-number">1.1.1.</span> <span class="nav-text">P2P</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#P2P的特点"><span class="nav-number">1.1.1.1.</span> <span class="nav-text">P2P的特点</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Pub-Sub"><span class="nav-number">1.1.2.</span> <span class="nav-text">Pub/Sub</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Pub-Sub的特点"><span class="nav-number">1.1.2.1.</span> <span class="nav-text">Pub/Sub的特点</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#消息的消费"><span class="nav-number">2.</span> <span class="nav-text">消息的消费</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JMS编程模型"><span class="nav-number">3.</span> <span class="nav-text">JMS编程模型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#企业消息系统的好处"><span class="nav-number">4.</span> <span class="nav-text">企业消息系统的好处</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -696,7 +780,7 @@
 		_hcwp.push({widget:"Bloggerstream", widget_id: 89144, selector:".hc-comment-count", label: "{\%COUNT%\}" });
 
 		
-		_hcwp.push({widget:"Stream", widget_id: 89144, xid: "2017/01/09/java/spring/是该抛弃Spring_HibernateTemplate的时候了/"});
+		_hcwp.push({widget:"Stream", widget_id: 89144, xid: "2017/04/05/activemq/深入浅出JMS_一_--JMS基本概念/"});
 		
 
 		(function() {

@@ -4,6 +4,29 @@
 
     
   <url>
+    <loc>http://jishusuishouji.github.io/2017/04/05/activemq/%E6%B7%B1%E5%85%A5%E6%B5%85%E5%87%BAJMS_%E4%B8%80_--JMS%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/</loc>
+    <lastmod>2017-04-05T05:28:03.286Z</lastmod>
+    <data>
+        <display>
+        <title>深入浅出JMS(一)--JMS基本概念</title>
+        <pubTime>2017-04-05T05:15:49.000Z</pubTime>
+        
+        <tag>JMS</tag>
+         
+         
+           
+             
+              <breadCrumb title="java" url="http://jishusuishouji.github.io/categories/java/"/>
+          
+             
+              <breadCrumb title="JMS" url="http://jishusuishouji.github.io/categories/java/JMS/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://jishusuishouji.github.io/2017/04/05/activemq/ActiveMQ%E5%85%A5%E9%97%A8%E5%AE%9E%E4%BE%8B/</loc>
     <lastmod>2017-04-05T05:14:59.913Z</lastmod>
     <data>
