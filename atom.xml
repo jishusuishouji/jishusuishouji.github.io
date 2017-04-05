@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://jishusuishouji.github.io/"/>
-  <updated>2017-04-05T22:55:23.477Z</updated>
+  <updated>2017-04-05T23:07:04.982Z</updated>
   <id>http://jishusuishouji.github.io/</id>
   
   <author>
@@ -14,6 +14,248 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Java 类的加载机制</title>
+    <link href="http://jishusuishouji.github.io/2017/04/06/java/Java_%E7%B1%BB%E7%9A%84%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/"/>
+    <id>http://jishusuishouji.github.io/2017/04/06/java/Java_类的加载机制/</id>
+    <published>2017-04-05T23:05:01.000Z</published>
+    <updated>2017-04-05T23:07:04.982Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="类的加载"><a href="#类的加载" class="headerlink" title="类的加载"></a>类的加载</h2><p>类的加载:将类的<code>.class</code>文件中的二进制数据读入到内存中，将其放在方法区内，然后在堆区创建一个<code>java.lang.Class</code>对象，用来封装类在方法区内的数据结构。类的加载的最终产品是位于堆区中的Class对象，Class对象封装了类在方法区内的数据结构，并且向Java程序员提供了访问方法区内的数据结构的接口。</p>
+<p>类加载器并不需要等到某个类被“首次主动使用”时再加载它，JVM规范允许类加载器在预料某个类将要被使用时就预先加载它，如果在预先加载的过程中遇到了<code>.class</code>文件缺失或存在错误，类加载器在程序首次主动使用该类时才报告错误（<code>LinkageError</code>错误）如果这个类一直没有被程序主动使用，那么类加载器就不会报告错误</p>
+<p>加载.class文件的方式</p>
+<p>– 从本地系统中直接加载<br>– 通过网络下载.class文件<br>– 从zip，jar等归档文件中加载.class文件<br>– 从专有数据库中提取.class文件<br>– 将Java源文件动态编译为.class文件</p>
+<h2 id="类的生命周期"><a href="#类的生命周期" class="headerlink" title="类的生命周期"></a>类的生命周期</h2><p>其中类加载的过程包括了加载、验证、准备、解析、初始化五个阶段。在这五个阶段中，加载、验证、准备和初始化这四个阶段发生的顺序是确定的，而解析阶段则不一定，它在某些情况下可以在初始化阶段之后开始，这是为了支持Java语言的运行时绑定（也成为动态绑定或晚期绑定）。另外注意这里的几个阶段是按顺序开始，而不是按顺序进行或完成，因为这些阶段通常都是互相交叉地混合进行的，通常在一个阶段执行的过程中调用或激活另一个阶段。</p>
+<p>加载：查找并加载类的二进制数据</p>
+<p>加载时类加载过程的第一个阶段，在加载阶段，虚拟机需要完成以下三件事情：</p>
+<p>1、通过一个类的全限定名来获取其定义的二进制字节流。</p>
+<p>2、将这个字节流所代表的静态存储结构转化为方法区的运行时数据结构。</p>
+<p>3、在Java堆中生成一个代表这个类的java.lang.Class对象，作为对方法区中这些数据的访问入口。</p>
+<p>相对于类加载的其他阶段而言，加载阶段（准确地说，是加载阶段获取类的二进制字节流的动作）是可控性最强的阶段，因为开发人员既可以使用系统提供的类加载器来完成加载，也可以自定义自己的类加载器来完成加载。</p>
+<p>加载阶段完成后，虚拟机外部的 二进制字节流就按照虚拟机所需的格式存储在方法区之中，而且在Java堆中也创建一个java.lang.Class类的对象，这样便可以通过该对象访问方法区中的这些数据。</p>
+<p>连接</p>
+<p>– 验证：确保被加载的类的正确性</p>
+<p>验证是连接阶段的第一步，这一阶段的目的是为了确保Class文件的字节流中包含的信息符合当前虚拟机的要求，并且不会危害虚拟机自身的安全。验证阶段大致会完成4个阶段的检验动作：</p>
+<p>文件格式验证：验证字节流是否符合Class文件格式的规范；例如：是否以0xCAFEBABE开头、主次版本号是否在当前虚拟机的处理范围之内、常量池中的常量是否有不被支持的类型。</p>
+<p>元数据验证：对字节码描述的信息进行语义分析（注意：对比javac编译阶段的语义分析），以保证其描述的信息符合Java语言规范的要求；例如：这个类是否有父类，除了java.lang.Object之外。</p>
+<p>字节码验证：通过数据流和控制流分析，确定程序语义是合法的、符合逻辑的。</p>
+<p>符号引用验证：确保解析动作能正确执行。</p>
+<p>验证阶段是非常重要的，但不是必须的，它对程序运行期没有影响，如果所引用的类经过反复验证，那么可以考虑采用-Xverifynone参数来关闭大部分的类验证措施，以缩短虚拟机类加载的时间。</p>
+<p>– 准备：为类的静态变量分配内存，并将其初始化为默认值</p>
+<p>准备阶段是正式为类变量分配内存并设置类变量初始值的阶段，这些内存都将在方法区中分配。对于该阶段有以下几点需要注意：</p>
+<p>1、这时候进行内存分配的仅包括类变量（static），而不包括实例变量，实例变量会在对象实例化时随着对象一块分配在Java堆中。</p>
+<p>2、这里所设置的初始值通常情况下是数据类型默认的零值（如0、0L、null、false等），而不是被在Java代码中被显式地赋予的值。</p>
+<p>假设一个类变量的定义为：public static int value = 3；</p>
+<p>那么变量value在准备阶段过后的初始值为0，而不是3，因为这时候尚未开始执行任何Java方法，而把value赋值为3的putstatic指令是在程序编译后，存放于类构造器<clinit>（）方法之中的，所以把value赋值为3的动作将在初始化阶段才会执行。</clinit></p>
+<p>这里还需要注意如下几点：</p>
+<p>· 对基本数据类型来说，对于类变量（static）和全局变量，如果不显式地对其赋值而直接使用，则系统会为其赋予默认的零值，而对于局部变量来说，在使用前必须显式地为其赋值，否则编译时不通过。<br>· 对于同时被static和final修饰的常量，必须在声明的时候就为其显式地赋值，否则编译时不通过；而只被final修饰的常量则既可以在声明时显式地为其赋值，也可以在类初始化时显式地为其赋值，总之，在使用前必须为其显式地赋值，系统不会为其赋予默认零值。<br>· 对于引用数据类型reference来说，如数组引用、对象引用等，如果没有对其进行显式地赋值而直接使用，系统都会为其赋予默认的零值，即null。<br>· 如果在数组初始化时没有对数组中的各元素赋值，那么其中的元素将根据对应的数据类型而被赋予默认的零值。<br>3、如果类字段的字段属性表中存在ConstantValue属性，即同时被final和static修饰，那么在准备阶段变量value就会被初始化为ConstValue属性所指定的值。</p>
+<p>假设上面的类变量value被定义为： public static final int value = 3；</p>
+<p>编译时Javac将会为value生成ConstantValue属性，在准备阶段虚拟机就会根据ConstantValue的设置将value赋值为3。回忆上一篇博文中对象被动引用的第2个例子，便是这种情况。我们可以理解为static final常量在编译期就将其结果放入了调用它的类的常量池中</p>
+<p>– 解析：把类中的符号引用转换为直接引用</p>
+<p>解析阶段是虚拟机将常量池内的符号引用替换为直接引用的过程，解析动作主要针对类或接口、字段、类方法、接口方法、方法类型、方法句柄和调用点限定符7类符号引用进行。符号引用就是一组符号来描述目标，可以是任何字面量。</p>
+<p>直接引用就是直接指向目标的指针、相对偏移量或一个间接定位到目标的句柄。</p>
+<p>初始化</p>
+<p>初始化，为类的静态变量赋予正确的初始值，JVM负责对类进行初始化，主要对类变量进行初始化。在Java中对类变量进行初始值设定有两种方式：</p>
+<p>①声明类变量是指定初始值</p>
+<p>②使用静态代码块为类变量指定初始值</p>
+<p>JVM初始化步骤</p>
+<p>1、假如这个类还没有被加载和连接，则程序先加载并连接该类</p>
+<p>2、假如该类的直接父类还没有被初始化，则先初始化其直接父类</p>
+<p>3、假如类中有初始化语句，则系统依次执行这些初始化语句</p>
+<p>类初始化时机：只有当对类的主动使用的时候才会导致类的初始化，类的主动使用包括以下六种：</p>
+<p>– 创建类的实例，也就是new的方式</p>
+<p>– 访问某个类或接口的静态变量，或者对该静态变量赋值</p>
+<p>– 调用类的静态方法</p>
+<p>– 反射（如Class.forName(“com.shengsiyuan.Test”)）</p>
+<p>– 初始化某个类的子类，则其父类也会被初始化</p>
+<p>– Java虚拟机启动时被标明为启动类的类（Java Test），直接使用java.exe命令来运行某个主类</p>
+<p>结束生命周期</p>
+<p>•在如下几种情况下，Java虚拟机将结束生命周期</p>
+<p>– 执行了System.exit()方法</p>
+<p>– 程序正常执行结束</p>
+<p>– 程序在执行过程中遇到了异常或错误而异常终止</p>
+<p>– 由于操作系统出现错误而导致Java虚拟机进程终止</p>
+<p>3、类加载器</p>
+<p>寻找类加载器，先来一个小例子</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>package com.neo.classloader;<br>public class ClassLoaderTest {<br>     public static void main(String[] args) {<br>        ClassLoader loader = Thread.currentThread().getContextClassLoader();<br>        System.out.println(loader);<br>        System.out.println(loader.getParent());<br>        System.out.println(loader.getParent().getParent());<br>    }<br>}<br>运行后，输出结果：</p>
+<p>1<br>2<br>3<br>sun.misc.Launcher$AppClassLoader@64fef26a<br>sun.misc.Launcher$ExtClassLoader@1ddd40f3<br>null<br>从上面的结果可以看出，并没有获取到ExtClassLoader的父Loader，原因是Bootstrap Loader（引导类加载器）是用C语言实现的，找不到一个确定的返回父Loader的方式，于是就返回null。</p>
+<p>这几种类加载器的层次关系如下图所示：</p>
+<p>注意：这里父类加载器并不是通过继承关系来实现的，而是采用组合实现的。</p>
+<p>站在Java虚拟机的角度来讲，只存在两种不同的类加载器：启动类加载器：它使用C++实现（这里仅限于Hotspot，也就是JDK1.5之后默认的虚拟机，有很多其他的虚拟机是用Java语言实现的），是虚拟机自身的一部分；所有其他的类加载器：这些类加载器都由Java语言实现，独立于虚拟机之外，并且全部继承自抽象类java.lang.ClassLoader，这些类加载器需要由启动类加载器加载到内存中之后才能去加载其他的类。</p>
+<p>站在Java开发人员的角度来看，类加载器可以大致划分为以下三类：</p>
+<p>启动类加载器：Bootstrap ClassLoader，负责加载存放在JDK\jre\lib(JDK代表JDK的安装目录，下同)下，或被-Xbootclasspath参数指定的路径中的，并且能被虚拟机识别的类库（如rt.jar，所有的java.*开头的类均被Bootstrap ClassLoader加载）。启动类加载器是无法被Java程序直接引用的。</p>
+<p>扩展类加载器：Extension ClassLoader，该加载器由sun.misc.Launcher$ExtClassLoader实现，它负责加载DK\jre\lib\ext目录中，或者由java.ext.dirs系统变量指定的路径中的所有类库（如javax.*开头的类），开发者可以直接使用扩展类加载器。</p>
+<p>应用程序类加载器：Application ClassLoader，该类加载器由sun.misc.Launcher$AppClassLoader来实现，它负责加载用户类路径（ClassPath）所指定的类，开发者可以直接使用该类加载器，如果应用程序中没有自定义过自己的类加载器，一般情况下这个就是程序中默认的类加载器。</p>
+<p>应用程序都是由这三种类加载器互相配合进行加载的，如果有必要，我们还可以加入自定义的类加载器。因为JVM自带的ClassLoader只是懂得从本地文件系统加载标准的java class文件，因此如果编写了自己的ClassLoader，便可以做到如下几点：</p>
+<p>1）在执行非置信代码之前，自动验证数字签名。</p>
+<p>2）动态地创建符合用户特定需要的定制化构建类。</p>
+<p>3）从特定的场所取得java class，例如数据库中和网络中。</p>
+<p>JVM类加载机制</p>
+<p>•全盘负责，当一个类加载器负责加载某个Class时，该Class所依赖的和引用的其他Class也将由该类加载器负责载入，除非显示使用另外一个类加载器来载入</p>
+<p>•父类委托，先让父类加载器试图加载该类，只有在父类加载器无法加载该类时才尝试从自己的类路径中加载该类</p>
+<p>•缓存机制，缓存机制将会保证所有加载过的Class都会被缓存，当程序中需要使用某个Class时，类加载器先从缓存区寻找该Class，只有缓存区不存在，系统才会读取该类对应的二进制数据，并将其转换成Class对象，存入缓存区。这就是为什么修改了Class后，必须重启JVM，程序的修改才会生效</p>
+<p>4、类的加载</p>
+<p>类加载有三种方式：</p>
+<p>1、命令行启动应用时候由JVM初始化加载</p>
+<p>2、通过Class.forName()方法动态加载</p>
+<p>3、通过ClassLoader.loadClass()方法动态加载</p>
+<p>例子：</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>package com.neo.classloader;<br>public class loaderTest {<br>        public static void main(String[] args) throws ClassNotFoundException {<br>                ClassLoader loader = HelloWorld.class.getClassLoader();<br>                System.out.println(loader);<br>                //使用ClassLoader.loadClass()来加载类，不会执行初始化块<br>                loader.loadClass(“Test2”);<br>                //使用Class.forName()来加载类，默认会执行初始化块<br>//                Class.forName(“Test2”);<br>                //使用Class.forName()来加载类，并指定ClassLoader，初始化时不执行静态块<br>//                Class.forName(“Test2”, false, loader);<br>        }<br>}<br>demo类</p>
+<p>1<br>2<br>3<br>4<br>5<br>public class Test2 {<br>        static {<br>                System.out.println(“静态初始化块执行了！”);<br>        }<br>}<br>分别切换加载方式，会有不同的输出结果。</p>
+<p>Class.forName()和ClassLoader.loadClass()区别</p>
+<p>Class.forName()：将类的.class文件加载到jvm中之外，还会对类进行解释，执行类中的static块；</p>
+<p>ClassLoader.loadClass()：只干一件事情，就是将.class文件加载到jvm中，不会执行static中的内容,只有在newInstance才会去执行static块。</p>
+<p>注：</p>
+<p>Class.forName(name, initialize, loader)带参函数也可控制是否加载static块。并且只有调用了newInstance()方法采用调用构造函数，创建类的对象 。</p>
+<p>5、双亲委派模型</p>
+<p>双亲委派模型的工作流程是：如果一个类加载器收到了类加载的请求，它首先不会自己去尝试加载这个类，而是把请求委托给父加载器去完成，依次向上，因此，所有的类加载请求最终都应该被传递到顶层的启动类加载器中，只有当父加载器在它的搜索范围中没有找到所需的类时，即无法完成该加载，子加载器才会尝试自己去加载该类。</p>
+<p>双亲委派机制:</p>
+<p>1、当AppClassLoader加载一个class时，它首先不会自己去尝试加载这个类，而是把类加载请求委派给父类加载器ExtClassLoader去完成。</p>
+<p>2、当ExtClassLoader加载一个class时，它首先也不会自己去尝试加载这个类，而是把类加载请求委派给BootStrapClassLoader去完成。</p>
+<p>3、如果BootStrapClassLoader加载失败（例如在$JAVA_HOME/jre/lib里未查找到该class），会使用ExtClassLoader来尝试加载；</p>
+<p>4、若ExtClassLoader也加载失败，则会使用AppClassLoader来加载，如果AppClassLoader也加载失败，则会报出异常ClassNotFoundException。</p>
+<p>ClassLoader源码分析：</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>public Class&lt;?&gt; loadClass(String name)throws ClassNotFoundException {<br>            return loadClass(name, false);<br>    }</p>
+<pre><code>protected synchronized Class&lt;?&gt; loadClass(String name, boolean resolve)throws ClassNotFoundException {
+        // 首先判断该类型是否已经被加载
+        Class c = findLoadedClass(name);
+        if (c == null) {
+            //如果没有被加载，就委托给父类加载或者委派给启动类加载器加载
+            try {
+                if (parent != null) {
+                     //如果存在父类加载器，就委派给父类加载器加载
+                    c = parent.loadClass(name, false);
+                } else {
+                //如果不存在父类加载器，就检查是否是由启动类加载器加载的类，通过调用本地方法native Class findBootstrapClass(String name)
+                    c = findBootstrapClass0(name);
+                }
+            } catch (ClassNotFoundException e) {
+             // 如果父类加载器和启动类加载器都不能完成加载任务，才调用自身的加载功能
+                c = findClass(name);
+            }
+        }
+        if (resolve) {
+            resolveClass(c);
+        }
+        return c;
+    }
+</code></pre><p>双亲委派模型意义：</p>
+<p>-系统类防止内存中出现多份同样的字节码</p>
+<p>-保证Java程序安全稳定运行</p>
+<p>6、自定义类加载器</p>
+<pre><code>通常情况下，我们都是直接使用系统类加载器。但是，有的时候，我们也需要自定义类加载器。比如应用是通过网络来传输 Java 类的字节码，为保证安全性，这些字节码经过了加密处理，这时系统类加载器就无法对其进行加载，这样则需要自定义类加载器来实现。自定义类加载器一般都是继承自 ClassLoader 类，从上面对 loadClass 方法来分析来看，我们只需要重写 findClass 方法即可。下面我们通过一个示例来演示自定义类加载器的流程：
+</code></pre><p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>50<br>51<br>52<br>53<br>54<br>55<br>56<br>57<br>58<br>59<br>60<br>61<br>62<br>63<br>package com.neo.classloader;</p>
+<p>import java.io.*;</p>
+<p>public class MyClassLoader extends ClassLoader {</p>
+<pre><code>private String root;
+
+protected Class&lt;?&gt; findClass(String name) throws ClassNotFoundException {
+    byte[] classData = loadClassData(name);
+    if (classData == null) {
+        throw new ClassNotFoundException();
+    } else {
+        return defineClass(name, classData, 0, classData.length);
+    }
+}
+
+private byte[] loadClassData(String className) {
+    String fileName = root + File.separatorChar
+            + className.replace(&apos;.&apos;, File.separatorChar) + &quot;.class&quot;;
+    try {
+        InputStream ins = new FileInputStream(fileName);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        int bufferSize = 1024;
+        byte[] buffer = new byte[bufferSize];
+        int length = 0;
+        while ((length = ins.read(buffer)) != -1) {
+            baos.write(buffer, 0, length);
+        }
+        return baos.toByteArray();
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+    return null;
+}
+
+public String getRoot() {
+    return root;
+}
+
+public void setRoot(String root) {
+    this.root = root;
+}
+
+public static void main(String[] args)  {
+
+    MyClassLoader classLoader = new MyClassLoader();
+    classLoader.setRoot(&quot;E:\\temp&quot;);
+
+    Class&lt;?&gt; testClass = null;
+    try {
+        testClass = classLoader.loadClass(&quot;com.neo.classloader.Test2&quot;);
+        Object object = testClass.newInstance();
+        System.out.println(object.getClass().getClassLoader());
+    } catch (ClassNotFoundException e) {
+        e.printStackTrace();
+    } catch (InstantiationException e) {
+        e.printStackTrace();
+    } catch (IllegalAccessException e) {
+        e.printStackTrace();
+    }
+}
+</code></pre><p>}<br>自定义类加载器的核心在于对字节码文件的获取，如果是加密的字节码则需要在该类中对文件进行解密。由于这里只是演示，我并未对class文件进行加密，因此没有解密的过程。这里有几点需要注意：</p>
+<p>1、这里传递的文件名需要是类的全限定性名称，即com.paddx.test.classloading.Test格式的，因为 defineClass 方法是按这种格式进行处理的。</p>
+<p>2、最好不要重写loadClass方法，因为这样容易破坏双亲委托模式。</p>
+<p>3、这类Test 类本身可以被 AppClassLoader 类加载，因此我们不能把 com/paddx/test/classloading/Test.class 放在类路径下。否则，由于双亲委托机制的存在，会直接导致该类由AppClassLoader 加载，而不会通过我们自定义类加载器来加载。</p>
+<p>参考：</p>
+<p><a href="http://blog.csdn.net/ns_code/article/details/17881581" target="_blank" rel="external">http://blog.csdn.net/ns_code/article/details/17881581</a></p>
+<p><a href="https://segmentfault.com/a/1190000005608960" target="_blank" rel="external">https://segmentfault.com/a/1190000005608960</a></p>
+<p><a href="http://www.importnew.com/18548.html" target="_blank" rel="external">http://www.importnew.com/18548.html</a></p>
+<p><a href="http://zyjustin9.iteye.com/blog/2092131" target="_blank" rel="external">http://zyjustin9.iteye.com/blog/2092131</a></p>
+<p><a href="http://www.codeceo.com/article/java-class-loader-learn.html" target="_blank" rel="external">http://www.codeceo.com/article/java-class-loader-learn.html</a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      Java 类的加载机制
+    
+    </summary>
+    
+      <category term="jav" scheme="http://jishusuishouji.github.io/categories/jav/"/>
+    
+    
+      <category term="java" scheme="http://jishusuishouji.github.io/tags/java/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>启动ActiveMQ的Broker</title>
+    <link href="http://jishusuishouji.github.io/2017/04/06/activemq/%E5%90%AF%E5%8A%A8ActiveMQ%E7%9A%84Broker/"/>
+    <id>http://jishusuishouji.github.io/2017/04/06/activemq/启动ActiveMQ的Broker/</id>
+    <published>2017-04-05T22:57:20.000Z</published>
+    <updated>2017-04-05T22:57:39.579Z</updated>
+    
+    <summary type="html">
+    
+      启动ActiveMQ的Broker
+    
+    </summary>
+    
+      <category term="java" scheme="http://jishusuishouji.github.io/categories/java/"/>
+    
+      <category term="JMS" scheme="http://jishusuishouji.github.io/categories/java/JMS/"/>
+    
+      <category term="ActiveMQ" scheme="http://jishusuishouji.github.io/categories/java/JMS/ActiveMQ/"/>
+    
+    
+      <category term="java" scheme="http://jishusuishouji.github.io/tags/java/"/>
+    
+      <category term="JMS" scheme="http://jishusuishouji.github.io/tags/JMS/"/>
+    
+      <category term="ActiveMQ" scheme="http://jishusuishouji.github.io/tags/ActiveMQ/"/>
+    
+  </entry>
   
   <entry>
     <title>ActiveMQ实现负载均衡+高可用部署方案</title>
@@ -1212,11 +1454,11 @@ private void setupMessageQueueConsumer() {
       <category term="Thrift" scheme="http://jishusuishouji.github.io/categories/%E5%88%86%E5%B8%83%E5%BC%8F/RPC/Thrift/"/>
     
     
+      <category term="Thrift" scheme="http://jishusuishouji.github.io/tags/Thrift/"/>
+    
       <category term="RPC" scheme="http://jishusuishouji.github.io/tags/RPC/"/>
     
       <category term="ZoopKeeper" scheme="http://jishusuishouji.github.io/tags/ZoopKeeper/"/>
-    
-      <category term="Thrift" scheme="http://jishusuishouji.github.io/tags/Thrift/"/>
     
   </entry>
   
@@ -1303,9 +1545,9 @@ private void setupMessageQueueConsumer() {
     
       <category term="facebook" scheme="http://jishusuishouji.github.io/tags/facebook/"/>
     
-      <category term="RPC" scheme="http://jishusuishouji.github.io/tags/RPC/"/>
-    
       <category term="Thrift" scheme="http://jishusuishouji.github.io/tags/Thrift/"/>
+    
+      <category term="RPC" scheme="http://jishusuishouji.github.io/tags/RPC/"/>
     
   </entry>
   
@@ -2212,171 +2454,6 @@ try {
     
     
       <category term="mysql" scheme="http://jishusuishouji.github.io/tags/mysql/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>说说MySQL中的事务</title>
-    <link href="http://jishusuishouji.github.io/2017/03/27/mysql/%E8%AF%B4%E8%AF%B4MySQL%E4%B8%AD%E7%9A%84%E4%BA%8B%E5%8A%A1/"/>
-    <id>http://jishusuishouji.github.io/2017/03/27/mysql/说说MySQL中的事务/</id>
-    <published>2017-03-27T10:27:04.000Z</published>
-    <updated>2017-03-27T10:58:26.740Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="从一个问题开始"><a href="#从一个问题开始" class="headerlink" title="从一个问题开始"></a>从一个问题开始</h2><p>从ATM机取钱分为以下几个步骤：</p>
-<p>1.登陆ATM机，输入密码；<br>2.连接数据库，验证密码；<br>3.验证成功，获得用户信息，比如存款余额等；<br>4.用户输入需要取款的金额，按下确认键；<br>5.从后台数据库中减掉用户账户上的对应金额；<br>6.ATM吐出钱；<br>7.用户把钱拿走。</p>
-<p>一个简单的取钱，主要分为以上几步。不知道大家有没有“天真”的想过，如果在第5步中，后台数据库中已经把钱减掉了，但是ATM还就是没有吐出钱（虽然实际也发生过，但是毕竟是低概率事件），这该怎么办？</p>
-<p>关于这个问题，银行系统的开发人员早就想过了，那么他们是怎么来搞定这个问题的呢？这就要说到今天总结的事务这个概念了。</p>
-<h2 id="简单说说事务"><a href="#简单说说事务" class="headerlink" title="简单说说事务"></a>简单说说事务</h2><p>对于上面的取钱这个事情，如果有一步出现了错误，那么就取消整个取钱的动作；简单来说，就是取钱这7步，要么都完成，要么就啥也不做。在数据库中，事务也是这个道理。</p>
-<p>事务由一条或者多条sql语句组成，在事务中的操作，这些sql语句要么都执行，要么都不执行，这就是事务的目的。</p>
-<p>对于事务而言，它需要满足ACID特性，下面就简要的说说事务的ACID特性。</p>
-<p>A，表示原子性；原子性指整个数据库事务是不可分割的工作单位。只有使事务中所有的数据库操作都执行成功，整个事务的执行才算成功。事务中任何一个sql语句执行失败，那么已经执行成功的sql语句也必须撤销，数据库状态应该退回到执行事务前的状态；<br>C，表示一致性；也就是说一致性指事务将数据库从一种状态转变为另一种一致的状态，在事务开始之前和事务结束以后，数据库的完整性约束没有被破坏；<br>I，表示隔离性；隔离性也叫做并发控制、可串行化或者锁。事务的隔离性要求每个读写事务的对象与其它事务的操作对象能相互分离，即该事务提交前对其它事务都不可见，这通常使用锁来实现；<br>D，持久性，表示事务一旦提交了，其结果就是永久性的，也就是数据就已经写入到数据库了，如果发生了宕机等事故，数据库也能将数据恢复。</p>
-<p>总结了一些事务的基本概念，在MySQL中，事务还是分为很多中的，下面就来看看到底有哪些事务。</p>
-<h2 id="有哪些事务"><a href="#有哪些事务" class="headerlink" title="有哪些事务"></a>有哪些事务</h2><p>你能想象到吗？就这么个破事务还会分以下这么多种：</p>
-<ul>
-<li>扁平事务；</li>
-<li>带有保存点的扁平事务；</li>
-<li>链事务；</li>
-<li>嵌套事务；</li>
-<li>分布式事务。</li>
-</ul>
-<p>现在就来对这些事务从概念的层面上进行简单的总结一下。</p>
-<h3 id="扁平事务"><a href="#扁平事务" class="headerlink" title="扁平事务"></a>扁平事务</h3><p>扁平事务是最简单的一种，也是实际开发中使用的最多的一种事务。在这种事务中，所有操作都处于同一层次，最常见的方式如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">BEGIN WORK</div><div class="line">    Operation 1</div><div class="line">    Operation 2</div><div class="line">    Operation 3</div><div class="line">    ...</div><div class="line">    Operation N</div><div class="line">COMMIT WORK</div></pre></td></tr></table></figure></p>
-<p>或者是这种：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">BEGIN WORK</div><div class="line">    Operation 1</div><div class="line">    Operation 2</div><div class="line">    Operation 3</div><div class="line">    ...</div><div class="line">    Operation N</div><div class="line">    (Error Occured)</div><div class="line">ROLLBACK WORK</div></pre></td></tr></table></figure></p>
-<p>扁平事务的主要缺点是不能提交或回滚事务的某一部分，或者分几个独立的步骤去提交。比如有这样的一个例子，我从呼和浩特去深圳，为了便宜，我可能这么干：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">BEGIN WORK</div><div class="line">    Operation1:呼和浩特---火车---&gt;北京</div><div class="line">    Operation2:北京---飞机---&gt;深圳</div><div class="line">ROLLBACK WORK</div></pre></td></tr></table></figure></p>
-<p>但是，如果Operation1，从呼和浩特到北京的火车晚点了，错过了航班，怎么办？感觉扁平事务的特性，那我就需要回滚，我再回到呼和浩特，那么这样成本是不是也太高了啊，所以就有了下面的第二种事务——带有保存点的扁平事务。</p>
-<h3 id="带有保存点的扁平事务"><a href="#带有保存点的扁平事务" class="headerlink" title="带有保存点的扁平事务"></a>带有保存点的扁平事务</h3><p>这种事务除了支持扁平事务支持的操作外，允许在事务执行过程中回滚到同一事务中较早的一个状态，这是因为可能某些事务在执行过程中出现的错误并不会对所有的操作都无效，放弃整个事务不合乎要求，开销也太大。保存点用来通知系统应该记住事务当前的状态，以便以后发生错误时，事务能回到该状态。</p>
-<h3 id="链事务"><a href="#链事务" class="headerlink" title="链事务"></a>链事务</h3><p>链事务，就是指回滚时，只能恢复到最近一个保存点；而带有保存点的扁平事务则可以回滚到任意正确的保存点。</p>
-<h3 id="嵌套事务"><a href="#嵌套事务" class="headerlink" title="嵌套事务"></a>嵌套事务</h3><p>看下面这个，你就能明白了，啥是嵌套事务：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">BEGIN WORK</div><div class="line">    SubTransaction1:</div><div class="line">            BEGIN WORK</div><div class="line">                SubOperationX</div><div class="line">            COMMIT WORK</div><div class="line">    SubTransaction2:</div><div class="line">            BEGIN WORK</div><div class="line">                SubOperationY</div><div class="line">            COMMIT WORK</div><div class="line">    ...</div><div class="line">    SubTransactionN:</div><div class="line">            BEGIN WORK</div><div class="line">                SubOperationN</div><div class="line">            COMMIT WORK</div><div class="line">COMMIT WORK</div></pre></td></tr></table></figure></p>
-<p>这就是嵌套事务，在事务中再嵌套事务，位于根节点的事务称为顶层事务。事务的前驱称为父事务，其它事务称为子事务。事务的前驱称为父事务，事务的下一层称为子事务。</p>
-<p>子事务既可以提交也可以回滚，但是它的提交操作并不马上生效，除非由其父事务提交。因此就可以确定，任何子事务都在顶层事务提交后才真正的被提交了。同理，任意一个事务的回滚都会引起它的所有子事务一同回滚。</p>
-<h3 id="分布式事务"><a href="#分布式事务" class="headerlink" title="分布式事务"></a>分布式事务</h3><p>分布式事务通常是指在一个分布式环境下运行的扁平事务，因此需要根据数据所在位置访问网络中的不同节点，比如：通过建设银行向招商银行转账，建设银行和招商银行肯定用的不是同一个数据库，同时二者的数据库也不在一个网络节点上，那么当用户跨行转账，就是通过分布式事务来保证数据的ACID的。</p>
-<h2 id="MySQL中使用事务"><a href="#MySQL中使用事务" class="headerlink" title="MySQL中使用事务"></a>MySQL中使用事务</h2><p>理论总结的再好，终归都要通过实践来进行理解。下面就来说说MySQL中是如何使用事务的。</p>
-<p>在MySQL命令行的默认设置下，事务都是自动提交的，即执行SQL语句后就会马上执行COMMIT操作。因此要显示地开启一个事务须使用命令BEGIN或START TRANSACTION，或者执行命令<code>SET AUTOCOMMIT=0</code>，用来禁止使用当前会话的自动提交。</p>
-<p>来看看我们可以使用哪些事务控制语句。</p>
-<ul>
-<li><code>BEGIN</code>或<code>START TRANSACTION</code>；显示地开启一个事务；</li>
-<li><code>COMMIT</code>；也可以使用<code>COMMIT WORK</code>，不过二者是等价的。COMMIT会提交事务，并使已对数据库进行的所有修改称为永久性的；</li>
-<li>ROLLBACK；有可以使用ROLLBACK WORK，不过二者是等价的。回滚会结束用户的事务，并撤销正在进行的所有未提交的修改；</li>
-<li><code>SAVEPOINT identifier</code>；SAVEPOINT允许在事务中创建一个保存点，一个事务中可以有多个SAVEPOINT；</li>
-<li>RELEASE SAVEPOINT identifier；删除一个事务的保存点，当没有指定的保存点时，执行该语句会抛出一个异常；</li>
-<li><code>ROLLBACK TO identifier</code>；把事务回滚到标记点；</li>
-<li><code>SET RANSACTION</code>；用来设置事务的隔离级别。InnoDB存储引擎提供事务的隔离级别有<code>READ UNCOMMITTED</code>、<code>READ COMMITTED</code>、<code>REPEATABLE READ</code>和<code>SERIALIZABLE</code>。</li>
-</ul>
-<h2 id="这些不用你“管”"><a href="#这些不用你“管”" class="headerlink" title="这些不用你“管”"></a>这些不用你“管”</h2><p>有的时候有些SQL语句会产生一个隐式的提交操作，即执行完成这些语句后，会有一个隐式的<code>COMMIT</code>操作。有以下SQL语句，不用你去“管”：</p>
-<ul>
-<li>DDL语句，ALTER DATABASE、ALTER EVENT、ALTER PROCEDURE、ALTER TABLE、ALTER VIEW、CREATE TABLE、DROP TABLE、RENAME TABLE、TRUNCATE TABLE等；</li>
-<li>修改MYSQL架构的语句，CREATE USER、DROP USER、GRANT、RENAME USER、REVOKE、SET PASSWORD；</li>
-<li>管理语句，ANALYZE TABLE、CACHE INDEX、CHECK TABLE、LOAD INDEX INTO CACHE、OPTIMIZE TABLE、REPAIR TABLE等。</li>
-</ul>
-<p>以上的这些SQL操作都是隐式的提交操作，不需要手动显式提交。</p>
-<h2 id="事务的隔离级别"><a href="#事务的隔离级别" class="headerlink" title="事务的隔离级别"></a>事务的隔离级别</h2><p>上面也说到了<code>SET TRANSACTION</code>用来设置事务的隔离级别。那事务的隔离级别是什么东东？</p>
-<p>在数据库操作中，为了有效保证并发读取数据的正确性，提出的事务隔离级别。</p>
-<p>InnoDB存储引擎提供事务的隔离级别有READ UNCOMMITTED、READ COMMITTED、REPEATABLE READ和SERIALIZABLE。这些隔离级别之间的区别如下：</p>
-<table>
-<thead>
-<tr>
-<th>隔离级别</th>
-<th>脏读（Dirty Read）</th>
-<th>不可重复读（NonRepeatable Read）</th>
-<th>幻读（Phantom Read）</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>未提交读（Read uncommitted）</td>
-<td>可能</td>
-<td>可能</td>
-<td>可能</td>
-</tr>
-<tr>
-<td>已提交读（Read committed）</td>
-<td>不可能</td>
-<td>可能</td>
-<td>可能</td>
-</tr>
-<tr>
-<td>可重复读（Repeatable read）</td>
-<td>不可能</td>
-<td>不可能</td>
-<td>可能</td>
-</tr>
-<tr>
-<td>可串行化（Serializable ）</td>
-<td>不可能</td>
-<td>不可能</td>
-<td>不可能</td>
-</tr>
-</tbody>
-</table>
-<p>脏读：一个事务读取到了另外一个事务没有提交的数据；比如：事务T1更新了一行记录的内容，但是并没有提交所做的修改。事务T2读取到了T1更新后的行，然后T1执行回滚操作，取消了刚才所做的修改。现在T2所读取的行就无效了；<br>不可重复读：在同一事务中，两次读取同一数据，得到内容不同；比如：事务T1读取一行记录，紧接着事务T2修改了T1刚才读取的那一行记录(T2的事务已经提交了)。然后T1又再次读取这行记录，发现与刚才读取的结果不同。这就称为“不可重复”读，因为T1原来读取的那行记录已经发生了变化；<br>幻读：同一事务中，用同样的操作读取两次，得到的记录数不相同；比如：事务T1读取一条指定的WHERE子句所返回的结果集。然后事务T2新插入一行记录，这行记录恰好可以满足T1所使用的查询条件中的WHERE子句的条件。然后T1又使用相同的查询再次对表进行检索，但是此时却看到了事务T2刚才插入的新行。这个新行就称为“幻像”，因为对T1来说这一行就像突然出现的一样。</p>
-<p>隔离级别越低，事务请求的锁越少或保持锁的时间就越短。InnoDB存储引擎默认的支持隔离级别是<code>REPEATABLE READ</code>；在这种默认的事务隔离级别下已经能完全保证事务的隔离性要求，即达到SQL标准的SERIALIZABLE级别隔离。</p>
-<p>我们可以可以用<code>SET TRANSACTION</code>语句改变单个会话或者所有新进连接的隔离级别。它的语法如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">SET [SESSION | GLOBAL] TRANSACTION ISOLATION LEVEL &#123;READ UNCOMMITTED | READ COMMITTED | REPEATABLE READ | SERIALIZABLE&#125;</div></pre></td></tr></table></figure></p>
-<p>注意：默认的行为（不带session和global）是为下一个（未开始）事务设置隔离级别。如果使用GLOBAL关键字，语句在全局对从那点开始创建的所有新连接（除了不存在的连接）设置默认事务级别。你需要SUPER权限来做这个。使用SESSION 关键字为将来在当前连接上执行的事务设置默认事务级别。 任何客户端都能自由改变会话隔离级别（甚至在事务的中间），或者为下一个事务设置隔离级别。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">mysql&gt; set session transaction isolation level repeatable read;</div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">mysql&gt; select @@tx_isolation;</div><div class="line">+-----------------+</div><div class="line">| @@tx_isolation  |</div><div class="line">+-----------------+</div><div class="line">| REPEATABLE-READ |</div><div class="line">+-----------------+</div><div class="line">1 row in set (0.00 sec)</div></pre></td></tr></table></figure></p>
-<h2 id="数据库的默认隔离级别"><a href="#数据库的默认隔离级别" class="headerlink" title="数据库的默认隔离级别"></a>数据库的默认隔离级别</h2><h3 id="mysql的默认隔离级别是可重复读："><a href="#mysql的默认隔离级别是可重复读：" class="headerlink" title="mysql的默认隔离级别是可重复读："></a>mysql的默认隔离级别是可重复读：</h3><p>要是读为主的业务场景，建议RC模式；若是非读为主的业务场景，则建议RR模式，考虑到MySQL5.1及以上版本二进制日志登记格式，建议优先考虑RR模式。</p>
-<h3 id="Oracle采用的也是-read-committed"><a href="#Oracle采用的也是-read-committed" class="headerlink" title="Oracle采用的也是 read committed"></a>Oracle采用的也是 read committed</h3><p>Oracle的RC 跟InnoDB存储引擎的RC不是一样的，属于综合了 RC + RR的折中版本。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      说说MySQL中的事务
-    
-    </summary>
-    
-      <category term="mysql" scheme="http://jishusuishouji.github.io/categories/mysql/"/>
-    
-    
-      <category term="mysql" scheme="http://jishusuishouji.github.io/tags/mysql/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>ORM到底是用还是不用？</title>
-    <link href="http://jishusuishouji.github.io/2017/03/27/ORM/ORM%E5%88%B0%E5%BA%95%E6%98%AF%E7%94%A8%E8%BF%98%E6%98%AF%E4%B8%8D%E7%94%A8%EF%BC%9F/"/>
-    <id>http://jishusuishouji.github.io/2017/03/27/ORM/ORM到底是用还是不用？/</id>
-    <published>2017-03-27T05:22:54.000Z</published>
-    <updated>2017-03-27T05:26:18.258Z</updated>
-    
-    <content type="html"><![CDATA[<p>ORM即Object/Relation Mapping的简写，一般称作“对象关系映射”，在Web开发中最常出没于和关系型数据库交互的地方。接口、中间件、库、包，你都可以这么称呼它。<br><a id="more"></a><br>我们可以结合PHP和MySQL，从ORM的四个核心理念来认识它：</p>
-<ul>
-<li>简单：ORM以最基本的形式建模数据。比如ORM会将MySQL的一张表映射成一个PHP类（模型），表的字段就是这个类的成员变量</li>
-<li>精确：ORM使所有的MySQL数据表都按照统一的标准精确地映射成PHP类，使系统在代码层面保持准确统一</li>
-<li>易懂：ORM使数据库结构文档化。比如MySQL数据库就被ORM转换为了PHP程序员可以读懂的PHP类，PHP程序员可以只把注意力放在他擅长的PHP层面（当然能够熟练掌握MySQL更好）</li>
-<li>易用：ORM的避免了不规范、冗余、风格不统一的SQL语句，可以避免很多人为Bug，方便编码风格的统一和后期维护</li>
-</ul>
-<p>接下来再通过一个很基本的例子来说明一下ORM的使用，还以PHP和MySQL为例。</p>
-<p>user这个数据模型是再普遍不过的了。假设我们有一张user数据表。</p>
-<p>在OOP中通常我们需要写一个对应的class User来作为user数据表的数据模型:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">// 声明class User</div><div class="line">class User&#123;</div><div class="line">    $id;</div><div class="line">    $name;</div><div class="line"></div><div class="line">    function create()&#123;/*...*/&#125;</div><div class="line">    function load($id)&#123;/*...*/&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">// 使用class User</div><div class="line">$user = new User();</div><div class="line">$user-&gt;name = &apos;fancy&apos;;</div><div class="line">$user-&gt;create();</div></pre></td></tr></table></figure>
-<p>但是通过ORM，我们可以不用去声明class User，可以直接继承ORM提供的工厂类，比如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">// 直接使用！对于熟悉MVC的亲知道这个意义之所在！</div><div class="line">$user = new ORM(&apos;user&apos;);  // ORM都有自己的规则，这里直接使用了MySQL的表名</div><div class="line">$user-&gt;name = &apos;fancy&apos;;    // MySQL的表的字段就是$user对象的成员变量</div><div class="line">$user-&gt;save();            // 掉用ORM提供的接口函数</div></pre></td></tr></table></figure></p>
-<p>ORM一般都针对数据模型提供了一下常见的接口函数，比如：<code>create()</code>, <code>update()</code>, <code>save()</code>, <code>load()</code>, <code>find()</code>, <code>find_all()</code>, <code>where()</code>等，也就是讲sql查询全部封装成了编程语言中的函数，通过函数的链式组合生成最终的SQL语句。</p>
-<p>所以由这些来看，ORM对于敏捷开发和团队合作开发来说，好处是非常非常大的。这里就罗列一下我想到的ORM显著的优点：</p>
-<ul>
-<li>大大缩短了程序员的编码时间，减少甚至免除了对Model的编码</li>
-<li>良好的数据库操作接口，使编码难度降低，使团队成员的代码变得简洁易读、风格统一</li>
-<li>动态的数据表映射，在数据表结构甚至数据库发生改变时，减少了相应的代码修改</li>
-<li>减少了程序员对数据库的学习成本</li>
-<li>可以很方便地引入数据缓存之类的附加功能</li>
-</ul>
-<p>但是ORM并不是一个完美的东西，它同时也有其自身不可避免的缺点：</p>
-<ul>
-<li>自动化进行关系数据库的映射需要消耗系统性能。其实这里的性能消耗还好啦，一般来说都可以忽略之，特别是有cacha存在的时候</li>
-<li>在处理多表联查、where条件复杂之类的查询时，ORM的语法会变得复杂且猥琐</li>
-<li>越是功能强大的ORM越是消耗内存，因为一个ORM Object会带有很多成员变量和成员函数。有一次修复bug时就遇见，使用ORM查询的时候会占用12MB的内存，而使用SQL的查询时只占用了1.7MB……</li>
-</ul>
-<p>ORM就是这么一个让人又爱又恨的东西。回到我们开始的问题：“ORM到底是用还是不用？”</p>
-<p>Fancy个人的观点是：ORM要用！但关键部位不能用！<br>因为对于一般的Web应用开发来说，使用ORM确实能带来上述的诸多好处，而且在大部分情况下涉及不到ORM的不好的地方。但是在系统里面有大数据量、大运算量、复杂查询的地方，就不要用ORM。ORM的性能问题将给你带来灾难。在这些地方就可以使用纯SQL或者其他简单轻量的DB Helper库了。在详细了解ORM之后，你就可以扬长避短让ORM发挥其最大效用了。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      ORM到底是用还是不用？
-    
-    </summary>
-    
-      <category term="ORM" scheme="http://jishusuishouji.github.io/categories/ORM/"/>
-    
-    
-      <category term="ORM" scheme="http://jishusuishouji.github.io/tags/ORM/"/>
     
   </entry>
   

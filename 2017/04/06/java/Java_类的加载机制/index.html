@@ -1,0 +1,947 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="java," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="技术随手记" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Java 类的加载机制">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java 类的加载机制">
+<meta property="og:url" content="http://jishusuishouji.github.io/2017/04/06/java/Java_类的加载机制/index.html">
+<meta property="og:site_name" content="技术随手记">
+<meta property="og:description" content="Java 类的加载机制">
+<meta property="og:updated_time" content="2017-04-05T23:07:04.982Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java 类的加载机制">
+<meta name="twitter:description" content="Java 类的加载机制">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://jishusuishouji.github.io/2017/04/06/java/Java_类的加载机制/"/>
+
+
+
+
+
+  <title> Java 类的加载机制 | 技术随手记 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">技术随手记</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://jishusuishouji.github.io/2017/04/06/java/Java_类的加载机制/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="技术随手记">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="技术随手记">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+            
+            
+              
+                Java 类的加载机制
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-06T07:05:01+08:00">
+                2017-04-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/jav/" itemprop="url" rel="index">
+                    <span itemprop="name">jav</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            <!--noindex-->
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/04/06/java/Java_类的加载机制/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count hc-comment-count" data-xid="2017/04/06/java/Java_类的加载机制/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+              <!--/noindex-->
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  Java 类的加载机制
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="类的加载"><a href="#类的加载" class="headerlink" title="类的加载"></a>类的加载</h2><p>类的加载:将类的<code>.class</code>文件中的二进制数据读入到内存中，将其放在方法区内，然后在堆区创建一个<code>java.lang.Class</code>对象，用来封装类在方法区内的数据结构。类的加载的最终产品是位于堆区中的Class对象，Class对象封装了类在方法区内的数据结构，并且向Java程序员提供了访问方法区内的数据结构的接口。</p>
+<p>类加载器并不需要等到某个类被“首次主动使用”时再加载它，JVM规范允许类加载器在预料某个类将要被使用时就预先加载它，如果在预先加载的过程中遇到了<code>.class</code>文件缺失或存在错误，类加载器在程序首次主动使用该类时才报告错误（<code>LinkageError</code>错误）如果这个类一直没有被程序主动使用，那么类加载器就不会报告错误</p>
+<p>加载.class文件的方式</p>
+<p>– 从本地系统中直接加载<br>– 通过网络下载.class文件<br>– 从zip，jar等归档文件中加载.class文件<br>– 从专有数据库中提取.class文件<br>– 将Java源文件动态编译为.class文件</p>
+<h2 id="类的生命周期"><a href="#类的生命周期" class="headerlink" title="类的生命周期"></a>类的生命周期</h2><p>其中类加载的过程包括了加载、验证、准备、解析、初始化五个阶段。在这五个阶段中，加载、验证、准备和初始化这四个阶段发生的顺序是确定的，而解析阶段则不一定，它在某些情况下可以在初始化阶段之后开始，这是为了支持Java语言的运行时绑定（也成为动态绑定或晚期绑定）。另外注意这里的几个阶段是按顺序开始，而不是按顺序进行或完成，因为这些阶段通常都是互相交叉地混合进行的，通常在一个阶段执行的过程中调用或激活另一个阶段。</p>
+<p>加载：查找并加载类的二进制数据</p>
+<p>加载时类加载过程的第一个阶段，在加载阶段，虚拟机需要完成以下三件事情：</p>
+<p>1、通过一个类的全限定名来获取其定义的二进制字节流。</p>
+<p>2、将这个字节流所代表的静态存储结构转化为方法区的运行时数据结构。</p>
+<p>3、在Java堆中生成一个代表这个类的java.lang.Class对象，作为对方法区中这些数据的访问入口。</p>
+<p>相对于类加载的其他阶段而言，加载阶段（准确地说，是加载阶段获取类的二进制字节流的动作）是可控性最强的阶段，因为开发人员既可以使用系统提供的类加载器来完成加载，也可以自定义自己的类加载器来完成加载。</p>
+<p>加载阶段完成后，虚拟机外部的 二进制字节流就按照虚拟机所需的格式存储在方法区之中，而且在Java堆中也创建一个java.lang.Class类的对象，这样便可以通过该对象访问方法区中的这些数据。</p>
+<p>连接</p>
+<p>– 验证：确保被加载的类的正确性</p>
+<p>验证是连接阶段的第一步，这一阶段的目的是为了确保Class文件的字节流中包含的信息符合当前虚拟机的要求，并且不会危害虚拟机自身的安全。验证阶段大致会完成4个阶段的检验动作：</p>
+<p>文件格式验证：验证字节流是否符合Class文件格式的规范；例如：是否以0xCAFEBABE开头、主次版本号是否在当前虚拟机的处理范围之内、常量池中的常量是否有不被支持的类型。</p>
+<p>元数据验证：对字节码描述的信息进行语义分析（注意：对比javac编译阶段的语义分析），以保证其描述的信息符合Java语言规范的要求；例如：这个类是否有父类，除了java.lang.Object之外。</p>
+<p>字节码验证：通过数据流和控制流分析，确定程序语义是合法的、符合逻辑的。</p>
+<p>符号引用验证：确保解析动作能正确执行。</p>
+<p>验证阶段是非常重要的，但不是必须的，它对程序运行期没有影响，如果所引用的类经过反复验证，那么可以考虑采用-Xverifynone参数来关闭大部分的类验证措施，以缩短虚拟机类加载的时间。</p>
+<p>– 准备：为类的静态变量分配内存，并将其初始化为默认值</p>
+<p>准备阶段是正式为类变量分配内存并设置类变量初始值的阶段，这些内存都将在方法区中分配。对于该阶段有以下几点需要注意：</p>
+<p>1、这时候进行内存分配的仅包括类变量（static），而不包括实例变量，实例变量会在对象实例化时随着对象一块分配在Java堆中。</p>
+<p>2、这里所设置的初始值通常情况下是数据类型默认的零值（如0、0L、null、false等），而不是被在Java代码中被显式地赋予的值。</p>
+<p>假设一个类变量的定义为：public static int value = 3；</p>
+<p>那么变量value在准备阶段过后的初始值为0，而不是3，因为这时候尚未开始执行任何Java方法，而把value赋值为3的putstatic指令是在程序编译后，存放于类构造器<clinit>（）方法之中的，所以把value赋值为3的动作将在初始化阶段才会执行。</clinit></p>
+<p>这里还需要注意如下几点：</p>
+<p>· 对基本数据类型来说，对于类变量（static）和全局变量，如果不显式地对其赋值而直接使用，则系统会为其赋予默认的零值，而对于局部变量来说，在使用前必须显式地为其赋值，否则编译时不通过。<br>· 对于同时被static和final修饰的常量，必须在声明的时候就为其显式地赋值，否则编译时不通过；而只被final修饰的常量则既可以在声明时显式地为其赋值，也可以在类初始化时显式地为其赋值，总之，在使用前必须为其显式地赋值，系统不会为其赋予默认零值。<br>· 对于引用数据类型reference来说，如数组引用、对象引用等，如果没有对其进行显式地赋值而直接使用，系统都会为其赋予默认的零值，即null。<br>· 如果在数组初始化时没有对数组中的各元素赋值，那么其中的元素将根据对应的数据类型而被赋予默认的零值。<br>3、如果类字段的字段属性表中存在ConstantValue属性，即同时被final和static修饰，那么在准备阶段变量value就会被初始化为ConstValue属性所指定的值。</p>
+<p>假设上面的类变量value被定义为： public static final int value = 3；</p>
+<p>编译时Javac将会为value生成ConstantValue属性，在准备阶段虚拟机就会根据ConstantValue的设置将value赋值为3。回忆上一篇博文中对象被动引用的第2个例子，便是这种情况。我们可以理解为static final常量在编译期就将其结果放入了调用它的类的常量池中</p>
+<p>– 解析：把类中的符号引用转换为直接引用</p>
+<p>解析阶段是虚拟机将常量池内的符号引用替换为直接引用的过程，解析动作主要针对类或接口、字段、类方法、接口方法、方法类型、方法句柄和调用点限定符7类符号引用进行。符号引用就是一组符号来描述目标，可以是任何字面量。</p>
+<p>直接引用就是直接指向目标的指针、相对偏移量或一个间接定位到目标的句柄。</p>
+<p>初始化</p>
+<p>初始化，为类的静态变量赋予正确的初始值，JVM负责对类进行初始化，主要对类变量进行初始化。在Java中对类变量进行初始值设定有两种方式：</p>
+<p>①声明类变量是指定初始值</p>
+<p>②使用静态代码块为类变量指定初始值</p>
+<p>JVM初始化步骤</p>
+<p>1、假如这个类还没有被加载和连接，则程序先加载并连接该类</p>
+<p>2、假如该类的直接父类还没有被初始化，则先初始化其直接父类</p>
+<p>3、假如类中有初始化语句，则系统依次执行这些初始化语句</p>
+<p>类初始化时机：只有当对类的主动使用的时候才会导致类的初始化，类的主动使用包括以下六种：</p>
+<p>– 创建类的实例，也就是new的方式</p>
+<p>– 访问某个类或接口的静态变量，或者对该静态变量赋值</p>
+<p>– 调用类的静态方法</p>
+<p>– 反射（如Class.forName(“com.shengsiyuan.Test”)）</p>
+<p>– 初始化某个类的子类，则其父类也会被初始化</p>
+<p>– Java虚拟机启动时被标明为启动类的类（Java Test），直接使用java.exe命令来运行某个主类</p>
+<p>结束生命周期</p>
+<p>•在如下几种情况下，Java虚拟机将结束生命周期</p>
+<p>– 执行了System.exit()方法</p>
+<p>– 程序正常执行结束</p>
+<p>– 程序在执行过程中遇到了异常或错误而异常终止</p>
+<p>– 由于操作系统出现错误而导致Java虚拟机进程终止</p>
+<p>3、类加载器</p>
+<p>寻找类加载器，先来一个小例子</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>package com.neo.classloader;<br>public class ClassLoaderTest {<br>     public static void main(String[] args) {<br>        ClassLoader loader = Thread.currentThread().getContextClassLoader();<br>        System.out.println(loader);<br>        System.out.println(loader.getParent());<br>        System.out.println(loader.getParent().getParent());<br>    }<br>}<br>运行后，输出结果：</p>
+<p>1<br>2<br>3<br>sun.misc.Launcher$AppClassLoader@64fef26a<br>sun.misc.Launcher$ExtClassLoader@1ddd40f3<br>null<br>从上面的结果可以看出，并没有获取到ExtClassLoader的父Loader，原因是Bootstrap Loader（引导类加载器）是用C语言实现的，找不到一个确定的返回父Loader的方式，于是就返回null。</p>
+<p>这几种类加载器的层次关系如下图所示：</p>
+<p>注意：这里父类加载器并不是通过继承关系来实现的，而是采用组合实现的。</p>
+<p>站在Java虚拟机的角度来讲，只存在两种不同的类加载器：启动类加载器：它使用C++实现（这里仅限于Hotspot，也就是JDK1.5之后默认的虚拟机，有很多其他的虚拟机是用Java语言实现的），是虚拟机自身的一部分；所有其他的类加载器：这些类加载器都由Java语言实现，独立于虚拟机之外，并且全部继承自抽象类java.lang.ClassLoader，这些类加载器需要由启动类加载器加载到内存中之后才能去加载其他的类。</p>
+<p>站在Java开发人员的角度来看，类加载器可以大致划分为以下三类：</p>
+<p>启动类加载器：Bootstrap ClassLoader，负责加载存放在JDK\jre\lib(JDK代表JDK的安装目录，下同)下，或被-Xbootclasspath参数指定的路径中的，并且能被虚拟机识别的类库（如rt.jar，所有的java.*开头的类均被Bootstrap ClassLoader加载）。启动类加载器是无法被Java程序直接引用的。</p>
+<p>扩展类加载器：Extension ClassLoader，该加载器由sun.misc.Launcher$ExtClassLoader实现，它负责加载DK\jre\lib\ext目录中，或者由java.ext.dirs系统变量指定的路径中的所有类库（如javax.*开头的类），开发者可以直接使用扩展类加载器。</p>
+<p>应用程序类加载器：Application ClassLoader，该类加载器由sun.misc.Launcher$AppClassLoader来实现，它负责加载用户类路径（ClassPath）所指定的类，开发者可以直接使用该类加载器，如果应用程序中没有自定义过自己的类加载器，一般情况下这个就是程序中默认的类加载器。</p>
+<p>应用程序都是由这三种类加载器互相配合进行加载的，如果有必要，我们还可以加入自定义的类加载器。因为JVM自带的ClassLoader只是懂得从本地文件系统加载标准的java class文件，因此如果编写了自己的ClassLoader，便可以做到如下几点：</p>
+<p>1）在执行非置信代码之前，自动验证数字签名。</p>
+<p>2）动态地创建符合用户特定需要的定制化构建类。</p>
+<p>3）从特定的场所取得java class，例如数据库中和网络中。</p>
+<p>JVM类加载机制</p>
+<p>•全盘负责，当一个类加载器负责加载某个Class时，该Class所依赖的和引用的其他Class也将由该类加载器负责载入，除非显示使用另外一个类加载器来载入</p>
+<p>•父类委托，先让父类加载器试图加载该类，只有在父类加载器无法加载该类时才尝试从自己的类路径中加载该类</p>
+<p>•缓存机制，缓存机制将会保证所有加载过的Class都会被缓存，当程序中需要使用某个Class时，类加载器先从缓存区寻找该Class，只有缓存区不存在，系统才会读取该类对应的二进制数据，并将其转换成Class对象，存入缓存区。这就是为什么修改了Class后，必须重启JVM，程序的修改才会生效</p>
+<p>4、类的加载</p>
+<p>类加载有三种方式：</p>
+<p>1、命令行启动应用时候由JVM初始化加载</p>
+<p>2、通过Class.forName()方法动态加载</p>
+<p>3、通过ClassLoader.loadClass()方法动态加载</p>
+<p>例子：</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>package com.neo.classloader;<br>public class loaderTest {<br>        public static void main(String[] args) throws ClassNotFoundException {<br>                ClassLoader loader = HelloWorld.class.getClassLoader();<br>                System.out.println(loader);<br>                //使用ClassLoader.loadClass()来加载类，不会执行初始化块<br>                loader.loadClass(“Test2”);<br>                //使用Class.forName()来加载类，默认会执行初始化块<br>//                Class.forName(“Test2”);<br>                //使用Class.forName()来加载类，并指定ClassLoader，初始化时不执行静态块<br>//                Class.forName(“Test2”, false, loader);<br>        }<br>}<br>demo类</p>
+<p>1<br>2<br>3<br>4<br>5<br>public class Test2 {<br>        static {<br>                System.out.println(“静态初始化块执行了！”);<br>        }<br>}<br>分别切换加载方式，会有不同的输出结果。</p>
+<p>Class.forName()和ClassLoader.loadClass()区别</p>
+<p>Class.forName()：将类的.class文件加载到jvm中之外，还会对类进行解释，执行类中的static块；</p>
+<p>ClassLoader.loadClass()：只干一件事情，就是将.class文件加载到jvm中，不会执行static中的内容,只有在newInstance才会去执行static块。</p>
+<p>注：</p>
+<p>Class.forName(name, initialize, loader)带参函数也可控制是否加载static块。并且只有调用了newInstance()方法采用调用构造函数，创建类的对象 。</p>
+<p>5、双亲委派模型</p>
+<p>双亲委派模型的工作流程是：如果一个类加载器收到了类加载的请求，它首先不会自己去尝试加载这个类，而是把请求委托给父加载器去完成，依次向上，因此，所有的类加载请求最终都应该被传递到顶层的启动类加载器中，只有当父加载器在它的搜索范围中没有找到所需的类时，即无法完成该加载，子加载器才会尝试自己去加载该类。</p>
+<p>双亲委派机制:</p>
+<p>1、当AppClassLoader加载一个class时，它首先不会自己去尝试加载这个类，而是把类加载请求委派给父类加载器ExtClassLoader去完成。</p>
+<p>2、当ExtClassLoader加载一个class时，它首先也不会自己去尝试加载这个类，而是把类加载请求委派给BootStrapClassLoader去完成。</p>
+<p>3、如果BootStrapClassLoader加载失败（例如在$JAVA_HOME/jre/lib里未查找到该class），会使用ExtClassLoader来尝试加载；</p>
+<p>4、若ExtClassLoader也加载失败，则会使用AppClassLoader来加载，如果AppClassLoader也加载失败，则会报出异常ClassNotFoundException。</p>
+<p>ClassLoader源码分析：</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>public Class&lt;?&gt; loadClass(String name)throws ClassNotFoundException {<br>            return loadClass(name, false);<br>    }</p>
+<pre><code>protected synchronized Class&lt;?&gt; loadClass(String name, boolean resolve)throws ClassNotFoundException {
+        // 首先判断该类型是否已经被加载
+        Class c = findLoadedClass(name);
+        if (c == null) {
+            //如果没有被加载，就委托给父类加载或者委派给启动类加载器加载
+            try {
+                if (parent != null) {
+                     //如果存在父类加载器，就委派给父类加载器加载
+                    c = parent.loadClass(name, false);
+                } else {
+                //如果不存在父类加载器，就检查是否是由启动类加载器加载的类，通过调用本地方法native Class findBootstrapClass(String name)
+                    c = findBootstrapClass0(name);
+                }
+            } catch (ClassNotFoundException e) {
+             // 如果父类加载器和启动类加载器都不能完成加载任务，才调用自身的加载功能
+                c = findClass(name);
+            }
+        }
+        if (resolve) {
+            resolveClass(c);
+        }
+        return c;
+    }
+</code></pre><p>双亲委派模型意义：</p>
+<p>-系统类防止内存中出现多份同样的字节码</p>
+<p>-保证Java程序安全稳定运行</p>
+<p>6、自定义类加载器</p>
+<pre><code>通常情况下，我们都是直接使用系统类加载器。但是，有的时候，我们也需要自定义类加载器。比如应用是通过网络来传输 Java 类的字节码，为保证安全性，这些字节码经过了加密处理，这时系统类加载器就无法对其进行加载，这样则需要自定义类加载器来实现。自定义类加载器一般都是继承自 ClassLoader 类，从上面对 loadClass 方法来分析来看，我们只需要重写 findClass 方法即可。下面我们通过一个示例来演示自定义类加载器的流程：
+</code></pre><p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>50<br>51<br>52<br>53<br>54<br>55<br>56<br>57<br>58<br>59<br>60<br>61<br>62<br>63<br>package com.neo.classloader;</p>
+<p>import java.io.*;</p>
+<p>public class MyClassLoader extends ClassLoader {</p>
+<pre><code>private String root;
+
+protected Class&lt;?&gt; findClass(String name) throws ClassNotFoundException {
+    byte[] classData = loadClassData(name);
+    if (classData == null) {
+        throw new ClassNotFoundException();
+    } else {
+        return defineClass(name, classData, 0, classData.length);
+    }
+}
+
+private byte[] loadClassData(String className) {
+    String fileName = root + File.separatorChar
+            + className.replace(&apos;.&apos;, File.separatorChar) + &quot;.class&quot;;
+    try {
+        InputStream ins = new FileInputStream(fileName);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        int bufferSize = 1024;
+        byte[] buffer = new byte[bufferSize];
+        int length = 0;
+        while ((length = ins.read(buffer)) != -1) {
+            baos.write(buffer, 0, length);
+        }
+        return baos.toByteArray();
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+    return null;
+}
+
+public String getRoot() {
+    return root;
+}
+
+public void setRoot(String root) {
+    this.root = root;
+}
+
+public static void main(String[] args)  {
+
+    MyClassLoader classLoader = new MyClassLoader();
+    classLoader.setRoot(&quot;E:\\temp&quot;);
+
+    Class&lt;?&gt; testClass = null;
+    try {
+        testClass = classLoader.loadClass(&quot;com.neo.classloader.Test2&quot;);
+        Object object = testClass.newInstance();
+        System.out.println(object.getClass().getClassLoader());
+    } catch (ClassNotFoundException e) {
+        e.printStackTrace();
+    } catch (InstantiationException e) {
+        e.printStackTrace();
+    } catch (IllegalAccessException e) {
+        e.printStackTrace();
+    }
+}
+</code></pre><p>}<br>自定义类加载器的核心在于对字节码文件的获取，如果是加密的字节码则需要在该类中对文件进行解密。由于这里只是演示，我并未对class文件进行加密，因此没有解密的过程。这里有几点需要注意：</p>
+<p>1、这里传递的文件名需要是类的全限定性名称，即com.paddx.test.classloading.Test格式的，因为 defineClass 方法是按这种格式进行处理的。</p>
+<p>2、最好不要重写loadClass方法，因为这样容易破坏双亲委托模式。</p>
+<p>3、这类Test 类本身可以被 AppClassLoader 类加载，因此我们不能把 com/paddx/test/classloading/Test.class 放在类路径下。否则，由于双亲委托机制的存在，会直接导致该类由AppClassLoader 加载，而不会通过我们自定义类加载器来加载。</p>
+<p>参考：</p>
+<p><a href="http://blog.csdn.net/ns_code/article/details/17881581" target="_blank" rel="external">http://blog.csdn.net/ns_code/article/details/17881581</a></p>
+<p><a href="https://segmentfault.com/a/1190000005608960" target="_blank" rel="external">https://segmentfault.com/a/1190000005608960</a></p>
+<p><a href="http://www.importnew.com/18548.html" target="_blank" rel="external">http://www.importnew.com/18548.html</a></p>
+<p><a href="http://zyjustin9.iteye.com/blog/2092131" target="_blank" rel="external">http://zyjustin9.iteye.com/blog/2092131</a></p>
+<p><a href="http://www.codeceo.com/article/java-class-loader-learn.html" target="_blank" rel="external">http://www.codeceo.com/article/java-class-loader-learn.html</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/java/" rel="tag"># java</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/04/06/activemq/启动ActiveMQ的Broker/" rel="next" title="启动ActiveMQ的Broker">
+                <i class="fa fa-chevron-left"></i> 启动ActiveMQ的Broker
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="hypercomments_widget"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="技术随手记" />
+          <p class="site-author-name" itemprop="name">技术随手记</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+           
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">42</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">34</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">35</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#类的加载"><span class="nav-number">1.</span> <span class="nav-text">类的加载</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#类的生命周期"><span class="nav-number">2.</span> <span class="nav-text">类的生命周期</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">技术随手记</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+		<script type="text/javascript">
+		_hcwp = window._hcwp || [];
+
+		_hcwp.push({widget:"Bloggerstream", widget_id: 89144, selector:".hc-comment-count", label: "{\%COUNT%\}" });
+
+		
+		_hcwp.push({widget:"Stream", widget_id: 89144, xid: "2017/04/06/java/Java_类的加载机制/"});
+		
+
+		(function() {
+		if("HC_LOAD_INIT" in window)return;
+		HC_LOAD_INIT = true;
+		var lang = (navigator.language || navigator.systemLanguage || navigator.userLanguage || "en").substr(0, 2).toLowerCase();
+		var hcc = document.createElement("script"); hcc.type = "text/javascript"; hcc.async = true;
+		hcc.src = ("https:" == document.location.protocol ? "https" : "http")+"://w.hypercomments.com/widget/hc/89144/"+lang+"/widget.js";
+		var s = document.getElementsByTagName("script")[0];
+		s.parentNode.insertBefore(hcc, s.nextSibling);
+		})();
+		</script>
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
