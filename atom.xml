@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://jishusuishouji.github.io/"/>
-  <updated>2017-04-05T03:57:55.915Z</updated>
+  <updated>2017-04-05T04:31:42.668Z</updated>
   <id>http://jishusuishouji.github.io/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://jishusuishouji.github.io/2017/04/05/activemq/activemq%E7%9A%84%E5%87%A0%E7%A7%8D%E5%9F%BA%E6%9C%AC%E9%80%9A%E4%BF%A1%E6%96%B9%E5%BC%8F%E6%80%BB%E7%BB%93/"/>
     <id>http://jishusuishouji.github.io/2017/04/05/activemq/activemq的几种基本通信方式总结/</id>
     <published>2017-04-05T03:09:12.000Z</published>
-    <updated>2017-04-05T03:57:55.915Z</updated>
+    <updated>2017-04-05T04:31:42.668Z</updated>
     
     <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>在应用系统集成中，面向消息队列的集成方案是一个总体比较合理的选择。<br>activemq是JMS消息通信规范的一个实现。消息通信模式主要有发布-订阅、点对点。</p>
 <h2 id="基础流程"><a href="#基础流程" class="headerlink" title="基础流程"></a>基础流程</h2><p>activemq启动服务的过程:</p>
@@ -171,8 +171,7 @@ for (String stock : args) {
         producer.send(destination, message);  
     }  
 }  
-</code></pre><p>####消息发送者的启动代码：</p>
-<pre><code>public static void main(String[] args) throws JMSException {  
+</code></pre><h4 id="消息发送者的启动代码："><a href="#消息发送者的启动代码：" class="headerlink" title="消息发送者的启动代码："></a>消息发送者的启动代码：</h4><pre><code>public static void main(String[] args) throws JMSException {  
     Publisher publisher = new Publisher();  
     for(int i = 0; i &lt; 10; i++) {  
         publisher.sendMessage();  
@@ -226,55 +225,87 @@ public class Listener implements MessageListener {
         }  
     }        
 }
-</code></pre><h3 id="现在如果我们比较一下pub-sub和p2p模式的具体实现步骤的话，我们会发现他们基本的处理流程都是类似的，除了在pub-sub中要通过createTopic来设置topic，而在p2p中要通过createQueue来创建通信队列。他们之间存在着很多的重复之处，在具体的开发过程中，我们是否可以进行一些工程上的优化呢？别急，后面我们会讨论到的。"><a href="#现在如果我们比较一下pub-sub和p2p模式的具体实现步骤的话，我们会发现他们基本的处理流程都是类似的，除了在pub-sub中要通过createTopic来设置topic，而在p2p中要通过createQueue来创建通信队列。他们之间存在着很多的重复之处，在具体的开发过程中，我们是否可以进行一些工程上的优化呢？别急，后面我们会讨论到的。" class="headerlink" title="现在如果我们比较一下pub-sub和p2p模式的具体实现步骤的话，我们会发现他们基本的处理流程都是类似的，除了在pub-sub中要通过createTopic来设置topic，而在p2p中要通过createQueue来创建通信队列。他们之间存在着很多的重复之处，在具体的开发过程中，我们是否可以进行一些工程上的优化呢？别急，后面我们会讨论到的。"></a>现在如果我们比较一下pub-sub和p2p模式的具体实现步骤的话，我们会发现他们基本的处理流程都是类似的，除了在pub-sub中要通过createTopic来设置topic，而在p2p中要通过createQueue来创建通信队列。他们之间存在着很多的重复之处，在具体的开发过程中，我们是否可以进行一些工程上的优化呢？别急，后面我们会讨论到的。</h3><p>request-response</p>
-<pre><code>和前面两种方式比较起来，request-response的通信方式很常见，但是不是默认提供的一种模式。在前面的两种模式中都是一方负责发送消息而另外一方负责处理。而我们实际中的很多应用相当于一种一应一答的过程，需要双方都能给对方发送消息。于是请求-应答的这种通信方式也很重要。它也应用的很普遍。 
- 请求-应答方式并不是JMS规范系统默认提供的一种通信方式，而是通过在现有通信方式的基础上稍微运用一点技巧实现的。下图是典型的请求-应答方式的交互过程：
- 在JMS里面，如果要实现请求/应答的方式，可以利用JMSReplyTo和JMSCorrelationID消息头来将通信的双方关联起来。另外，QueueRequestor和TopicRequestor能够支持简单的请求/应答过程。
-現在，如果我们要实现这么一个过程，在发送请求消息并且等待返回结果的client端的流程如下：
-</code></pre><p>Java代码  收藏代码<br>// client side<br>Destination tempDest = session.createTemporaryQueue();<br>MessageConsumer responseConsumer = session.createConsumer(tempDest);<br>…  </p>
-<p>// send a request..<br>message.setJMSReplyTo(tempDest)<br>message.setJMSCorrelationID(myCorrelationID);  </p>
-<p>producer.send(message);<br>     client端创建一个临时队列并在发送的消息里指定了发送返回消息的destination以及correlationID。那么在处理消息的server端得到这个消息后就知道该发送给谁了。Server端的大致流程如下：</p>
-<p>Java代码  收藏代码<br>public void onMessage(Message request) {  </p>
-<p>  Message response = session.createMessage();<br>  response.setJMSCorrelationID(request.getJMSCorrelationID())  </p>
-<p>  producer.send(request.getJMSReplyTo(), response)<br>}<br>    这里我们是用server端注册MessageListener，通过设置返回信息的CorrelationID和JMSReplyTo将信息返回。<br>    以上就是发送和接收消息的双方的大致程序结构。具体的实现代码如下：<br> Client:<br>Java代码  收藏代码<br>public Client() {<br>        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(“tcp://localhost:61616”);<br>        Connection connection;<br>        try {<br>            connection = connectionFactory.createConnection();<br>            connection.start();<br>            Session session = connection.createSession(transacted, ackMode);<br>            Destination adminQueue = session.createQueue(clientQueueName);  </p>
-<pre><code>        //Setup a message producer to send message to the queue the server is consuming from  
-        this.producer = session.createProducer(adminQueue);  
-        this.producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);  
+</code></pre><h2 id="比较pub-sub和p2p模式"><a href="#比较pub-sub和p2p模式" class="headerlink" title="比较pub-sub和p2p模式"></a>比较pub-sub和p2p模式</h2><p>基本的处理流程都是类似的，除了在pub-sub中要通过<code>createTopic</code>来设置topic，而在p2p中要通过<code>createQueue</code>来创建通信队列。</p>
+<h2 id="request-response"><a href="#request-response" class="headerlink" title="request-response"></a>request-response</h2><p>和前面两种方式比较起来，request-response的通信方式很常见，但是不是默认提供的一种模式。在前面的两种模式中都是一方负责发送消息而另外一方负责处理。而实际中的很多应用需要双方都能给对方发送消息。<br>请求-应答方式并不是JMS规范系统默认提供的一种通信方式，而是通过在现有通信方式的基础上稍微运用一点技巧实现的。</p>
+<p><img src="/img/JMS实际应用中产生的应答方式示意图.jpg" alt="JMS实际应用中产生的应答方式示意图"><br>在JMS里面，如果要实现请求/应答的方式，可以利用<code>JMSReplyTo</code>和<code>JMSCorrelationID</code>消息头来将通信的双方关联起来。另外，<code>QueueRequestor</code>和<code>TopicRequestor</code>能够支持简单的请求/应答过程。</p>
+<pre><code>// client side  
+Destination tempDest = session.createTemporaryQueue();  
+MessageConsumer responseConsumer = session.createConsumer(tempDest);  
+...  
 
-        //Create a temporary queue that this client will listen for responses on then create a consumer  
-        //that consumes message from this temporary queue...for a real application a client should reuse  
-        //the same temp queue for each message to the server...one temp queue per client  
-        Destination tempDest = session.createTemporaryQueue();  
-        MessageConsumer responseConsumer = session.createConsumer(tempDest);  
+// send a request..  
+message.setJMSReplyTo(tempDest)  
+message.setJMSCorrelationID(myCorrelationID);  
 
-        //This class will handle the messages to the temp queue as well  
-        responseConsumer.setMessageListener(this);  
+producer.send(message);  
+</code></pre><p>client端创建一个临时队列并在发送的消息里指定了发送返回消息的destination以及correlationID。那么在处理消息的server端得到这个消息后就知道该发送给谁了。Server端的大致流程如下：</p>
+<pre><code>public void onMessage(Message request) {  
 
-        //Now create the actual message you want to send  
-        TextMessage txtMessage = session.createTextMessage();  
-        txtMessage.setText(&quot;MyProtocolMessage&quot;);  
+  Message response = session.createMessage();  
+  response.setJMSCorrelationID(request.getJMSCorrelationID())  
 
-        //Set the reply to field to the temp queue you created above, this is the queue the server  
-        //will respond to  
-        txtMessage.setJMSReplyTo(tempDest);  
+  producer.send(request.getJMSReplyTo(), response)  
+}  
+</code></pre><p>这里我们是用server端注册<code>MessageListener</code>，通过设置返回信息的<code>CorrelationID</code>和<code>JMSReplyTo</code>将信息返回。</p>
+<h3 id="Client"><a href="#Client" class="headerlink" title="Client:"></a>Client:</h3><p>public Client() {<br>    ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(“tcp://localhost:61616”);<br>    Connection connection;<br>    try {<br>        connection = connectionFactory.createConnection();<br>        connection.start();<br>        Session session = connection.createSession(transacted, ackMode);<br>        Destination adminQueue = session.createQueue(clientQueueName);  </p>
+<pre><code>    //Setup a message producer to send message to the queue the server is consuming from  
+    this.producer = session.createProducer(adminQueue);  
+    this.producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);  
 
-        //Set a correlation ID so when you get a response you know which sent message the response is for  
-        //If there is never more than one outstanding message to the server then the  
-        //same correlation ID can be used for all the messages...if there is more than one outstanding  
-        //message to the server you would presumably want to associate the correlation ID with this  
-        //message somehow...a Map works good  
-        String correlationId = this.createRandomString();  
-        txtMessage.setJMSCorrelationID(correlationId);  
-        this.producer.send(txtMessage);  
+    //Create a temporary queue that this client will listen for responses on then create a consumer  
+    //that consumes message from this temporary queue...for a real application a client should reuse  
+    //the same temp queue for each message to the server...one temp queue per client  
+    Destination tempDest = session.createTemporaryQueue();  
+    MessageConsumer responseConsumer = session.createConsumer(tempDest);  
+
+    //This class will handle the messages to the temp queue as well  
+    responseConsumer.setMessageListener(this);  
+
+    //Now create the actual message you want to send  
+    TextMessage txtMessage = session.createTextMessage();  
+    txtMessage.setText(&quot;MyProtocolMessage&quot;);  
+
+    //Set the reply to field to the temp queue you created above, this is the queue the server  
+    //will respond to  
+    txtMessage.setJMSReplyTo(tempDest);  
+
+    //Set a correlation ID so when you get a response you know which sent message the response is for  
+    //If there is never more than one outstanding message to the server then the  
+    //same correlation ID can be used for all the messages...if there is more than one outstanding  
+    //message to the server you would presumably want to associate the correlation ID with this  
+    //message somehow...a Map works good  
+    String correlationId = this.createRandomString();  
+    txtMessage.setJMSCorrelationID(correlationId);  
+    this.producer.send(txtMessage);  
+} catch (JMSException e) {  
+    //Handle the exception appropriately  
+}  
+</code></pre><p>}  </p>
+<p>这里的代码除了初始化构造函数里的参数还同时设置了两个destination，一个是自己要发送消息出去的destination，在<code>session.createProducer(adminQueue);</code>这一句设置。另外一个是自己要接收的消息destination, 通过<code>Destination tempDest = session.createTemporaryQueue(); responseConsumer = session.createConsumer(tempDest);</code> 这两句指定了要接收消息的目的地。这里是用的一个临时队列。在前面指定了返回消息的通信队列之后，需要通知server端知道发送返回消息给哪个队列。于是<code>txtMessage.setJMSReplyTo(tempDest);</code>指定了这一部分，同时<code>txtMessage.setJMSCorrelationID(correlationId);</code>方法主要是为了保证每次发送回来请求的server端能够知道对应的是哪个请求。这里一个请求和一个应答是相当于对应一个相同的序列号一样。</p>
+<p>同时，因为client端在发送消息之后还要接收server端返回的消息，所以它也要实现一个消息receiver的功能。这里采用实现<code>MessageListener</code>接口的方式：</p>
+<pre><code>public void onMessage(Message message) {  
+    String messageText = null;  
+    try {  
+        if (message instanceof TextMessage) {  
+            TextMessage textMessage = (TextMessage) message;  
+            messageText = textMessage.getText();  
+            System.out.println(&quot;messageText = &quot; + messageText);  
+        }  
     } catch (JMSException e) {  
         //Handle the exception appropriately  
     }  
 }  
-这里的代码除了初始化构造函数里的参数还同时设置了两个destination，一个是自己要发送消息出去的destination，在session.createProducer(adminQueue);这一句设置。另外一个是自己要接收的消息destination, 通过Destination tempDest = session.createTemporaryQueue(); responseConsumer = session.createConsumer(tempDest); 这两句指定了要接收消息的目的地。这里是用的一个临时队列。在前面指定了返回消息的通信队列之后，我们需要通知server端知道发送返回消息给哪个队列。于是txtMessage.setJMSReplyTo(tempDest);指定了这一部分，同时txtMessage.setJMSCorrelationID(correlationId);方法主要是为了保证每次发送回来请求的server端能够知道对应的是哪个请求。这里一个请求和一个应答是相当于对应一个相同的序列号一样。
-同时，因为client端在发送消息之后还要接收server端返回的消息，所以它也要实现一个消息receiver的功能。这里采用实现MessageListener接口的方式：
-</code></pre><p>Java代码  收藏代码<br>public void onMessage(Message message) {<br>        String messageText = null;<br>        try {<br>            if (message instanceof TextMessage) {<br>                TextMessage textMessage = (TextMessage) message;<br>                messageText = textMessage.getText();<br>                System.out.println(“messageText = “ + messageText);<br>            }<br>        } catch (JMSException e) {<br>            //Handle the exception appropriately<br>        }<br>    }  </p>
-<p>Server:<br>     这里server端要执行的过程和client端相反，它是先接收消息，在接收到消息后根据提供的JMSCorelationID来发送返回的消息：<br>Java代码  收藏代码<br>public void onMessage(Message message) {<br>        try {<br>            TextMessage response = this.session.createTextMessage();<br>            if (message instanceof TextMessage) {<br>                TextMessage txtMsg = (TextMessage) message;<br>                String messageText = txtMsg.getText();<br>                response.setText(this.messageProtocol.handleProtocolMessage(messageText));<br>            }  </p>
-<pre><code>        //Set the correlation ID from the received message to be the correlation id of the response message  
+</code></pre><h3 id="Server"><a href="#Server" class="headerlink" title="Server:"></a>Server:</h3><p>这里server端要执行的过程和client端相反，它是先接收消息，在接收到消息后根据提供的<code>JMSCorelationID</code>来发送返回的消息：</p>
+<pre><code>public void onMessage(Message message) {  
+    try {  
+        TextMessage response = this.session.createTextMessage();  
+        if (message instanceof TextMessage) {  
+            TextMessage txtMsg = (TextMessage) message;  
+            String messageText = txtMsg.getText();  
+            response.setText(this.messageProtocol.handleProtocolMessage(messageText));  
+        }  
+
+        //Set the correlation ID from the received message to be the correlation id of the response message  
         //this lets the client identify which message this is a response to if it has more than  
         //one outstanding message to the server  
         response.setJMSCorrelationID(message.getJMSCorrelationID());  
@@ -285,11 +316,21 @@ public class Listener implements MessageListener {
     } catch (JMSException e) {  
         //Handle the exception appropriately  
     }  
-}  
-前面，在replyProducer.send()方法里，message.getJMSReplyTo()就得到了要发送消息回去的destination。
-另外，设置这些发送返回信息的replyProducer的信息主要在构造函数相关的方法里实现了：
-</code></pre><p>Java代码  收藏代码<br>public Server() {<br>        try {<br>            //This message broker is embedded<br>            BrokerService broker = new BrokerService();<br>            broker.setPersistent(false);<br>            broker.setUseJmx(false);<br>            broker.addConnector(messageBrokerUrl);<br>            broker.start();<br>        } catch (Exception e) {<br>            //Handle the exception appropriately<br>        }  </p>
-<pre><code>    //Delegating the handling of messages to another class, instantiate it before setting up JMS so it  
+}
+</code></pre><p>前面，在<code>replyProducer.send()</code>方法里，<code>message.getJMSReplyTo()</code>就得到了要发送消息回去的destination。<br>另外，设置这些发送返回信息的replyProducer的信息主要在构造函数相关的方法里实现了：</p>
+<pre><code>public Server() {  
+    try {  
+        //This message broker is embedded  
+        BrokerService broker = new BrokerService();  
+        broker.setPersistent(false);  
+        broker.setUseJmx(false);  
+        broker.addConnector(messageBrokerUrl);  
+        broker.start();  
+    } catch (Exception e) {  
+        //Handle the exception appropriately  
+    }  
+
+    //Delegating the handling of messages to another class, instantiate it before setting up JMS so it  
     //is ready to handle messages  
     this.messageProtocol = new MessageProtocol();  
     this.setupMessageQueueConsumer();  
@@ -315,13 +356,11 @@ private void setupMessageQueueConsumer() {
     } catch (JMSException e) {  
         //Handle the exception appropriately  
     }  
-}  
-总体来说，整个的交互过程并不复杂，只是比较繁琐。对于请求/应答的方式来说，这种典型交互的过程就是Client端在设定正常发送请求的Queue同时也设定一个临时的Queue。同时在要发送的message里头指定要返回消息的destination以及CorelationID，这些就好比是一封信里面所带的回执。根据这个信息人家才知道怎么给你回信。对于Server端来说则要额外创建一个producer，在处理接收到消息的方法里再利用producer将消息发回去。这一系列的过程看起来很像http协议里面请求-应答的方式，都是一问一答。
-</code></pre><p>一些应用和改进</p>
+}
+</code></pre><p>总体来说，整个的交互过程并不复杂，只是比较繁琐。对于请求/应答的方式来说，这种典型交互的过程就是Client端在设定正常发送请求的Queue同时也设定一个临时的Queue。同时在要发送的message里头指定要返回消息的destination以及CorelationID，这些就好比是一封信里面所带的回执。根据这个信息人家才知道怎么给你回信。对于Server端来说则要额外创建一个producer，在处理接收到消息的方法里再利用producer将消息发回去。这一系列的过程看起来很像http协议里面请求-应答的方式，都是一问一答。<br>一些应用和改进</p>
 <pre><code>回顾前面三种基本的通信方式，我们会发现，他们都存在着一定的共同点，比如说都要初始化ConnectionFactory, Connection, Session等。在使用完之后都要将这些资源关闭。如果每一个实现它的通信端都这么写一通的话，其实是一种简单的重复。从工程的角度来看是完全没有必要的。那么，我们有什么办法可以减少这种重复呢？
 一种简单的方式就是通过工厂方法封装这些对象的创建和销毁，然后简单的通过调用工厂方法的方式得到他们。另外，既然基本的流程都是在开头创建资源在结尾销毁，我们也可以采用Template Method模式的思路。通过继承一个抽象类，在抽象类里提供了资源的封装。所有继承的类只要实现怎么去使用这些资源的方法就可以了。Spring中间的JMSTemplate就提供了这种类似思想的封装。具体的实现可以参考这篇文章。
-</code></pre><p>总结</p>
-<pre><code>activemq默认提供了pub-sub, p2p这两种通信的方式。同时也提供了一些对request-response方式的支持。实际上，不仅仅是activemq，对于所有其他实现JMS规范的产品都能够提供类似的功能。这里每种方式都不太复杂，主要是创建和管理资源的步骤显得比较繁琐。
+</code></pre><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><pre><code>activemq默认提供了pub-sub, p2p这两种通信的方式。同时也提供了一些对request-response方式的支持。实际上，不仅仅是activemq，对于所有其他实现JMS规范的产品都能够提供类似的功能。这里每种方式都不太复杂，主要是创建和管理资源的步骤显得比较繁琐。
 </code></pre>]]></content>
     
     <summary type="html">
