@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://jishusuishouji.github.io/"/>
-  <updated>2017-04-05T23:52:18.208Z</updated>
+  <updated>2017-04-06T13:52:11.631Z</updated>
   <id>http://jishusuishouji.github.io/</id>
   
   <author>
@@ -16,30 +16,62 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>js如何把相对路基的url转换为绝对路径</title>
+    <link href="http://jishusuishouji.github.io/2017/04/06/js/js%E5%A6%82%E4%BD%95%E6%8A%8A%E7%9B%B8%E5%AF%B9%E8%B7%AF%E5%9F%BA%E7%9A%84url%E8%BD%AC%E6%8D%A2%E4%B8%BA%E7%BB%9D%E5%AF%B9%E8%B7%AF%E5%BE%84/"/>
+    <id>http://jishusuishouji.github.io/2017/04/06/js/js如何把相对路基的url转换为绝对路径/</id>
+    <published>2017-04-06T13:50:53.000Z</published>
+    <updated>2017-04-06T13:52:11.631Z</updated>
+    
+    <content type="html"><![CDATA[<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">var absolutePath = function(href) &#123;</div><div class="line">    var link = document.createElement(&quot;a&quot;);</div><div class="line">    link.href = href;</div><div class="line">    return (link.protocol+&quot;//&quot;+link.host+link.pathname+link.search+link.hash);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+]]></content>
+    
+    <summary type="html">
+    
+      js如何把相对路基的url转换为绝对路径
+    
+    </summary>
+    
+      <category term="javascript" scheme="http://jishusuishouji.github.io/categories/javascript/"/>
+    
+    
+      <category term="javascript" scheme="http://jishusuishouji.github.io/tags/javascript/"/>
+    
+      <category term="js" scheme="http://jishusuishouji.github.io/tags/js/"/>
+    
+      <category term="相对路径" scheme="http://jishusuishouji.github.io/tags/%E7%9B%B8%E5%AF%B9%E8%B7%AF%E5%BE%84/"/>
+    
+      <category term="绝对路径" scheme="http://jishusuishouji.github.io/tags/%E7%BB%9D%E5%AF%B9%E8%B7%AF%E5%BE%84/"/>
+    
+  </entry>
+  
+  <entry>
     <title>设计模式六大原则</title>
     <link href="http://jishusuishouji.github.io/2017/04/06/shejiyuanze/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%85%AD%E5%A4%A7%E5%8E%9F%E5%88%99/"/>
     <id>http://jishusuishouji.github.io/2017/04/06/shejiyuanze/设计模式六大原则/</id>
     <published>2017-04-05T23:43:16.000Z</published>
-    <updated>2017-04-05T23:52:18.208Z</updated>
+    <updated>2017-04-06T14:05:18.969Z</updated>
     
-    <content type="html"><![CDATA[<h2 id="单一职责原则"><a href="#单一职责原则" class="headerlink" title="单一职责原则"></a>单一职责原则</h2><p>定义：<strong>不要存在多于一个导致类变更的原因</strong>。</p>
-<p>问题由来：类T负责两个不同的职责：职责P1，职责P2。当由于职责P1需求发生改变而需要修改类T时，有可能会导致原本运行正常的职责P2功能发生故障。</p>
-<p>解决方案：遵循单一职责原则。分别建立两个类T1、T2，使T1完成职责P1功能，T2完成职责P2功能。这样，当修改类T1时，不会使职责P2发生故障风险；同理，当修改T2时，也不会使职责P1发生故障风险。</p>
-<p>在软件编程中，谁也不希望因为修改了一个功能导致其他的功能发生故障。而避免出现这一问题的方法便是遵循单一职责原则。虽然单一职责原则如此简单，并且被认为是常识，但是即便是经验丰富的程序员写出的程序，也会有违背这一原则的代码存在。为什么会出现这种现象呢？因为有职责扩散。所谓职责扩散，就是因为某种原因，职责P被分化为粒度更细的职责P1和P2。</p>
-<p>比如：类T只负责一个职责P，这样设计是符合单一职责原则的。后来由于某种原因，也许是需求变更了，也许是程序的设计者境界提高了，需要将职责P细分为粒度更细的职责P1，P2，这时如果要使程序遵循单一职责原则，需要将类T也分解为两个类T1和T2，分别负责P1、P2两个职责。但是在程序已经写好的情况下，这样做简直太费时间了。所以，简单的修改类T，用它来负责两个职责是一个比较不错的选择，虽然这样做有悖于单一职责原则。（这样做的风险在于职责扩散的不确定性，因为我们不会想到这个职责P，在未来可能会扩散为P1，P2，P3，P4……Pn。所以记住，在职责扩散到我们无法控制的程度之前，立刻对代码进行重构。）</p>
-<p>举例说明，用一个类描述动物呼吸这个场景：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">class Animal&#123;</div><div class="line">    public void breathe(String animal)&#123;</div><div class="line">        System.out.println(animal+&quot;呼吸空气&quot;);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+    <content type="html"><![CDATA[<p>开闭原则<br>单一职责原则<br>迪米特原则<br>面向对象的： 接口隔离原则<br>             依赖倒转原则<br>             里氏替换原则</p>
+<h2 id="单一职责原则"><a href="#单一职责原则" class="headerlink" title="单一职责原则"></a>单一职责原则</h2><p>定义：<strong>不要存在多于一个导致类变更的原因</strong>。</p>
+<p>问题由来：类<code>T</code>负责两个不同的职责：职责<code>P1</code>，职责<code>P2</code>。当由于职责<code>P1</code>需求发生改变而需要修改类<code>T</code>时，有可能会导致原本运行正常的职责<code>P2</code>功能发生故障。</p>
+<p>解决方案：遵循单一职责原则。分别建立两个类<code>T1</code>、<code>T2</code>，使<code>T1</code>完成职责<code>P1</code>功能，<code>T2</code>完成职责<code>P2</code>功能。这样，当修改类<code>T1</code>时，不会使职责P2发生故障风险；同理，当修改<code>T2</code>时，也不会使职责P1发生故障风险。</p>
+<p>遵循单一职责原则可以避免因为修改了一个功能导致其他功能发生异常。</p>
+<h3 id="职责扩散"><a href="#职责扩散" class="headerlink" title="职责扩散"></a>职责扩散</h3><p>职责扩散：因为某种原因，职责P被分化为粒度更细的职责P1和P2。<br>比如：类<code>T</code>只负责一个职责P，这样设计是符合单一职责原则的。后来由于需求变更了，需要将职责P细分为粒度更细的职责P1，P2，这时如果要使程序遵循单一职责原则，需要将类<code>T</code>分解为两个类<code>T1</code>和<code>T2</code>，分别负责P1、P2两个职责。但是在程序已经写好的情况下，这样做简直太费时间了。所以，简单的修改类<code>T</code>，用它来负责两个职责是一个比较不错的选择，虽然这样做有悖于单一职责原则。（这样做的风险在于职责扩散的不确定性，因为我们不会想到这个职责P，在未来可能会扩散为P1，P2，P3，P4……Pn。所以记住，在职责扩散到我们无法控制的程度之前，立刻对代码进行重构。）</p>
+<h3 id="职责扩散例子说明，用一个类描述动物呼吸这个场景："><a href="#职责扩散例子说明，用一个类描述动物呼吸这个场景：" class="headerlink" title="职责扩散例子说明，用一个类描述动物呼吸这个场景："></a>职责扩散例子说明，用一个类描述动物呼吸这个场景：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">class Animal&#123;</div><div class="line">    public void breathe(String animal)&#123;</div><div class="line">        System.out.println(animal+&quot;呼吸空气&quot;);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">public class Client&#123;</div><div class="line">    public static void main(String[] args)&#123;</div><div class="line">        Animal animal = new Animal();</div><div class="line">        animal.breathe(&quot;牛&quot;);</div><div class="line">        animal.breathe(&quot;羊&quot;);</div><div class="line">        animal.breathe(&quot;猪&quot;);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>运行结果：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">牛呼吸空气</div><div class="line"></div><div class="line">羊呼吸空气</div><div class="line"></div><div class="line">猪呼吸空气</div></pre></td></tr></table></figure></p>
+<p>运行结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">牛呼吸空气</div><div class="line">羊呼吸空气</div><div class="line">猪呼吸空气</div></pre></td></tr></table></figure>
 <p>程序上线后，发现问题了，并不是所有的动物都呼吸空气的，比如鱼就是呼吸水的。修改时如果遵循单一职责原则，需要将<code>Animal</code>类细分为陆生动物类<code>Terrestrial</code>，水生动物<code>Aquatic</code>，代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">class Terrestrial&#123;</div><div class="line">    public void breathe(String animal)&#123;</div><div class="line">        System.out.println(animal+&quot;呼吸空气&quot;);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">class Aquatic&#123;</div><div class="line">    public void breathe(String animal)&#123;</div><div class="line">        System.out.println(animal+&quot;呼吸水&quot;);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">public class Client&#123;</div><div class="line">    public static void main(String[] args)&#123;</div><div class="line">        Terrestrial terrestrial = new Terrestrial();</div><div class="line">        terrestrial.breathe(&quot;牛&quot;);</div><div class="line">        terrestrial.breathe(&quot;羊&quot;);</div><div class="line">        terrestrial.breathe(&quot;猪&quot;);</div><div class="line">        </div><div class="line">        Aquatic aquatic = new Aquatic();</div><div class="line">        aquatic.breathe(&quot;鱼&quot;);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>运行结果：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">牛呼吸空气</div><div class="line"></div><div class="line">羊呼吸空气</div><div class="line"></div><div class="line">猪呼吸空气</div><div class="line"></div><div class="line">鱼呼吸水</div></pre></td></tr></table></figure></p>
-<p>我们会发现如果这样修改花销是很大的，除了将原来的类分解之外，还需要修改客户端。而直接修改类<code>Animal</code>来达成目的虽然违背了单一职责原则，但花销却小的多，代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">class Animal&#123;</div><div class="line">    public void breathe(String animal)&#123;</div><div class="line">        if(&quot;鱼&quot;.equals(animal))&#123;</div><div class="line">            System.out.println(animal+&quot;呼吸水&quot;);</div><div class="line">        &#125;else&#123;</div><div class="line">            System.out.println(animal+&quot;呼吸空气&quot;);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>运行结果：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">牛呼吸空气</div><div class="line">羊呼吸空气</div><div class="line">猪呼吸空气</div><div class="line">鱼呼吸水</div></pre></td></tr></table></figure></p>
+<p>我们会发现如果这样修改花销是很大的，除了将原来的类分解之外，还需要修改客户端。而直接修改类<code>Animal</code>来达成目的虽然违背了单一职责原则，但花销却小得多，代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">class Animal&#123;</div><div class="line">    public void breathe(String animal)&#123;</div><div class="line">        if(&quot;鱼&quot;.equals(animal))&#123;</div><div class="line">            System.out.println(animal+&quot;呼吸水&quot;);</div><div class="line">        &#125;else&#123;</div><div class="line">            System.out.println(animal+&quot;呼吸空气&quot;);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">public class Client&#123;</div><div class="line">    public static void main(String[] args)&#123;</div><div class="line">        Animal animal = new Animal();</div><div class="line">        animal.breathe(&quot;牛&quot;);</div><div class="line">        animal.breathe(&quot;羊&quot;);</div><div class="line">        animal.breathe(&quot;猪&quot;);</div><div class="line">        animal.breathe(&quot;鱼&quot;);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>可以看到，这种修改方式要简单的多。但是却存在着隐患：有一天需要将鱼分为呼吸淡水的鱼和呼吸海水的鱼，则又需要修改<code>Animal</code>类的<code>breathe</code>方法，而对原有代码的修改会对调用“猪”“牛”“羊”等相关功能带来风险，也许某一天你会发现程序运行的结果变为“牛呼吸水”了。这种修改方式直接在代码级别上违背了单一职责原则，虽然修改起来最简单，但隐患却是最大的。还有一种修改方式：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">class Animal&#123;</div><div class="line">    public void breathe(String animal)&#123;</div><div class="line">        System.out.println(animal+&quot;呼吸空气&quot;);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public void breathe2(String animal)&#123;</div><div class="line">        System.out.println(animal+&quot;呼吸水&quot;);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>可以看到，这种修改方式要简单得多。但是却存在着隐患：有一天需要将鱼分为呼吸淡水的鱼和呼吸海水的鱼，则又需要修改<code>Animal</code>类的<code>breathe</code>方法，而对原有代码的修改会对调用“猪”“牛”“羊”等相关功能带来风险，也许某一天你会发现程序运行的结果变为“牛呼吸水”了。(不要认为这是不可能的，这是绝对可能的，修改代码本来就应该认为是极其危险的，你可以扩展但是最好不要修改，修改了就一定要好好测试！)这种修改方式直接在代码级别上违背了单一职责原则，虽然修改起来最简单，但隐患却是最大的。还有一种修改方式：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">class Animal&#123;</div><div class="line">    public void breathe(String animal)&#123;</div><div class="line">        System.out.println(animal+&quot;呼吸空气&quot;);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public void breathe2(String animal)&#123;</div><div class="line">        System.out.println(animal+&quot;呼吸水&quot;);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">public class Client&#123;</div><div class="line">    public static void main(String[] args)&#123;</div><div class="line">        Animal animal = new Animal();</div><div class="line">        animal.breathe(&quot;牛&quot;);</div><div class="line">        animal.breathe(&quot;羊&quot;);</div><div class="line">        animal.breathe(&quot;猪&quot;);</div><div class="line">        animal.breathe2(&quot;鱼&quot;);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>可以看到，这种修改方式没有改动原来的方法，而是在类中新加了一个方法，这样虽然也违背了单一职责原则，但在方法级别上却是符合单一职责原则的，因为它并没有动原来方法的代码。这三种方式各有优缺点，那么在实际编程中，采用哪一种呢？其实这真的比较难说，需要根据实际情况来确定。我的原则是：只有逻辑足够简单，才可以在代码级别上违反单一职责原则；只有类中方法数量足够少，才可以在方法级别上违反单一职责原则；</p>
-<p>例如本文所举的这个例子，它太简单了，它只有一个方法，所以，无论是在代码级别上违反单一职责原则，还是在方法级别上违反，都不会造成太大的影响。实际应用中的类都要复杂的多，一旦发生职责扩散而需要修改类时，除非这个类本身非常简单，否则还是遵循单一职责原则的好。</p>
+<p>可以看到，这种修改方式没有改动原来的方法，而是在类中新加了一个方法，这样虽然也违背了单一职责原则，但在方法级别上却是符合单一职责原则的，因为它并没有动原方法的代码。这三种方式各有优缺点，那么在实际编程中，采用哪一种呢？这需要根据实际情况来确定。原则是：只有逻辑足够简单，才可以在代码级别上违反单一职责原则；只有类中方法数量足够少，才可以在方法级别上违反单一职责原则；</p>
+<p>例如本文所举的这个例子，它太简单了，它只有一个方法，所以，无论是在代码级别上违反单一职责原则，还是在方法级别上违反，都不会造成太大的影响。实际应用中的类要复杂得多，一旦发生职责扩散而需要修改类时，除非这个类本身非常简单，否则还是遵循单一职责原则的好。</p>
 <h3 id="遵循单一职责原的优点有："><a href="#遵循单一职责原的优点有：" class="headerlink" title="遵循单一职责原的优点有："></a>遵循单一职责原的优点有：</h3><p>可以降低类的复杂度，一个类只负责一项职责，其逻辑肯定要比负责多项职责简单的多；<br>提高类的可读性，提高系统的可维护性；<br>变更引起的风险降低，变更是必然的，如果单一职责原则遵守的好，当修改一个功能时，可以显著降低对其他功能的影响。<br>需要说明的一点是单一职责原则不只是面向对象编程思想所特有的，只要是模块化的程序设计，都适用单一职责原则。</p>
 <h2 id="里氏替换原则"><a href="#里氏替换原则" class="headerlink" title="里氏替换原则"></a>里氏替换原则</h2><p>这项原则最早是在1988年，由麻省理工学院的一位姓里的女士（Barbara Liskov）提出来的。</p>
 <p>定义1：如果对每一个类型为<code>T1</code>的对象<code>o1</code>，都有类型为<code>T2</code>的对象<code>o2</code>,使得以 <code>T1</code>定义的所有程序 <code>P</code> 在所有的对象 <code>o1</code> 都代换成 <code>o2</code> 时，程序 P 的行为没有发生变化，那么类型 T2 是类型 T1 的子类型。</p>
@@ -343,9 +375,9 @@ public class RunningBroker {
     
       <category term="java" scheme="http://jishusuishouji.github.io/tags/java/"/>
     
-      <category term="JMS" scheme="http://jishusuishouji.github.io/tags/JMS/"/>
-    
       <category term="ActiveMQ" scheme="http://jishusuishouji.github.io/tags/ActiveMQ/"/>
+    
+      <category term="JMS" scheme="http://jishusuishouji.github.io/tags/JMS/"/>
     
   </entry>
   
@@ -842,9 +874,9 @@ public class RunningBroker {
     
       <category term="java" scheme="http://jishusuishouji.github.io/tags/java/"/>
     
-      <category term="JMS" scheme="http://jishusuishouji.github.io/tags/JMS/"/>
-    
       <category term="ActiveMQ" scheme="http://jishusuishouji.github.io/tags/ActiveMQ/"/>
+    
+      <category term="JMS" scheme="http://jishusuishouji.github.io/tags/JMS/"/>
     
   </entry>
   
@@ -998,9 +1030,9 @@ public class RunningBroker {
     
       <category term="java" scheme="http://jishusuishouji.github.io/tags/java/"/>
     
-      <category term="JMS" scheme="http://jishusuishouji.github.io/tags/JMS/"/>
-    
       <category term="ActiveMQ" scheme="http://jishusuishouji.github.io/tags/ActiveMQ/"/>
+    
+      <category term="JMS" scheme="http://jishusuishouji.github.io/tags/JMS/"/>
     
   </entry>
   
@@ -2409,65 +2441,6 @@ try {
     
     
       <category term="Log4j" scheme="http://jishusuishouji.github.io/tags/Log4j/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>MongoDB两阶段提交实现事务</title>
-    <link href="http://jishusuishouji.github.io/2017/03/27/mongodb/MongoDB%E4%B8%A4%E9%98%B6%E6%AE%B5%E6%8F%90%E4%BA%A4%E5%AE%9E%E7%8E%B0%E4%BA%8B%E5%8A%A1/"/>
-    <id>http://jishusuishouji.github.io/2017/03/27/mongodb/MongoDB两阶段提交实现事务/</id>
-    <published>2017-03-27T13:12:46.000Z</published>
-    <updated>2017-03-29T10:15:06.559Z</updated>
-    
-    <content type="html"><![CDATA[<p> MongoDB数据库中操作单个文档总是原子性的，然而，涉及多个文档的操作，通常被作为一个“事务”，而不是原子性的。因为文档可以是相当复杂并且包含多个嵌套文档，单文档的原子性对许多实际用例提供了支持。尽管单文档操作是原子性的，在某些情况下，需要多文档事务。在这些情况下，使用两阶段提交，提供这些类型的多文档更新支持。因为文档可以表示为<code>Pending</code>数据和状态，可以使用一个两阶段提交确保数据是一致的，在一个错误的情况下，事务前的状态是可恢复的。</p>
-<p>事务最常见的例子是以可靠的方式从A账户转账到B账户，在关系型数据库中，此操作将从A账户减掉金额和给B账户增加金额的操作封装在单个原子事务中。在MongoDB中，可以使用两阶段提交达到相同的效果。本文中的所有示例使用mongo shell与数据库进行交互,并假设有两个集合：首先，一个名为<code>accounts</code>的集合存储每个账户的文档数据，另一个名为<code>transactions</code>的集合存储事务本身。</p>
-<p>首先创建两个名为A和B的账户，使用下面的命令：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">db.accounts.save(&#123;name: &quot;A&quot;, balance: 1000, pendingTransactions: []&#125;)</div><div class="line">db.accounts.save(&#123;name: &quot;B&quot;, balance: 1000, pendingTransactions: []&#125;)</div></pre></td></tr></table></figure></p>
-<p>使用<code>find()</code>方法验证这两个操作已经成功：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">db.accounts.find()</div></pre></td></tr></table></figure></p>
-<p>mongo会返回两个类似下面的文档：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">&#123; &quot;_id&quot; : ObjectId(&quot;4d7bc66cb8a04f512696151f&quot;), &quot;name&quot; : &quot;A&quot;, &quot;balance&quot; : 1000, &quot;pendingTransactions&quot; : [ ] &#125;</div><div class="line">&#123; &quot;_id&quot; : ObjectId(&quot;4d7bc67bb8a04f5126961520&quot;), &quot;name&quot; : &quot;B&quot;, &quot;balance&quot; : 1000, &quot;pendingTransactions&quot; : [ ] &#125;</div></pre></td></tr></table></figure></p>
-<h2 id="事务过程："><a href="#事务过程：" class="headerlink" title="事务过程："></a>事务过程：</h2><p>设置事务初始状态<code>initial</code>：</p>
-<p>通过插入下面的文档创建transaction集合，transaction文档持有源(source)和目标(destination)，它们引用自<code>accounts</code>集合文档的字段名，以及<code>value</code>字段表示改变<code>balance</code>字段数量的数据。最后，<code>state</code>字段反映事务的当前状态。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">db.transactions.save(&#123;source: &quot;A&quot;, destination: &quot;B&quot;, value: 100, state: &quot;initial&quot;&#125;)</div></pre></td></tr></table></figure></p>
-<p>验证这个操作已经成功，使用<code>find()</code>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">db.transactions.find()</div></pre></td></tr></table></figure></p>
-<p>这个操作会返回一个类似下面的文档：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&#123; &quot;_id&quot; : ObjectId(&quot;4d7bc7a8b8a04f5126961522&quot;), &quot;source&quot; : &quot;A&quot;, &quot;destination&quot; : &quot;B&quot;, &quot;value&quot; : 100, &quot;state&quot; : &quot;initial&quot; &#125;</div></pre></td></tr></table></figure></p>
-<p>切换事务到Pending状态：<br>在修改accounts集合记录之前，将事务状态从initial设置为pending。使用<code>findOne()</code>方法将transaction文档赋值给shell会话中的局部变量t：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">t = db.transactions.findOne(&#123;state: &quot;initial&quot;&#125;)</div></pre></td></tr></table></figure></p>
-<p>变量t创建后，shell将返回它的值，将会看到如下的输出：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&#123; &quot;_id&quot; : ObjectId(&quot;4d7bc7a8b8a04f5126961522&quot;), &quot;source&quot; : &quot;A&quot;, &quot;destination&quot; : &quot;B&quot;, &quot;value&quot; : 100, &quot;state&quot; : &quot;initial&quot; &#125;</div></pre></td></tr></table></figure></p>
-<p>使用<code>update()</code>改变<code>state</code>的值为<code>pending</code>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">db.transactions.update(&#123;_id: t._id&#125;, &#123;$set: &#123;state: &quot;pending&quot;&#125;&#125;)</div><div class="line">db.transactions.find()</div></pre></td></tr></table></figure></p>
-<p><code>find()</code>操作将返回<code>transaction</code>集合的内容，类似下面：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&#123; &quot;_id&quot; : ObjectId(&quot;4d7bc7a8b8a04f5126961522&quot;), &quot;source&quot; : &quot;A&quot;, &quot;destination&quot; : &quot;B&quot;, &quot;value&quot; : 100, &quot;state&quot; : &quot;pending&quot; &#125;</div></pre></td></tr></table></figure></p>
-<h3 id="将事务应用到两个账户："><a href="#将事务应用到两个账户：" class="headerlink" title="将事务应用到两个账户："></a>将事务应用到两个账户：</h3><p>使用<code>update()</code>方法应用事务到两个账户。在<code>update()</code>查询中，条件<code>pendingTransactions:{$ne:t._id}</code>阻止事务更新账户，如果账户的pendingTransaction字段包含事务t的<code>_id</code>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">db.accounts.update(</div><div class="line">    &#123; name: t.source, pendingTransactions: &#123; $ne: t._id &#125; &#125;,</div><div class="line">    &#123; $inc: &#123; balance: -t.value &#125;, $push: &#123; pendingTransactions: t._id &#125; &#125;</div><div class="line">)</div><div class="line">db.accounts.update(</div><div class="line">    &#123; name: t.destination, pendingTransactions: &#123; $ne: t._id &#125; &#125;,</div><div class="line">    &#123; $inc: &#123; balance: t.value &#125;, $push: &#123; pendingTransactions: t._id &#125; &#125;</div><div class="line">)</div></pre></td></tr></table></figure></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">db.accounts.find()</div></pre></td></tr></table></figure>
-<p><code>find()</code>操作将返回accounts集合的内容，现在应该类似于下面的内容：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">&#123; &quot;_id&quot; : ObjectId(&quot;4d7bc97fb8a04f5126961523&quot;), &quot;balance&quot; : 900, &quot;name&quot; : &quot;A&quot;, &quot;pendingTransactions&quot; : [ ObjectId(&quot;4d7bc7a8b8a04f5126961522&quot;) ] &#125;</div><div class="line">&#123; &quot;_id&quot; : ObjectId(&quot;4d7bc984b8a04f5126961524&quot;), &quot;balance&quot; : 1100, &quot;name&quot; : &quot;B&quot;, &quot;pendingTransactions&quot; : [ ObjectId(&quot;4d7bc7a8b8a04f5126961522&quot;) ] &#125;</div></pre></td></tr></table></figure></p>
-<h3 id="设置事务状态为committed："><a href="#设置事务状态为committed：" class="headerlink" title="设置事务状态为committed："></a>设置事务状态为<code>committed</code>：</h3><p>使用下面的<code>update()</code>操作设置事务的状态为<code>committed</code>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">db.transactions.update(&#123;_id: t._id&#125;, &#123;$set: &#123;state: &quot;committed&quot;&#125;&#125;)</div><div class="line">db.transactions.find()</div></pre></td></tr></table></figure></p>
-<p><code>find()</code>操作发回transactions集合的内容，现在应该类似下面的内容：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&#123; &quot;_id&quot; : ObjectId(&quot;4d7bc7a8b8a04f5126961522&quot;), &quot;destination&quot; : &quot;B&quot;, &quot;source&quot; : &quot;A&quot;, &quot;state&quot; : &quot;committed&quot;, &quot;value&quot; : 100 &#125;</div></pre></td></tr></table></figure></p>
-<h3 id="移除pending事务："><a href="#移除pending事务：" class="headerlink" title="移除pending事务："></a>移除pending事务：</h3><p>使用下面的<code>update()</code>操作从<code>accounts</code>集合中移除<code>pending</code>事务：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">db.accounts.update(&#123;name: t.source&#125;, &#123;$pull: &#123;pendingTransactions: t._id&#125;&#125;)</div><div class="line">db.accounts.update(&#123;name: t.destination&#125;, &#123;$pull: &#123;pendingTransactions: t._id&#125;&#125;)</div><div class="line">db.accounts.find()</div></pre></td></tr></table></figure></p>
-<p><code>find()</code>操作返回accounts集合内容，现在应该类似下面内容：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">&#123; &quot;_id&quot; : ObjectId(&quot;4d7bc97fb8a04f5126961523&quot;), &quot;balance&quot; : 900, &quot;name&quot; : &quot;A&quot;, &quot;pendingTransactions&quot; : [ ] &#125;</div><div class="line">&#123; &quot;_id&quot; : ObjectId(&quot;4d7bc984b8a04f5126961524&quot;), &quot;balance&quot; : 1100, &quot;name&quot; : &quot;B&quot;, &quot;pendingTransactions&quot; : [ ] &#125;</div></pre></td></tr></table></figure>
-<h3 id="设置事务状态为done："><a href="#设置事务状态为done：" class="headerlink" title="设置事务状态为done："></a>设置事务状态为done：</h3><p>通过设置transaction文档的<code>state</code>为<code>done</code>完成事务：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">db.transactions.update(&#123;_id: t._id&#125;, &#123;$set: &#123;state: &quot;done&quot;&#125;&#125;)</div><div class="line">db.transactions.find()</div></pre></td></tr></table></figure></p>
-<p><code>find()</code>操作返回transaction集合的内容，此时应该类似下面：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&#123; &quot;_id&quot; : ObjectId(&quot;4d7bc7a8b8a04f5126961522&quot;), &quot;destination&quot; : &quot;B&quot;, &quot;source&quot; : &quot;A&quot;, &quot;state&quot; : &quot;done&quot;, &quot;value&quot; : 100 &#125;</div></pre></td></tr></table></figure></p>
-<h3 id="从失败场景中恢复："><a href="#从失败场景中恢复：" class="headerlink" title="从失败场景中恢复："></a>从失败场景中恢复：</h3><p>最重要的部分不是上面的典型例子，而是从各种失败场景中恢复未完成的事务的可能性。这部分将概述可能的失败，并提供方法从这些事件中恢复事务。这里有两种类型的失败：</p>
-<p>1、所有发生在第一步（即设置事务的初始状态<code>initial</code>）之后，但在第三步（即应用事务到两个账户）之前的失败。为了还原事务，应用应该获取一个<code>pending</code>状态的<code>transaction</code>列表并且从第二步（即切换事务到<code>pending</code>状态）中恢复。</p>
-<p>2、所有发生在第三步之后（即应用事务到两个账户）但在第五步(即设置事务状态为<code>done</code>)之前的失败。为了还原事务，应用需要获取一个<code>committed</code>状态的事务列表，并且从第四步（即移除<code>pending</code>事务）恢复。</p>
-<p>因此应用程序总是能够恢复事务，最终达到一个一致的状态。应用程序开始捕获到每个未完成的事务时运行下面的恢复操作。你可能还希望定期运行恢复操作，以确保数据处于一致状态。达成一致状态所需要的时间取决于应用程序需要多长时间恢复每个事务。</p>
-<h3 id="回滚："><a href="#回滚：" class="headerlink" title="回滚："></a>回滚：</h3><p>在某些情况下可能需要“回滚”或“撤消”事务，当应用程序需要“取消”该事务时，或者是因为它永远需要恢复当其中一个帐户不存在的情况下，或停止现有的事务。这里有两种可能的回滚操作：</p>
-<p>1、应用事务（即第三步）之后，你已经完全提交事务，你不应该回滚事务。相反，创建一个新的事务，切换源(源)和目标(destination)的值。</p>
-<p>2、创建事务（即第一步）之后，在应用事务（即第三步）之前，使用下面的处理过程：</p>
-<h3 id="设置事务状态为canceling："><a href="#设置事务状态为canceling：" class="headerlink" title="设置事务状态为canceling："></a>设置事务状态为canceling：</h3><pre><code>首先设置事务状态为canceling，使用下面的update()操作：
-</code></pre><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">db.transactions.update(&#123;_id: t._id&#125;, &#123;$set: &#123;state: &quot;canceling&quot;&#125;&#125;)</div></pre></td></tr></table></figure>
-<p>###撤销事务：</p>
-<p>使用下面的操作顺序从两个账户中撤销事务：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">db.accounts.update(&#123;name: t.source, pendingTransactions: t._id&#125;, &#123;$inc: &#123;balance: t.value&#125;, $pull: &#123;pendingTransactions: t._id&#125;&#125;)</div><div class="line">db.accounts.update(&#123;name: t.destination, pendingTransactions: t._id&#125;, &#123;$inc: &#123;balance: -t.value&#125;, $pull: &#123;pendingTransactions: t._id&#125;&#125;)</div><div class="line">db.accounts.find()</div></pre></td></tr></table></figure>
-<p><code>find()</code>操作返回acounts集合的内容，应该类似下面：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">&#123; &quot;_id&quot; : ObjectId(&quot;4d7bc97fb8a04f5126961523&quot;), &quot;balance&quot; : 1000, &quot;name&quot; : &quot;A&quot;, &quot;pendingTransactions&quot; : [ ] &#125;</div><div class="line">&#123; &quot;_id&quot; : ObjectId(&quot;4d7bc984b8a04f5126961524&quot;), &quot;balance&quot; : 1000, &quot;name&quot; : &quot;B&quot;, &quot;pendingTransactions&quot; : [ ] &#125;</div></pre></td></tr></table></figure></p>
-<h3 id="设置事务状态为canceled："><a href="#设置事务状态为canceled：" class="headerlink" title="设置事务状态为canceled："></a>设置事务状态为<code>canceled</code>：</h3><p>最后，使用下面的update()状态将事务状态设置为canceled：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">db.transactions.update(&#123;_id: t._id&#125;, &#123;$set: &#123;state: &quot;canceled&quot;&#125;&#125;)</div></pre></td></tr></table></figure></p>
-]]></content>
-    
-    <summary type="html">
-    
-      MongoDB两阶段提交实现事务
-    
-    </summary>
-    
-      <category term="MongoDB" scheme="http://jishusuishouji.github.io/categories/MongoDB/"/>
-    
-    
-      <category term="MongoDB" scheme="http://jishusuishouji.github.io/tags/MongoDB/"/>
     
   </entry>
   
