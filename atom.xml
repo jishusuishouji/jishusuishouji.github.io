@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://jishusuishouji.github.io/"/>
-  <updated>2017-04-06T13:52:11.631Z</updated>
+  <updated>2017-04-07T00:06:33.885Z</updated>
   <id>http://jishusuishouji.github.io/</id>
   
   <author>
@@ -14,6 +14,71 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Java集群--大型网站是怎样解决多用户高并发访问的</title>
+    <link href="http://jishusuishouji.github.io/2017/04/07/jiqun/Java%E9%9B%86%E7%BE%A4--%E5%A4%A7%E5%9E%8B%E7%BD%91%E7%AB%99%E6%98%AF%E6%80%8E%E6%A0%B7%E8%A7%A3%E5%86%B3%E5%A4%9A%E7%94%A8%E6%88%B7%E9%AB%98%E5%B9%B6%E5%8F%91%E8%AE%BF%E9%97%AE%E7%9A%84/"/>
+    <id>http://jishusuishouji.github.io/2017/04/07/jiqun/Java集群--大型网站是怎样解决多用户高并发访问的/</id>
+    <published>2017-04-07T00:06:33.000Z</published>
+    <updated>2017-04-07T00:06:33.885Z</updated>
+    
+    <summary type="html">
+    
+      Java集群--大型网站是怎样解决多用户高并发访问的
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>浅谈web应用的负载均衡、集群、高可用(HA)解决方案</title>
+    <link href="http://jishusuishouji.github.io/2017/04/07/web/%E6%B5%85%E8%B0%88web%E5%BA%94%E7%94%A8%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E3%80%81%E9%9B%86%E7%BE%A4%E3%80%81%E9%AB%98%E5%8F%AF%E7%94%A8_HA_%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/"/>
+    <id>http://jishusuishouji.github.io/2017/04/07/web/浅谈web应用的负载均衡、集群、高可用_HA_解决方案/</id>
+    <published>2017-04-06T23:31:58.000Z</published>
+    <updated>2017-04-07T00:05:49.703Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="1、几个组件"><a href="#1、几个组件" class="headerlink" title="1、几个组件"></a>1、几个组件</h2><h3 id="1-1、apache"><a href="#1-1、apache" class="headerlink" title="1.1、apache"></a>1.1、apache</h3><p>Apache软件基金会开放源代码的跨平台网页服务器，属于老牌的web服务器了，支持基于Ip或者域名的虚拟主机，支持代理服务器，支持安全Socket层(SSL)等等，目前主要用它做静态资源服务器，也可以做代理服务器转发请求(如：图片链等)，结合tomcat等servlet容器。</p>
+<h3 id="1-2、ngnix"><a href="#1-2、ngnix" class="headerlink" title="1.2、ngnix"></a>1.2、ngnix</h3><p>俄罗斯人开发的一个高性能的HTTP和反向代理服务器。由于Nginx超越Apache的高性能和稳定性，使得国内使用Nginx作为Web服务器的网站也越来越多，其中包括新浪博客、新浪播客、网易新闻、腾讯网、搜狐博客等门户网站频道等，在3w以上的高并发环境下，ngnix处理能力相当于apache的10倍。</p>
+<h3 id="1-3、lvs"><a href="#1-3、lvs" class="headerlink" title="1.3、lvs"></a>1.3、lvs</h3><p>Linux Virtual Server的简写，意即Linux虚拟服务器，是一个虚拟的服务器集群系统。由毕业于国防科技大学的章文嵩博士于1998年5月创立，可以实现LINUX平台下的简单负载均衡。</p>
+<h3 id="1-4、HAProxy"><a href="#1-4、HAProxy" class="headerlink" title="1.4、HAProxy"></a>1.4、HAProxy</h3><p>HAProxy提供高可用性、负载均衡以及基于TCP和HTTP应用的代理，支持虚拟主机，它是免费、快速并且可靠的一种解决方案。HAProxy特别适用于那些负载特大的web站点， 这些站点通常又需要会话保持或七层处理。HAProxy运行在当前的硬件上，完全可以支持数以万计的并发连接。并且它的运行模式使得它可以很简单安全地整合进您当前的架构中，同时可以保护你的web服务器不被暴露到网络上.</p>
+<h3 id="1-5、keepalived"><a href="#1-5、keepalived" class="headerlink" title="1.5、keepalived"></a>1.5、keepalived</h3><p>可以实现web服务器的高可用(HA high availably)。它可以检测web服务器的工作状态，如果该服务器出现故障被检测到，将其剔除服务器群中，直至正常工作后，keepalive会自动检测到并加入到服务器群里面。实现主备服务器发生故障时ip瞬时无缝交接。它是LVS集群节点健康检测的一个用户空间守护进程，也是LVS的引导故障转移模块（director failover）。Keepalived守护进程可以检查LVS池的状态。如果LVS服务器池当中的某一个服务器宕机了。keepalived会通过一个setsockopt呼叫通知内核将这个节点从LVS拓扑图中移除。</p>
+<h3 id="1-6、memcached"><a href="#1-6、memcached" class="headerlink" title="1.6、memcached"></a>1.6、memcached</h3><p>一个高性能分布式内存对象缓存系统。当初是Danga Interactive为了LiveJournal快速发展开发的系统，用于对业务查询数据缓存，减轻数据库的负载。其守护进程(daemon)是用C写的，但是客户端支持几乎所有语言(客户端基本上有3种版本[memcache client for java;spymemcached;xMecache])，服务端和客户端通过简单的协议通信；在memcached里面缓存的数据必须序列化。</p>
+<h3 id="1-7、terracotta"><a href="#1-7、terracotta" class="headerlink" title="1.7、terracotta"></a>1.7、terracotta</h3><p>是一款由美国Terracotta公司开发的著名开源Java集群平台。它在JVM与Java应用之间实现了一个专门处理集群功能的抽象层，允许用户在不改变系统代码的情况下实现java应用的集群。支持数据的持久化、session的复制以及高可用(HA)。</p>
+<h2 id="2、关键术语"><a href="#2、关键术语" class="headerlink" title="2、关键术语"></a>2、关键术语</h2><h3 id="2-1、负载均衡（load-balance）"><a href="#2-1、负载均衡（load-balance）" class="headerlink" title="2.1、负载均衡（load balance）"></a>2.1、负载均衡（load balance）</h3><p>如何处理高并发带来的系统性能问题，最终大家都会使用负载均衡机制。它是根据某种负载策略把请求分发到集群中的每一台服务器上，让整个服务器群来处理网站的请求。<br>公司比较有钱的，可以购买专门负责负载均衡的硬件（如：F5）,效果肯定会很好。对于大部分公司，会选择廉价有效的方法扩展整个系统的架构，来增加服务器的吞吐量和处理能力，以及承载能力。</p>
+<h3 id="2-2、集群（Cluster）"><a href="#2-2、集群（Cluster）" class="headerlink" title="2.2、集群（Cluster）"></a>2.2、集群（Cluster）</h3><p>用N台服务器构成一个松耦合的多处理器系统(对外来说，他们就是一个服务器)，它们之间通过网络实现通信。让N台服务器之间相互协作，共同承载一个网站的请求压力。</p>
+<h3 id="2-3、高可用（HA）"><a href="#2-3、高可用（HA）" class="headerlink" title="2.3、高可用（HA）"></a>2.3、高可用（HA）</h3><p>在集群服务器架构中，当主服务器故障时，备份服务器能够自动接管主服务器的工作，并及时切换过去，以实现对用户的不间断服务。ps：这里我感觉它跟故障转移(failover)是一个意思。</p>
+<h3 id="2-4、session复制-共享"><a href="#2-4、session复制-共享" class="headerlink" title="2.4、session复制/共享"></a>2.4、session复制/共享</h3><p>在访问系统的会话过程中，用户登录系统后，不管访问系统的任何资源地址都不需要重复登录，这里面servlet容易保存了该用户的会话(session)。如果两个tomcat(A、B)提供集群服务时候，用户在A-tomcat上登录，接下来的请求web服务器根据策略分发到B-tomcat，因为B-tomcat没有保存用户的会话(session)信息，不知道其登录，会跳转到登录界面。<br>这时候我们需要让B-tomcat也保存有A-tomcat的会话，我们可以使用tomcat的session复制实现或者通过其他手段让session共享。</p>
+<h2 id="3、常用web集群"><a href="#3、常用web集群" class="headerlink" title="3、常用web集群"></a>3、常用web集群</h2><h3 id="3-1、tomcat集群方案"><a href="#3-1、tomcat集群方案" class="headerlink" title="3.1、tomcat集群方案"></a>3.1、tomcat集群方案</h3><p>apache+tomcat；ngnix+tomcat；lvs+ngnix+tomcat。(lvs负责集群调度，nginx负责静态文件处理，tomcat负责动态文件处理[最优选择])。 以apache+tomcat集群为例：<br>1、他们之间的通信有三种方式：ajp_proxy、mod_jk链接器、http_proxy。<br>2、apache的分发策略有4种。权重(默认)、流量(bytraffic)、请求次数(byRequests)、繁忙程度(byBusyness根据活跃请求数的多少)<br>3、apache支持stickysession(粘性session)，即为：访问用户访问了A-tomcat，那么他的所有请求都会转发到A-tomcat，而不会到B-tomcat。[这样的负载均衡效果不好，适用于小型网站，下面说非粘性session]<br>4、它们之间的架构如图1：<br><img src="/img/apache+tomcat.jpg" alt="apache+tomcat"></p>
+<p>问题1：只有一个web服务器，明显的单点故障。如果该apache出现问题，整个网站就会瘫痪。</p>
+<h3 id="3-2、session复制"><a href="#3-2、session复制" class="headerlink" title="3.2、session复制"></a>3.2、session复制</h3><p>如果不采用stickysession(粘性session)，那么我们可以采用tomcat的session复制使所有节点tomcat的会话相同，tomcat使用组播技术，只要集群中一个tomcat节点的session发生改变，会广播通知所有tomcat节点发生改变。</p>
+<p>问题2：据网友测试，当tomcat节点数达到4个以上时候，集群性能呈线性下滑；另外当用户访问量大到一定程度，会话内容随之增多，tomcat节点相互之间通信产生大量的网络消耗，产生网络阻塞，整个集群的吞吐量不能再上升。</p>
+<h2 id="4、高可用-HA-和session共享-解决上面提到的两个问题"><a href="#4、高可用-HA-和session共享-解决上面提到的两个问题" class="headerlink" title="4、高可用(HA)和session共享(解决上面提到的两个问题)"></a>4、高可用(HA)和session共享(解决上面提到的两个问题)</h2><h3 id="4-1、使用lvs-keepalive实现集群高可用，达到更健壮的LB"><a href="#4-1、使用lvs-keepalive实现集群高可用，达到更健壮的LB" class="headerlink" title="4.1、使用lvs+keepalive实现集群高可用，达到更健壮的LB"></a>4.1、使用lvs+keepalive实现集群高可用，达到更健壮的LB</h3><p>可以前端使用lvs来做负载均衡，根据lvs的8种调度算法(可设置)，分发请求到对应的web服务器集群上。lvs做双机热备，通过keepalived模块能够达到故障自动转移到备份服务器，不间断提供服务，结构如图2：</p>
+<p> <img src="/img/使用lvs+keepalive实现集群高可用，达到更健壮的LB.jpg" alt="使用lvs+keepalive实现集群高可用，达到更健壮的LB"></p>
+<p> 说明：据查询了解，一般在WEB端使用的负载均衡比较多的是HAProxy+keepalived+nginx；数据库mysql集群使用Lvs+keepalived+mysql实现。因为HAProxy和nginx一样是工作在网络7层之上，并且前者弥补了nginx的一些缺点如session的保持，cookie的引导等，且它本身是个负责均衡软件，处理负载均衡上面必然优于nginx；lvs比较笨重，对于比较庞大的网络应用实施比较复杂，虽然它运行在网络4层之上，仅做分发没有流量产生，但是它不能做正则处理也不能也不能做动静分离，所以一般用lvs+keepalived或heatbeat做数据库层的负载均衡。</p>
+<h3 id="4-2、使用terracotta或者memcached使session共享"><a href="#4-2、使用terracotta或者memcached使session共享" class="headerlink" title="4.2、使用terracotta或者memcached使session共享"></a>4.2、使用terracotta或者memcached使session共享</h3><h4 id="4-2-1、terracotta是jvm级别的session共享"><a href="#4-2-1、terracotta是jvm级别的session共享" class="headerlink" title="4.2.1、terracotta是jvm级别的session共享"></a>4.2.1、terracotta是jvm级别的session共享</h4><p>它基本原理是对于集群间共享的数据，当在一个节点发生变化的时候，Terracotta只把变化的部分发送给Terracotta服务器，然后由服务器把它转发给真正需要这个数据的节点，并且共享的数据对象不需要序列化。</p>
+<h3 id="4-2-2、通过memcached实现内存级session共享"><a href="#4-2-2、通过memcached实现内存级session共享" class="headerlink" title="4.2.2、通过memcached实现内存级session共享"></a>4.2.2、通过memcached实现内存级session共享</h3><p>通过memcached-session-manager（msm）插件，通过tomcat上一定的配置，即可实现把session存储到memcached服务器上。注意：tomcat支持tomcat6+，并且memcached可以支持分布式内存，msm同时支持黏性session（sticky sessions）或者非黏性session（non-sticky sessions）两种模式，在memcached内存中共享的对象需要序列化。结构如图3：<br><img src="/img/通过memcached实现内存级session共享.jpg" alt="通过memcached实现内存级session共享"></p>
+<p>通过一定的配置，可以实现故障转移(只支持对非粘性session)。如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">&lt;Context&gt;    </div><div class="line">      ...    </div><div class="line">      &lt;Manager className=&quot;de.javakaffee.web.msm.MemcachedBackupSessionManager&quot;    </div><div class="line">        memcachedNodes=&quot;n1:host1.yourdomain.com:11211,n2:host2.yourdomain.com:11211&quot;    </div><div class="line">        failoverNodes=&quot;n1&quot;    </div><div class="line">        requestUriIgnorePattern=&quot;.*\.(ico|png|gif|jpg|css|js)$&quot;    </div><div class="line">        transcoderFactoryClass=&quot;de.javakaffee.web.msm.serializer.kryo.KryoTranscoderFactory&quot;    </div><div class="line">        /&gt;    </div><div class="line">&lt;/Context&gt;</div></pre></td></tr></table></figure></p>
+<p>说明：<code>failoverNodes</code>：故障转移节点，对非粘性session不可用。属性<code>failoverNodes=&quot;n1&quot;</code>的作用是告诉msm最好是把session保存在memcached “n2”节点上，只有在n2节点不可用的情况下才把session保存在n1节点。这样即使host2上的tomcat宕机，仍然可以通过host1上的tomcat访问存放在memcached “n1” 节点中的session。</p>
+<h3 id="4-2-3、其他方案"><a href="#4-2-3、其他方案" class="headerlink" title="4.2.3、其他方案"></a>4.2.3、其他方案</h3><p>通过cookie保存用户信息(一般是登录信息)，每一个请求到达web应用的时候，web应用从cookie中取出数据进行处理（这里尽量对cookie做加密处理）；<br>另外一种是把用户信息的关键属性保存到数据库，这样就不需要session了。请求过来从数据库查询关键属性数据，做相应处理。缺点：加大了数据库的负载，使数据库成为集群的瓶颈。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      浅谈web应用的负载均衡、集群、高可用(HA)解决方案
+    
+    </summary>
+    
+      <category term="负载均衡" scheme="http://jishusuishouji.github.io/categories/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/"/>
+    
+    
+      <category term="负载均衡" scheme="http://jishusuishouji.github.io/tags/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/"/>
+    
+      <category term="集群" scheme="http://jishusuishouji.github.io/tags/%E9%9B%86%E7%BE%A4/"/>
+    
+      <category term="高可用" scheme="http://jishusuishouji.github.io/tags/%E9%AB%98%E5%8F%AF%E7%94%A8/"/>
+    
+  </entry>
   
   <entry>
     <title>js如何把相对路基的url转换为绝对路径</title>
@@ -351,9 +416,9 @@ public class RunningBroker {
     
       <category term="java" scheme="http://jishusuishouji.github.io/tags/java/"/>
     
-      <category term="ActiveMQ" scheme="http://jishusuishouji.github.io/tags/ActiveMQ/"/>
-    
       <category term="JMS" scheme="http://jishusuishouji.github.io/tags/JMS/"/>
+    
+      <category term="ActiveMQ" scheme="http://jishusuishouji.github.io/tags/ActiveMQ/"/>
     
   </entry>
   
@@ -850,9 +915,9 @@ public class RunningBroker {
     
       <category term="java" scheme="http://jishusuishouji.github.io/tags/java/"/>
     
-      <category term="ActiveMQ" scheme="http://jishusuishouji.github.io/tags/ActiveMQ/"/>
-    
       <category term="JMS" scheme="http://jishusuishouji.github.io/tags/JMS/"/>
+    
+      <category term="ActiveMQ" scheme="http://jishusuishouji.github.io/tags/ActiveMQ/"/>
     
   </entry>
   
@@ -1006,9 +1071,9 @@ public class RunningBroker {
     
       <category term="java" scheme="http://jishusuishouji.github.io/tags/java/"/>
     
-      <category term="ActiveMQ" scheme="http://jishusuishouji.github.io/tags/ActiveMQ/"/>
-    
       <category term="JMS" scheme="http://jishusuishouji.github.io/tags/JMS/"/>
+    
+      <category term="ActiveMQ" scheme="http://jishusuishouji.github.io/tags/ActiveMQ/"/>
     
   </entry>
   
@@ -2124,299 +2189,6 @@ struct clusterNode *node;   /* Node related to this link if any, or NULL */
     
     
       <category term="hibernate" scheme="http://jishusuishouji.github.io/tags/hibernate/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>hibernate的查询缓存</title>
-    <link href="http://jishusuishouji.github.io/2017/03/30/hibernate/hibernate%E7%9A%84%E6%9F%A5%E8%AF%A2%E7%BC%93%E5%AD%98/"/>
-    <id>http://jishusuishouji.github.io/2017/03/30/hibernate/hibernate的查询缓存/</id>
-    <published>2017-03-30T05:47:52.000Z</published>
-    <updated>2017-03-30T05:56:50.612Z</updated>
-    
-    <content type="html"><![CDATA[<p>hibernate的查询缓存主要是针对普通属性结果集的缓存，而对于实体对象的结果集只缓存id。在一级缓存,二级缓存和查询缓存都打开的情况下做查询操作时这样的：查询普通属性，会先到查询缓存中取，如果没有，则查询数据库；查询实体，会先到查询缓存中取id，如果有，则根据id到缓存(一级/二级)中取实体，如果缓存中取不到实体，再查询数据库。<br> 和一级/二级缓存不同，查询缓存的生命周期是不确定的，当前关联的表发生改变时，查询缓存的生命周期结束。<br><a id="more"></a><br>查询缓存的配置和使用也是很简单的：<br>1&gt;查询缓存的启用不但要在配置文件中进行配置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;property name=&quot;hibernate.cache.use_query_cache&quot;&gt;true&lt;/property&gt;</div></pre></td></tr></table></figure></p>
-<p>2&gt;还要在程序中显示的进行启用<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">query.setCacheable(true);</div></pre></td></tr></table></figure></p>
-<p>1&gt;查询缓存的启用不但要在配置文件中进行配置 ——-换成spring配置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line">&lt;bean id=&quot;propertyConfigurer&quot; class=&quot;org.springframework.beans.factory.config.PropertyPlaceholderConfigurer&quot;&gt;</div><div class="line">    &lt;property name=&quot;locations&quot;&gt;</div><div class="line">        &lt;list&gt;</div><div class="line">            &lt;value&gt;/WEB-INF/config/jdbc.properties&lt;/value&gt;</div><div class="line">        &lt;/list&gt;</div><div class="line">    &lt;/property&gt;</div><div class="line">&lt;/bean&gt;</div><div class="line">&lt;bean id=&quot;dataSource&quot; class=&quot;com.mchange.v2.c3p0.ComboPooledDataSource&quot;&gt;</div><div class="line">    &lt;property name=&quot;driverClass&quot; value=&quot;$&#123;jdbc.driverClassName&#125;&quot; /&gt;</div><div class="line">    &lt;property name=&quot;jdbcUrl&quot; value=&quot;$&#123;jdbc.url&#125;&quot; /&gt;</div><div class="line">    &lt;property name=&quot;user&quot; value=&quot;$&#123;jdbc.username&#125;&quot; /&gt;</div><div class="line">    &lt;property name=&quot;password&quot; value=&quot;$&#123;jdbc.password&#125;&quot; /&gt;</div><div class="line">    &lt;property name=&quot;autoCommitOnClose&quot; value=&quot;true&quot;/&gt;</div><div class="line">    &lt;property name=&quot;checkoutTimeout&quot; value=&quot;$&#123;cpool.checkoutTimeout&#125;&quot;/&gt;</div><div class="line">    &lt;property name=&quot;initialPoolSize&quot; value=&quot;$&#123;cpool.minPoolSize&#125;&quot;/&gt;</div><div class="line">    &lt;property name=&quot;minPoolSize&quot; value=&quot;$&#123;cpool.minPoolSize&#125;&quot;/&gt;</div><div class="line">    &lt;property name=&quot;maxPoolSize&quot; value=&quot;$&#123;cpool.maxPoolSize&#125;&quot;/&gt;</div><div class="line">    &lt;property name=&quot;maxIdleTime&quot; value=&quot;$&#123;cpool.maxIdleTime&#125;&quot;/&gt;</div><div class="line">    &lt;property name=&quot;acquireIncrement&quot; value=&quot;$&#123;cpool.acquireIncrement&#125;&quot;/&gt;</div><div class="line">    &lt;property name=&quot;maxIdleTimeExcessConnections&quot; value=&quot;$&#123;cpool.maxIdleTimeExcessConnections&#125;&quot;/&gt;</div><div class="line">&lt;/bean&gt;</div><div class="line">&lt;bean id=&quot;sessionFactory&quot; class=&quot;org.springframework.orm.hibernate3.LocalSessionFactoryBean&quot;&gt;</div><div class="line">    &lt;property name=&quot;dataSource&quot; ref=&quot;dataSource&quot;/&gt;    </div><div class="line">    &lt;property name=&quot;mappingLocations&quot;&gt;</div><div class="line">        &lt;list&gt;</div><div class="line">            &lt;value&gt;classpath*:/com/jeecms/core/entity/hbm/*.hbm.xml&lt;/value&gt;</div><div class="line">            &lt;value&gt;classpath*:/com/jeecms/cms/entity/main/hbm/*.hbm.xml&lt;/value&gt;</div><div class="line">            &lt;value&gt;classpath*:/com/jeecms/cms/entity/assist/hbm/*.hbm.xml&lt;/value&gt;</div><div class="line">        &lt;/list&gt;</div><div class="line">    &lt;/property&gt;</div><div class="line">    &lt;property name=&quot;hibernateProperties&quot;&gt;</div><div class="line">        &lt;value&gt;</div><div class="line">        hibernate.dialect=org.hibernate.dialect.MySQLInnoDBDialect</div><div class="line">        hibernate.show_sql=false</div><div class="line">        hibernate.format_sql=false</div><div class="line">        hibernate.query.substitutions=true 1, false 0</div><div class="line">        hibernate.jdbc.batch_size=20</div><div class="line">        //查询缓存配置</div><div class="line">        hibernate.cache.use_query_cache=true</div><div class="line">        &lt;/value&gt;</div><div class="line">    &lt;/property&gt;</div><div class="line">    &lt;property name=&quot;entityInterceptor&quot;&gt;   </div><div class="line">        &lt;ref local=&quot;treeInterceptor&quot;/&gt;</div><div class="line">    &lt;/property&gt;</div><div class="line">    &lt;property name=&quot;cacheProvider&quot;&gt;</div><div class="line">        &lt;ref local=&quot;cacheProvider&quot;/&gt;</div><div class="line">    &lt;/property&gt;</div><div class="line">    &lt;property name=&quot;lobHandler&quot;&gt;</div><div class="line">        &lt;ref bean=&quot;lobHandler&quot; /&gt;</div><div class="line">    &lt;/property&gt;</div><div class="line">&lt;/bean&gt;</div></pre></td></tr></table></figure></p>
-<p>2&gt;还要在程序中显示的进行启用<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">public List&lt;CmsSite&gt; getList(boolean cacheable) &#123;</div><div class="line">        String hql = &quot;from CmsSite bean order by bean.id asc&quot;;</div><div class="line">        return getSession().createQuery(hql).setCacheable(cacheable).list();</div><div class="line">    &#125;</div></pre></td></tr></table></figure></p>
-<h2 id="1-实体类："><a href="#1-实体类：" class="headerlink" title="1.实体类："></a>1.实体类：</h2><pre><code>public class Student { 
-  private Integer id; 
-  private String name; 
-  //一系列的setter.getter方法 
-}
-</code></pre><p>##2.映射文件</p>
-<p>Student.hbm.xml<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">&lt;class name=&quot;com.sxt.hibernate.cache.entity.Student&quot; table=&quot;sxt_hibernate_student&quot;&gt; </div><div class="line">       </div><div class="line">  &lt;!-- 指定本类的对象使用二级缓存(这也可以放在hibernate.cfg.xml中统一指定) --&gt; </div><div class="line">  &lt;!-- </div><div class="line">  &lt;cache usage=&quot;read-only&quot;/&gt; </div><div class="line">   --&gt; </div><div class="line">  &lt;id name=&quot;id&quot; length=&quot;4&quot;&gt; </div><div class="line">    &lt;generator class=&quot;native&quot;&gt;&lt;/generator&gt; </div><div class="line">  &lt;/id&gt; </div><div class="line">  &lt;property name=&quot;name&quot; length=&quot;10&quot;&gt;&lt;/property&gt; </div><div class="line">&lt;/class&gt;</div></pre></td></tr></table></figure></p>
-<h2 id="3-hibernate配置文件："><a href="#3-hibernate配置文件：" class="headerlink" title="3.hibernate配置文件："></a>3.hibernate配置文件：</h2><p>hibernate.cfg.xml</p>
-<pre><code>&lt;hibernate-configuration&gt; 
-  &lt;session-factory&gt; 
-    &lt;property name=&quot;hibernate.connection.url&quot;&gt;jdbc:oracle:thin:@localhost:1521:ORCL10&lt;/property&gt;
-    &lt;property name=&quot;hibernate.connection.driver_class&quot;&gt;oracle.jdbc.driver.OracleDriver&lt;/property&gt; 
-    &lt;property name=&quot;hibernate.connection.username&quot;&gt;scott&lt;/property&gt; 
-    &lt;property name=&quot;hibernate.connection.password&quot;&gt;yf123&lt;/property&gt; 
-    &lt;property name=&quot;hibernate.dialect&quot;&gt;org.hibernate.dialect.Oracle9Dialect&lt;/property&gt; 
-    &lt;property name=&quot;hibernate.show_sql&quot;&gt;true&lt;/property&gt; 
-
-    &lt;!-- 开启二级缓存,其实hibernate默认就是开启的,这里显示的指定一下 --&gt; 
-    &lt;property name=&quot;hibernate.cache.use_second_level_cache&quot;&gt;true&lt;/property&gt; 
-    &lt;!-- 指定二级缓存产品的提供商 --&gt; 
-    &lt;property name=&quot;hibernate.cache.provider_class&quot;&gt;org.hibernate.cache.EhCacheProvider&lt;/property&gt; 
-
-    &lt;!-- 启用查询缓存 --&gt; 
-    &lt;property name=&quot;hibernate.cache.use_query_cache&quot;&gt;true&lt;/property&gt; 
-
-    &lt;mapping resource=&quot;com/sxt/hibernate/cache/entity/Student.hbm.xml&quot;/&gt; 
-
-    &lt;!-- 指定那些类使用二级缓存 --&gt; 
-    &lt;class-cache usage=&quot;read-only&quot; class=&quot;com.sxt.hibernate.cache.entity.Student&quot;/&gt; 
-  &lt;/session-factory&gt; 
-&lt;/hibernate-configuration&gt;
-</code></pre><h2 id="4-测试方法："><a href="#4-测试方法：" class="headerlink" title="4.测试方法："></a>4.测试方法：</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line">public static void main(String[] args) &#123; </div><div class="line">  Session session = null; </div><div class="line">  Transaction t = null; </div><div class="line"></div><div class="line">  *//** </div><div class="line">   * 开启查询缓存,关闭二级缓存, 开启一个session,分别调用query.list </div><div class="line">   */ </div><div class="line">//如果不用查询缓存的话,那两个都发出查询语句,这也是默认的情况. </div><div class="line">/* </div><div class="line">  try &#123; </div><div class="line">    session = HibernateUtils.getSession(); </div><div class="line">    t = session.beginTransaction(); </div><div class="line">    Query query = session.createQuery(&quot;select s.name from Student s&quot;); </div><div class="line">    //启用查询缓存    </div><div class="line">    query.setCacheable(true); </div><div class="line">    List&lt;String&gt; names = query.list(); </div><div class="line">    for (Iterator&lt;String&gt; it = names.iterator(); it.hasNext();) &#123; </div><div class="line">      String name = it.next(); </div><div class="line">      System.out.println(name); </div><div class="line">    &#125; </div><div class="line">    System.out.println(&quot;================================&quot;); </div><div class="line">    query = session.createQuery(&quot;select s.name from Student s&quot;); </div><div class="line">    //启用查询缓存 </div><div class="line">    query.setCacheable(true); </div><div class="line">    //没有发出查询语句,因为这里使用的查询缓存 </div><div class="line">    names = query.list(); </div><div class="line">    for (Iterator&lt;String&gt; it = names.iterator(); it.hasNext();) &#123; </div><div class="line">      String name = it.next(); </div><div class="line">      System.out.println(name); </div><div class="line">    &#125; </div><div class="line">    t.commit(); </div><div class="line">  &#125; catch (Exception e) &#123; </div><div class="line">    e.printStackTrace(); </div><div class="line">    t.rollback(); </div><div class="line">  &#125; finally &#123; </div><div class="line">    HibernateUtils.closeSession(session); </div><div class="line">  &#125; </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line">@SuppressWarnings(&quot;unchecked&quot;) </div><div class="line">public static void main(String[] args) &#123; </div><div class="line">  Session session = null; </div><div class="line">  Transaction t = null; </div><div class="line"></div><div class="line">  *//** </div><div class="line">   * 开启查询缓存,关闭二级缓存, 开启两个session,分别调用query.list </div><div class="line">   *//* </div><div class="line">  //如果不用查询缓存的话,那两个都发出查询语句,这也是默认的情况. </div><div class="line">  try &#123; </div><div class="line">    session = HibernateUtils.getSession(); </div><div class="line">    t = session.beginTransaction(); </div><div class="line">    Query query = session.createQuery(&quot;select s.name from Student s&quot;); </div><div class="line">    //启用查询缓存    </div><div class="line">    //query.setCacheable(true); </div><div class="line">    List&lt;String&gt; names = query.list(); </div><div class="line">    for (Iterator&lt;String&gt; it = names.iterator(); it.hasNext();) &#123; </div><div class="line">      String name = it.next(); </div><div class="line">      System.out.println(name); </div><div class="line">    &#125; </div><div class="line"></div><div class="line">    t.commit(); </div><div class="line">  &#125; catch (Exception e) &#123; </div><div class="line">    e.printStackTrace(); </div><div class="line">    t.rollback(); </div><div class="line">  &#125; finally &#123; </div><div class="line">    HibernateUtils.closeSession(session); </div><div class="line">  &#125; </div><div class="line">   </div><div class="line">  System.out.println(&quot;================================&quot;); </div><div class="line">   </div><div class="line">  try &#123; </div><div class="line">    session = HibernateUtils.getSession(); </div><div class="line">    t = session.beginTransaction(); </div><div class="line">    Query query = session.createQuery(&quot;select s.name from Student s&quot;); </div><div class="line">    //启用查询缓存    </div><div class="line">    //query.setCacheable(true); </div><div class="line">    //不会发出查询语句,因为查询缓存和session无关. </div><div class="line">    List&lt;String&gt; names = query.list(); </div><div class="line">    for (Iterator&lt;String&gt; it = names.iterator(); it.hasNext();) &#123; </div><div class="line">      String name = it.next(); </div><div class="line">      System.out.println(name); </div><div class="line">    &#125; </div><div class="line">    t.commit(); </div><div class="line">  &#125; catch (Exception e) &#123; </div><div class="line">    e.printStackTrace(); </div><div class="line">    t.rollback(); </div><div class="line">  &#125; finally &#123; </div><div class="line">    HibernateUtils.closeSession(session); </div><div class="line">  &#125; </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div></pre></td><td class="code"><pre><div class="line">@SuppressWarnings(&quot;unchecked&quot;) </div><div class="line">public static void main(String[] args) &#123; </div><div class="line">  Session session = null; </div><div class="line">  Transaction t = null; </div><div class="line"></div><div class="line">  *//** </div><div class="line">   * 开启查询缓存,关闭二级缓存, 开启两个session,分别调用query.iterate </div><div class="line">   *//* </div><div class="line">  //如果不用查询缓存的话,那两个都发出查询语句,这也是默认的情况. </div><div class="line">  try &#123; </div><div class="line">    session = HibernateUtils.getSession(); </div><div class="line">    t = session.beginTransaction(); </div><div class="line">    Query query = session.createQuery(&quot;select s.name from Student s&quot;); </div><div class="line">    //启用查询缓存    </div><div class="line">    query.setCacheable(true); </div><div class="line">    for (Iterator&lt;String&gt; it = query.iterate(); it.hasNext();) &#123; </div><div class="line">      String name = it.next(); </div><div class="line">      System.out.println(name); </div><div class="line">    &#125; </div><div class="line">    t.commit(); </div><div class="line">  &#125; catch (Exception e) &#123; </div><div class="line">    e.printStackTrace(); </div><div class="line">    t.rollback(); </div><div class="line">  &#125; finally &#123; </div><div class="line">    HibernateUtils.closeSession(session); </div><div class="line">  &#125; </div><div class="line">   </div><div class="line">  System.out.println(&quot;================================&quot;); </div><div class="line">   </div><div class="line">  try &#123; </div><div class="line">    session = HibernateUtils.getSession(); </div><div class="line">    t = session.beginTransaction(); </div><div class="line">    Query query = session.createQuery(&quot;select s.name from Student s&quot;); </div><div class="line">    //启用查询缓存    </div><div class="line">    query.setCacheable(true); </div><div class="line">    //会发出查询语句,因为query.iterate不使用查询缓存 </div><div class="line">    for (Iterator&lt;String&gt; it = query.iterate(); it.hasNext();) &#123; </div><div class="line">      String name = it.next(); </div><div class="line">      System.out.println(name); </div><div class="line">    &#125; </div><div class="line">    t.commit(); </div><div class="line">  &#125; catch (Exception e) &#123; </div><div class="line">    e.printStackTrace(); </div><div class="line">    t.rollback(); </div><div class="line">  &#125; finally &#123; </div><div class="line">    HibernateUtils.closeSession(session); </div><div class="line">  &#125; </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>```<br>  @SuppressWarnings(“unchecked”)<br>  public static void main(String[] args) {<br>    Session session = null;<br>    Transaction t = null; </p>
-<pre><code>*//** 
- * 关闭查询缓存,关闭二级缓存, 开启两个session,分别调用query.list查询实体对象 
- *//* 
-//如果不用查询缓存的话,那两个都发出查询语句,这也是默认的情况. 
-try { 
-  session = HibernateUtils.getSession(); 
-  t = session.beginTransaction(); 
-  Query query = session.createQuery(&quot;select s from Student s&quot;); 
-  //启用查询缓存    
-  //query.setCacheable(true); 
-  List&lt;Student&gt; students = query.list(); 
-  for (Iterator&lt;Student&gt; it = students.iterator(); it.hasNext();) { 
-    Student s = it.next(); 
-    System.out.println(s.getName()); 
-  } 
-  t.commit(); 
-} catch (Exception e) { 
-  e.printStackTrace(); 
-  t.rollback(); 
-} finally { 
-  HibernateUtils.closeSession(session); 
-} 
-
-System.out.println(&quot;================================&quot;); 
-
-try { 
-  session = HibernateUtils.getSession(); 
-  t = session.beginTransaction(); 
-  Query query = session.createQuery(&quot;select s from Student s&quot;); 
-  //启用查询缓存    
-  //query.setCacheable(true); 
-  //会发出查询语句,因为list默认每次都会发出sql语句 
-  List&lt;Student&gt; students = query.list(); 
-  for (Iterator&lt;Student&gt; it = students.iterator(); it.hasNext();) { 
-    Student s = it.next(); 
-    System.out.println(s.getName()); 
-  } 
-  t.commit(); 
-} catch (Exception e) { 
-  e.printStackTrace(); 
-  t.rollback(); 
-} finally { 
-  HibernateUtils.closeSession(session); 
-} 
-</code></pre><p>  }*/ </p>
-<p>/*  @SuppressWarnings(“unchecked”)<br>  public static void main(String[] args) {<br>    Session session = null;<br>    Transaction t = null; </p>
-<pre><code>*//** 
- * 开启查询缓存,关闭二级缓存, 开启两个session,分别调用query.list查询实体对象 
- *//* 
-//如果不用查询缓存的话,那两个都发出查询语句,这也是默认的情况. 
-try { 
-  session = HibernateUtils.getSession(); 
-  t = session.beginTransaction(); 
-  Query query = session.createQuery(&quot;select s from Student s&quot;); 
-  //启用查询缓存    
-  query.setCacheable(true); 
-  List&lt;Student&gt; students = query.list(); 
-  for (Iterator&lt;Student&gt; it = students.iterator(); it.hasNext();) { 
-    Student s = it.next(); 
-    System.out.println(s.getName()); 
-  } 
-  t.commit(); 
-} catch (Exception e) { 
-  e.printStackTrace(); 
-  t.rollback(); 
-} finally { 
-  HibernateUtils.closeSession(session); 
-} 
-
-System.out.println(&quot;================================&quot;); 
-
-try { 
-  session = HibernateUtils.getSession(); 
-  t = session.beginTransaction(); 
-  Query query = session.createQuery(&quot;select s from Student s&quot;); 
-  //启用查询缓存    
-  query.setCacheable(true); 
-  //会发出根据id查询实体的n条查询语句,因为这种情况下,查询过程是这样的： 
-  // 在第一次执行list时,会把查询对象的id缓存到查询缓存里 
-  // 第二次执行list时, 会遍历查询缓存里的id到缓存里去找实体对象,由于这里没找到实体对象, 
-  //所以就发出n条查询语句到数据库中查询. 
-  List&lt;Student&gt; students = query.list(); 
-  for (Iterator&lt;Student&gt; it = students.iterator(); it.hasNext();) { 
-    Student s = it.next(); 
-    System.out.println(s.getName()); 
-  } 
-  t.commit(); 
-} catch (Exception e) { 
-  e.printStackTrace(); 
-  t.rollback(); 
-} finally { 
-  HibernateUtils.closeSession(session); 
-} 
-</code></pre><p>  }*/ </p>
-<p>  @SuppressWarnings(“unchecked”)<br>  public static void main(String[] args) {<br>    Session session = null;<br>    Transaction t = null; </p>
-<pre><code>/** 
- * 开启查询缓存,开启二级缓存, 开启两个session,分别调用query.list查询实体对象 
- */ 
-//如果不用查询缓存的话,那两个都发出查询语句,这也是默认的情况. 
-try { 
-  session = HibernateUtils.getSession(); 
-  t = session.beginTransaction(); 
-  Query query = session.createQuery(&quot;select s from Student s&quot;); 
-  //启用查询缓存    
-  query.setCacheable(true); 
-  List&lt;Student&gt; students = query.list(); 
-  for (Iterator&lt;Student&gt; it = students.iterator(); it.hasNext();) { 
-    Student s = it.next(); 
-    System.out.println(s.getName()); 
-  } 
-  t.commit(); 
-} catch (Exception e) { 
-  e.printStackTrace(); 
-  t.rollback(); 
-} finally { 
-  HibernateUtils.closeSession(session); 
-} 
-
-System.out.println(&quot;================================&quot;); 
-
-try { 
-  session = HibernateUtils.getSession(); 
-  t = session.beginTransaction(); 
-  Query query = session.createQuery(&quot;select s from Student s&quot;); 
-  //启用查询缓存    
-  query.setCacheable(true); 
-  //不会发出查询语句,因为这种情况下,查询过程是这样的： 
-  // 在第一次执行list时,会把查询对象的id缓存到查询缓存里 
-  // 第二次执行list时, 会遍历查询缓存里的id到缓存里去找实体对象,由于这里开启了二级缓存,可以找到目标实体对象, 
-  //所以就不会再发出n条查询语句. 
-  List&lt;Student&gt; students = query.list(); 
-  for (Iterator&lt;Student&gt; it = students.iterator(); it.hasNext();) { 
-    Student s = it.next(); 
-    System.out.println(s.getName()); 
-  } 
-  t.commit(); 
-} catch (Exception e) { 
-  e.printStackTrace(); 
-  t.rollback(); 
-} finally { 
-  HibernateUtils.closeSession(session); 
-} 
-</code></pre><p>  }</p>
-]]></content>
-    
-    <summary type="html">
-    
-      hibernate的查询缓存
-    
-    </summary>
-    
-      <category term="hibernate" scheme="http://jishusuishouji.github.io/categories/hibernate/"/>
-    
-    
-      <category term="hibernate" scheme="http://jishusuishouji.github.io/tags/hibernate/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Layout of Log4j</title>
-    <link href="http://jishusuishouji.github.io/2017/03/28/Log4j/Layout_of_Log4j/"/>
-    <id>http://jishusuishouji.github.io/2017/03/28/Log4j/Layout_of_Log4j/</id>
-    <published>2017-03-28T07:02:00.000Z</published>
-    <updated>2017-03-28T07:03:46.667Z</updated>
-    
-    <content type="html"><![CDATA[<p>本文档使用Log4j版本为1.2.17</p>
-<h2 id="1-Layout介绍"><a href="#1-Layout介绍" class="headerlink" title="1. Layout介绍"></a>1. Layout介绍</h2><p>Log4j Layout主要用来控制日志的序列化格式，比如时间、线程号、日志消息对齐方式等，是log4j体系结构中的核心组成部分之一。</p>
-<p>Layout抽象类声明为:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">public abstract class Layout implements OptionHandler</div></pre></td></tr></table></figure></p>
-<p><code>Layout</code>实现了<code>OptionHandler</code>接口，<code>OptionHandler</code>仅包含一个方法<code>activateOptions()</code>。对实现了<code>OptionHandler</code>接口的模块，调用属性<code>setter</code>方法后，log4j的配置器类会调用此模块的<code>activateOptions</code>实现以激活配置。<code>OptionHandler</code>存在的原因是有些属性彼此依赖，在它们在全部加载完成之前是无法激活的，这个方法用于在模块变为激活和就绪之前用来执行任何必要任务的机制。比如：</p>
-<p>某模块有字符串属性fileName属性，表示log4j用户配置的写出日志文件名，使用前需要创建File对象获取文件写出IO流，具体则是由activateOptions完成文件的打开等，具体可见log4j的FileAppender实现中对文件名和文件IO的操作。</p>
-<p>Layout类的方法或接口如下，abstract修饰的需要具体子类实现:</p>
-<p>//abstract修饰需要具体子类实现，将日志事件渲染为待打印的日志文本字符串，可写出到Appender<br>abstract  public  String format(LoggingEvent event )<br>//format函数返回的格式化文本类型，默认返回为”text/plain”<br>public String getContentType()<br>//针对HTMLLayout类的格式化输出，html字符串的头部，默认null<br>public String getHeader()<br>//针对HTMLLayout类的格式化输出，html字符串的尾部，默认null<br>public String getFooter()<br>//对于LayoutEvent中异常的处理模式，true表示忽略异常，异常会到达Appender，由Appender负责渲染为打印持久化字符串信息；false表示由Layout负责渲染异常信息。SimpleLayout、TTCCLayout、PatternLayout实现返回true;XMLLayout实现返回false，由Appender处理渲染异常消息。<br>abstract public boolean ignoresThrowable()<br>Layout是对序列化每一次LoggingEvent的抽象，核心是format方法，format作为抽象方法，由具体子类实现具体的序列化方式。具体子类有：</p>
-<p>SimpleLayout<br>TTCCLayout<br>PatternLayout<br>XMLLayout<br>HTMLLayout<br>DateLayout<br>Layout继承体系</p>
-<ol>
-<li>XMLLayout</li>
-</ol>
-<p>XMLLayout实现了根据log4j.dtd序列化输出xml格式的日志文本，默认的log4j.dtd文件在/org/apache/log4j/xml/log4j.dtd目录下，注意，XMLLayout打印输出的并非完整XML文件，并不包括&lt;?xml version=”1.0” ?&gt;等XML头部，XMLLayout的目的是输出XML的部分片段，应用可将此片段整合嵌入到其它XML文件中。XMLLayout有成员属性：<br>locationInfo表示是否打印位置信息，即日志事件发生的代码文件名、日志记录点代码行号等信息，log4j配置文件中需要配置为LocationInfo<br>properties表示是否打印MDC中的Key-Value信息，默认为false，log4j配置文件中需要配置为Properties</p>
-<p>注意：log4j的各个模块涉及的成员属性时，如果属性有set方法，一般表示此属性可通过log4j.properties进行配置，具体配置属性值为属性的setXXX方法去掉set前缀。</p>
-<p>示例如上面的locationInfo和properties配置:</p>
-<p>log4j.appender.Console.layout.LocationInfo=true<br>log4j.appender.Console.layout.Properties=true</p>
-<p>XMLLayout继承自Layout的方法实现有：</p>
-<p>//配置激活的接口实现，来自于OptionHandler interface，方法体为空<br>public void activateOptions()<br>//返回false，表示XMLLayout自己处理异常信息<br>public boolean ignoresThrowable()<br>public String format( final LoggingEvent event)<br>2.1 format实现</p>
-<p>format按照日志message、NDC、getThrowableStrRep、日志位置信息、MDC的顺序，并按照XML格式序列化LoggingEvent。log4j实现时使用StringBuffer避免字符串拼接的开销（JAVA中String是不可变类），具体使用时设置了StringBuffer的默认长度即DEFAULT_SIZE = 256，最大长度UPPER_LIMIT = 2048。每次format函数调用时，如果当前StringBuffer容量未超过上限，则复用已有的StringBuffer并清空已有内容；如果当前StringBuffer容量超过UPPER_LIMIT上限，则创建一个新的StringBuffer将当前LoggingEvent 序列化到其中，目的是尽量减少内存的占用量。</p>
-<p>if(buf.capacity() &gt; UPPER_LIMIT) {<br>  buf = new StringBuffer(DEFAULT_SIZE);<br>} else {<br>  buf.setLength(0);<br>}<br>xml序列化中，对于属性如 timestamp=”1452874282177” level=“INFO”，为了保持生成的文本符合XML语法，需要对特殊字符进行转义处理。对于属性使用org.apache.log4j.helpers.Transform.escapeTags做转义。对于文本子元素如 <log4j:message>&lt;![CDATA[123]]&gt;</log4j:message>，使用org.apache.log4j.helpers.Transform.appendEscapingCDATA做转义，将message放在 &lt;![CDATA[ 和 ]] 之间，避免文本破坏XML语法。</p>
-<p>处理的XML特殊字符有（简单字符串替换）:</p>
-<blockquote>
-<p>-&gt; &gt;<br>&lt; -&gt; &lt;<br>&amp; -&gt; &amp;<br>“ -&gt; &quot;<br>2.2 demo</p>
-</blockquote>
-<p>demo java code:</p>
-<p>Logger logger = Logger.getLogger(LayoutTest.class);<br>NDC.push(“ndc message”);<br>logger.info(“info:123”);<br>logger.warn(“warn:abc”);<br>logger.info(“exception”, new RuntimeException(“run time exception”));<br>demo log4j config:</p>
-<p>log4j.rootLogger=INFO,Console<br>log4j.appender.Console=org.apache.log4j.ConsoleAppender<br>log4j.appender.Console.target=System.out<br>log4j.appender.Console.layout=org.apache.log4j.xml.XMLLayout<br>log4j.appender.Console.layout.LocationInfo=true<br>log4j.appender.Console.layout.Properties=true</p>
-<p>demo 日志输出:</p>
-<p><log4j:event logger="com.luohw.log4j.LayoutTest" timestamp="1459227960659" level="INFO" thread="main"></log4j:event></p>
-<p><log4j:message>&lt;![CDATA[info:123]]&gt;</log4j:message></p>
-<p><log4j:ndc>&lt;![CDATA[ndc message]]&gt;</log4j:ndc></p>
-<p><log4j:locationinfo class="com.luohw.log4j.LayoutTest" method="test" file="LayoutTest.java" line="13"><br></log4j:locationinfo></p>
-<p><log4j:event logger="com.luohw.log4j.LayoutTest" timestamp="1459227960670" level="WARN" thread="main"></log4j:event></p>
-<p><log4j:message>&lt;![CDATA[warn:abc]]&gt;</log4j:message></p>
-<p><log4j:ndc>&lt;![CDATA[ndc message]]&gt;</log4j:ndc></p>
-<p><log4j:locationinfo class="com.luohw.log4j.LayoutTest" method="test" file="LayoutTest.java" line="14"><br></log4j:locationinfo></p>
-<p><log4j:event logger="com.luohw.log4j.LayoutTest" timestamp="1459227960670" level="ERROR" thread="main"></log4j:event></p>
-<p><log4j:message>&lt;![CDATA[error:xyz]]&gt;</log4j:message></p>
-<p><log4j:ndc>&lt;![CDATA[ndc message]]&gt;</log4j:ndc></p>
-<p><log4j:locationinfo class="com.luohw.log4j.LayoutTest" method="test" file="LayoutTest.java" line="15"><br></log4j:locationinfo></p>
-<p><log4j:event logger="com.luohw.log4j.LayoutTest" timestamp="1459227960671" level="INFO" thread="main"></log4j:event></p>
-<p><log4j:message>&lt;![CDATA[exception]]&gt;</log4j:message></p>
-<p><log4j:ndc>&lt;![CDATA[ndc message]]&gt;</log4j:ndc></p>
-<p><log4j:throwable>&lt;![CDATA[java.lang.RuntimeException: run time exception<br>at com.luohw.log4j.LayoutTest.test(LayoutTest.java:16)<br>at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)<br>at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)<br>… …<br>at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.run(RemoteTestRunner.java:382)<br>at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:192)<br>]]&gt;</log4j:throwable></p>
-<p><log4j:locationinfo class="com.luohw.log4j.LayoutTest" method="test" file="LayoutTest.java" line="16"><br></log4j:locationinfo></p>
-<ol>
-<li>HTMLLayout</li>
-</ol>
-<p>HTMLLayout用于将每次的LoggingEvent序列化为HTML格式字符串，具体的内容组织为html的表格。生成的HTML文本为完整的一份HTML格式代码（不同于XMLLayout的部分片段），包含html、head、body、具体table信息等。一份HTML日志文档可以包含多条LoggingEvent序列化输出，但header和footer只会输出一次（具体是有Appender打开和关闭相关流时输出）。</p>
-<p>注意：如果有Appender使用HTMLLayout，需要设置Appender的字符编码为UTF-8 或者 UTF-16，否则非ASCII字符会产生乱码。</p>
-<p>locationInfo表示是否打印位置信息，即日志事件发生的代码文件名、代码行号，log4j配置文件中需要配置为LocationInfo</p>
-<p>title输出html文档head的title部分，默认为Log4J Log Messages，log4j配置文件中需要配置为Title</p>
-<p>XMLLayout继承自Layout的方法实现有：</p>
-<p>//默认返回”text/html”<br>public String getContentType()<br>//配置加载完成后操作，实现为空<br>public void activateOptions()<br>//返回相应HTML头部部分，具体是html、head、title以及body、table的开始部分<br>public String getHeader()<br>//返回相应html尾部，具体是table、body、html的html闭合标签<br>public String getFooter()<br>//返回false，即由HTMLLayout本身处理异常信息格式化，HTMLLayout有成员函数appendThrowableAsHTML，具体是将Throwable对应的字符串做相关转移和替换处理，以符合html语法<br>public boolean ignoresThrowable()<br>//具体序列化LoggingEvent为字符串<br>public String format(LoggingEvent event)<br>3.1 format实现</p>
-<p>a.  缓冲StringBuffer更新，判断容量是否超过HTMLLayout的MAX_CAPACITY(1024)，如果超过则创建新的StringBuffer，否则复用原有的StringBuffer，避免内存浪费，具体和XMLLayout原理一致。<br>b.  输出时间、线程、Level等上下文信息，根据locationInfo（如果locationInfo为true）、Level等具体字符串拼接和格式化</p>
-<tr><br><td>0</td><br><td title="main thread">main</td><br><td title="Level">INFO</td><br><td title="com.luohw.log4j.LayoutTest category">com.luohw.log4j.LayoutTest</td><br><td>LayoutTest.java:12</td><br><td title="Message">info:123</td><br></tr>
-
-<p>c. 输出NDC信息</p>
-<tr><td bgcolor="#EEEEEE" style="font-size : xx-small;" colspan="6" title="Nested Diagnostic Context">NDC: ndc message</td></tr>
-
-<p>d. 如果有则输出异常栈信息，一般Logger的日志函数info、warn、error等都有带Throwable型参的重载<br>e. 没有MDC相关信息的格式化输出</p>
-<p>3.2 demo</p>
-<p>demo java code:</p>
-<p>Logger logger = Logger.getLogger(LayoutTest.class);<br>NDC.push(“ndc message”);<br>logger.info(“info:123”);<br>logger.warn(“warn:abc”);<br>logger.error(“error:xyz”);<br>logger.info(“exception”, new RuntimeException(“run time exception”));<br>demo log4j config:</p>
-<p>log4j.rootLogger=INFO,Console<br>log4j.appender.Console=org.apache.log4j.ConsoleAppender<br>log4j.appender.Console.target=System.out<br>log4j.appender.Console.layout=org.apache.log4j.HTMLLayout<br>log4j.appender.Console.layout.LocationInfo=true<br>log4j.appender.Console.layout.Title=luohw@log4j</p>
-<p>demo浏览器打开日志输出html:</p>
-<p>html</p>
-<p>see more …</p>
-]]></content>
-    
-    <summary type="html">
-    
-      Layout of Log4j
-    
-    </summary>
-    
-      <category term="Log4j" scheme="http://jishusuishouji.github.io/categories/Log4j/"/>
-    
-    
-      <category term="Log4j" scheme="http://jishusuishouji.github.io/tags/Log4j/"/>
     
   </entry>
   

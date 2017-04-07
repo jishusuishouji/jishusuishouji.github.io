@@ -1,0 +1,790 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="负载均衡,集群,高可用," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="技术随手记" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="浅谈web应用的负载均衡、集群、高可用(HA)解决方案">
+<meta property="og:type" content="article">
+<meta property="og:title" content="浅谈web应用的负载均衡、集群、高可用(HA)解决方案">
+<meta property="og:url" content="http://jishusuishouji.github.io/2017/04/07/web/浅谈web应用的负载均衡、集群、高可用_HA_解决方案/index.html">
+<meta property="og:site_name" content="技术随手记">
+<meta property="og:description" content="浅谈web应用的负载均衡、集群、高可用(HA)解决方案">
+<meta property="og:image" content="http://jishusuishouji.github.io/img/apache+tomcat.jpg">
+<meta property="og:image" content="http://jishusuishouji.github.io/img/使用lvs+keepalive实现集群高可用，达到更健壮的LB.jpg">
+<meta property="og:image" content="http://jishusuishouji.github.io/img/通过memcached实现内存级session共享.jpg">
+<meta property="og:updated_time" content="2017-04-07T00:05:49.703Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="浅谈web应用的负载均衡、集群、高可用(HA)解决方案">
+<meta name="twitter:description" content="浅谈web应用的负载均衡、集群、高可用(HA)解决方案">
+<meta name="twitter:image" content="http://jishusuishouji.github.io/img/apache+tomcat.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://jishusuishouji.github.io/2017/04/07/web/浅谈web应用的负载均衡、集群、高可用_HA_解决方案/"/>
+
+
+
+
+
+  <title> 浅谈web应用的负载均衡、集群、高可用(HA)解决方案 | 技术随手记 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">技术随手记</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://jishusuishouji.github.io/2017/04/07/web/浅谈web应用的负载均衡、集群、高可用_HA_解决方案/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="技术随手记">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="技术随手记">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+            
+            
+              
+                浅谈web应用的负载均衡、集群、高可用(HA)解决方案
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-07T07:31:58+08:00">
+                2017-04-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/负载均衡/" itemprop="url" rel="index">
+                    <span itemprop="name">负载均衡</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            <!--noindex-->
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/04/07/web/浅谈web应用的负载均衡、集群、高可用_HA_解决方案/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count hc-comment-count" data-xid="2017/04/07/web/浅谈web应用的负载均衡、集群、高可用_HA_解决方案/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+              <!--/noindex-->
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  浅谈web应用的负载均衡、集群、高可用(HA)解决方案
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="1、几个组件"><a href="#1、几个组件" class="headerlink" title="1、几个组件"></a>1、几个组件</h2><h3 id="1-1、apache"><a href="#1-1、apache" class="headerlink" title="1.1、apache"></a>1.1、apache</h3><p>Apache软件基金会开放源代码的跨平台网页服务器，属于老牌的web服务器了，支持基于Ip或者域名的虚拟主机，支持代理服务器，支持安全Socket层(SSL)等等，目前主要用它做静态资源服务器，也可以做代理服务器转发请求(如：图片链等)，结合tomcat等servlet容器。</p>
+<h3 id="1-2、ngnix"><a href="#1-2、ngnix" class="headerlink" title="1.2、ngnix"></a>1.2、ngnix</h3><p>俄罗斯人开发的一个高性能的HTTP和反向代理服务器。由于Nginx超越Apache的高性能和稳定性，使得国内使用Nginx作为Web服务器的网站也越来越多，其中包括新浪博客、新浪播客、网易新闻、腾讯网、搜狐博客等门户网站频道等，在3w以上的高并发环境下，ngnix处理能力相当于apache的10倍。</p>
+<h3 id="1-3、lvs"><a href="#1-3、lvs" class="headerlink" title="1.3、lvs"></a>1.3、lvs</h3><p>Linux Virtual Server的简写，意即Linux虚拟服务器，是一个虚拟的服务器集群系统。由毕业于国防科技大学的章文嵩博士于1998年5月创立，可以实现LINUX平台下的简单负载均衡。</p>
+<h3 id="1-4、HAProxy"><a href="#1-4、HAProxy" class="headerlink" title="1.4、HAProxy"></a>1.4、HAProxy</h3><p>HAProxy提供高可用性、负载均衡以及基于TCP和HTTP应用的代理，支持虚拟主机，它是免费、快速并且可靠的一种解决方案。HAProxy特别适用于那些负载特大的web站点， 这些站点通常又需要会话保持或七层处理。HAProxy运行在当前的硬件上，完全可以支持数以万计的并发连接。并且它的运行模式使得它可以很简单安全地整合进您当前的架构中，同时可以保护你的web服务器不被暴露到网络上.</p>
+<h3 id="1-5、keepalived"><a href="#1-5、keepalived" class="headerlink" title="1.5、keepalived"></a>1.5、keepalived</h3><p>可以实现web服务器的高可用(HA high availably)。它可以检测web服务器的工作状态，如果该服务器出现故障被检测到，将其剔除服务器群中，直至正常工作后，keepalive会自动检测到并加入到服务器群里面。实现主备服务器发生故障时ip瞬时无缝交接。它是LVS集群节点健康检测的一个用户空间守护进程，也是LVS的引导故障转移模块（director failover）。Keepalived守护进程可以检查LVS池的状态。如果LVS服务器池当中的某一个服务器宕机了。keepalived会通过一个setsockopt呼叫通知内核将这个节点从LVS拓扑图中移除。</p>
+<h3 id="1-6、memcached"><a href="#1-6、memcached" class="headerlink" title="1.6、memcached"></a>1.6、memcached</h3><p>一个高性能分布式内存对象缓存系统。当初是Danga Interactive为了LiveJournal快速发展开发的系统，用于对业务查询数据缓存，减轻数据库的负载。其守护进程(daemon)是用C写的，但是客户端支持几乎所有语言(客户端基本上有3种版本[memcache client for java;spymemcached;xMecache])，服务端和客户端通过简单的协议通信；在memcached里面缓存的数据必须序列化。</p>
+<h3 id="1-7、terracotta"><a href="#1-7、terracotta" class="headerlink" title="1.7、terracotta"></a>1.7、terracotta</h3><p>是一款由美国Terracotta公司开发的著名开源Java集群平台。它在JVM与Java应用之间实现了一个专门处理集群功能的抽象层，允许用户在不改变系统代码的情况下实现java应用的集群。支持数据的持久化、session的复制以及高可用(HA)。</p>
+<h2 id="2、关键术语"><a href="#2、关键术语" class="headerlink" title="2、关键术语"></a>2、关键术语</h2><h3 id="2-1、负载均衡（load-balance）"><a href="#2-1、负载均衡（load-balance）" class="headerlink" title="2.1、负载均衡（load balance）"></a>2.1、负载均衡（load balance）</h3><p>如何处理高并发带来的系统性能问题，最终大家都会使用负载均衡机制。它是根据某种负载策略把请求分发到集群中的每一台服务器上，让整个服务器群来处理网站的请求。<br>公司比较有钱的，可以购买专门负责负载均衡的硬件（如：F5）,效果肯定会很好。对于大部分公司，会选择廉价有效的方法扩展整个系统的架构，来增加服务器的吞吐量和处理能力，以及承载能力。</p>
+<h3 id="2-2、集群（Cluster）"><a href="#2-2、集群（Cluster）" class="headerlink" title="2.2、集群（Cluster）"></a>2.2、集群（Cluster）</h3><p>用N台服务器构成一个松耦合的多处理器系统(对外来说，他们就是一个服务器)，它们之间通过网络实现通信。让N台服务器之间相互协作，共同承载一个网站的请求压力。</p>
+<h3 id="2-3、高可用（HA）"><a href="#2-3、高可用（HA）" class="headerlink" title="2.3、高可用（HA）"></a>2.3、高可用（HA）</h3><p>在集群服务器架构中，当主服务器故障时，备份服务器能够自动接管主服务器的工作，并及时切换过去，以实现对用户的不间断服务。ps：这里我感觉它跟故障转移(failover)是一个意思。</p>
+<h3 id="2-4、session复制-共享"><a href="#2-4、session复制-共享" class="headerlink" title="2.4、session复制/共享"></a>2.4、session复制/共享</h3><p>在访问系统的会话过程中，用户登录系统后，不管访问系统的任何资源地址都不需要重复登录，这里面servlet容易保存了该用户的会话(session)。如果两个tomcat(A、B)提供集群服务时候，用户在A-tomcat上登录，接下来的请求web服务器根据策略分发到B-tomcat，因为B-tomcat没有保存用户的会话(session)信息，不知道其登录，会跳转到登录界面。<br>这时候我们需要让B-tomcat也保存有A-tomcat的会话，我们可以使用tomcat的session复制实现或者通过其他手段让session共享。</p>
+<h2 id="3、常用web集群"><a href="#3、常用web集群" class="headerlink" title="3、常用web集群"></a>3、常用web集群</h2><h3 id="3-1、tomcat集群方案"><a href="#3-1、tomcat集群方案" class="headerlink" title="3.1、tomcat集群方案"></a>3.1、tomcat集群方案</h3><p>apache+tomcat；ngnix+tomcat；lvs+ngnix+tomcat。(lvs负责集群调度，nginx负责静态文件处理，tomcat负责动态文件处理[最优选择])。 以apache+tomcat集群为例：<br>1、他们之间的通信有三种方式：ajp_proxy、mod_jk链接器、http_proxy。<br>2、apache的分发策略有4种。权重(默认)、流量(bytraffic)、请求次数(byRequests)、繁忙程度(byBusyness根据活跃请求数的多少)<br>3、apache支持stickysession(粘性session)，即为：访问用户访问了A-tomcat，那么他的所有请求都会转发到A-tomcat，而不会到B-tomcat。[这样的负载均衡效果不好，适用于小型网站，下面说非粘性session]<br>4、它们之间的架构如图1：<br><img src="/img/apache+tomcat.jpg" alt="apache+tomcat"></p>
+<p>问题1：只有一个web服务器，明显的单点故障。如果该apache出现问题，整个网站就会瘫痪。</p>
+<h3 id="3-2、session复制"><a href="#3-2、session复制" class="headerlink" title="3.2、session复制"></a>3.2、session复制</h3><p>如果不采用stickysession(粘性session)，那么我们可以采用tomcat的session复制使所有节点tomcat的会话相同，tomcat使用组播技术，只要集群中一个tomcat节点的session发生改变，会广播通知所有tomcat节点发生改变。</p>
+<p>问题2：据网友测试，当tomcat节点数达到4个以上时候，集群性能呈线性下滑；另外当用户访问量大到一定程度，会话内容随之增多，tomcat节点相互之间通信产生大量的网络消耗，产生网络阻塞，整个集群的吞吐量不能再上升。</p>
+<h2 id="4、高可用-HA-和session共享-解决上面提到的两个问题"><a href="#4、高可用-HA-和session共享-解决上面提到的两个问题" class="headerlink" title="4、高可用(HA)和session共享(解决上面提到的两个问题)"></a>4、高可用(HA)和session共享(解决上面提到的两个问题)</h2><h3 id="4-1、使用lvs-keepalive实现集群高可用，达到更健壮的LB"><a href="#4-1、使用lvs-keepalive实现集群高可用，达到更健壮的LB" class="headerlink" title="4.1、使用lvs+keepalive实现集群高可用，达到更健壮的LB"></a>4.1、使用lvs+keepalive实现集群高可用，达到更健壮的LB</h3><p>可以前端使用lvs来做负载均衡，根据lvs的8种调度算法(可设置)，分发请求到对应的web服务器集群上。lvs做双机热备，通过keepalived模块能够达到故障自动转移到备份服务器，不间断提供服务，结构如图2：</p>
+<p> <img src="/img/使用lvs+keepalive实现集群高可用，达到更健壮的LB.jpg" alt="使用lvs+keepalive实现集群高可用，达到更健壮的LB"></p>
+<p> 说明：据查询了解，一般在WEB端使用的负载均衡比较多的是HAProxy+keepalived+nginx；数据库mysql集群使用Lvs+keepalived+mysql实现。因为HAProxy和nginx一样是工作在网络7层之上，并且前者弥补了nginx的一些缺点如session的保持，cookie的引导等，且它本身是个负责均衡软件，处理负载均衡上面必然优于nginx；lvs比较笨重，对于比较庞大的网络应用实施比较复杂，虽然它运行在网络4层之上，仅做分发没有流量产生，但是它不能做正则处理也不能也不能做动静分离，所以一般用lvs+keepalived或heatbeat做数据库层的负载均衡。</p>
+<h3 id="4-2、使用terracotta或者memcached使session共享"><a href="#4-2、使用terracotta或者memcached使session共享" class="headerlink" title="4.2、使用terracotta或者memcached使session共享"></a>4.2、使用terracotta或者memcached使session共享</h3><h4 id="4-2-1、terracotta是jvm级别的session共享"><a href="#4-2-1、terracotta是jvm级别的session共享" class="headerlink" title="4.2.1、terracotta是jvm级别的session共享"></a>4.2.1、terracotta是jvm级别的session共享</h4><p>它基本原理是对于集群间共享的数据，当在一个节点发生变化的时候，Terracotta只把变化的部分发送给Terracotta服务器，然后由服务器把它转发给真正需要这个数据的节点，并且共享的数据对象不需要序列化。</p>
+<h3 id="4-2-2、通过memcached实现内存级session共享"><a href="#4-2-2、通过memcached实现内存级session共享" class="headerlink" title="4.2.2、通过memcached实现内存级session共享"></a>4.2.2、通过memcached实现内存级session共享</h3><p>通过memcached-session-manager（msm）插件，通过tomcat上一定的配置，即可实现把session存储到memcached服务器上。注意：tomcat支持tomcat6+，并且memcached可以支持分布式内存，msm同时支持黏性session（sticky sessions）或者非黏性session（non-sticky sessions）两种模式，在memcached内存中共享的对象需要序列化。结构如图3：<br><img src="/img/通过memcached实现内存级session共享.jpg" alt="通过memcached实现内存级session共享"></p>
+<p>通过一定的配置，可以实现故障转移(只支持对非粘性session)。如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">&lt;Context&gt;    </div><div class="line">      ...    </div><div class="line">      &lt;Manager className=&quot;de.javakaffee.web.msm.MemcachedBackupSessionManager&quot;    </div><div class="line">        memcachedNodes=&quot;n1:host1.yourdomain.com:11211,n2:host2.yourdomain.com:11211&quot;    </div><div class="line">        failoverNodes=&quot;n1&quot;    </div><div class="line">        requestUriIgnorePattern=&quot;.*\.(ico|png|gif|jpg|css|js)$&quot;    </div><div class="line">        transcoderFactoryClass=&quot;de.javakaffee.web.msm.serializer.kryo.KryoTranscoderFactory&quot;    </div><div class="line">        /&gt;    </div><div class="line">&lt;/Context&gt;</div></pre></td></tr></table></figure></p>
+<p>说明：<code>failoverNodes</code>：故障转移节点，对非粘性session不可用。属性<code>failoverNodes=&quot;n1&quot;</code>的作用是告诉msm最好是把session保存在memcached “n2”节点上，只有在n2节点不可用的情况下才把session保存在n1节点。这样即使host2上的tomcat宕机，仍然可以通过host1上的tomcat访问存放在memcached “n1” 节点中的session。</p>
+<h3 id="4-2-3、其他方案"><a href="#4-2-3、其他方案" class="headerlink" title="4.2.3、其他方案"></a>4.2.3、其他方案</h3><p>通过cookie保存用户信息(一般是登录信息)，每一个请求到达web应用的时候，web应用从cookie中取出数据进行处理（这里尽量对cookie做加密处理）；<br>另外一种是把用户信息的关键属性保存到数据库，这样就不需要session了。请求过来从数据库查询关键属性数据，做相应处理。缺点：加大了数据库的负载，使数据库成为集群的瓶颈。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/负载均衡/" rel="tag"># 负载均衡</a>
+          
+            <a href="/tags/集群/" rel="tag"># 集群</a>
+          
+            <a href="/tags/高可用/" rel="tag"># 高可用</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/04/06/js/js如何把相对路基的url转换为绝对路径/" rel="next" title="js如何把相对路基的url转换为绝对路径">
+                <i class="fa fa-chevron-left"></i> js如何把相对路基的url转换为绝对路径
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/04/07/jiqun/Java集群--大型网站是怎样解决多用户高并发访问的/" rel="prev" title="Java集群--大型网站是怎样解决多用户高并发访问的">
+                Java集群--大型网站是怎样解决多用户高并发访问的 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="hypercomments_widget"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="技术随手记" />
+          <p class="site-author-name" itemprop="name">技术随手记</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+           
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">46</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">37</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">43</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1、几个组件"><span class="nav-number">1.</span> <span class="nav-text">1、几个组件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1、apache"><span class="nav-number">1.1.</span> <span class="nav-text">1.1、apache</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2、ngnix"><span class="nav-number">1.2.</span> <span class="nav-text">1.2、ngnix</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3、lvs"><span class="nav-number">1.3.</span> <span class="nav-text">1.3、lvs</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4、HAProxy"><span class="nav-number">1.4.</span> <span class="nav-text">1.4、HAProxy</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-5、keepalived"><span class="nav-number">1.5.</span> <span class="nav-text">1.5、keepalived</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-6、memcached"><span class="nav-number">1.6.</span> <span class="nav-text">1.6、memcached</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-7、terracotta"><span class="nav-number">1.7.</span> <span class="nav-text">1.7、terracotta</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2、关键术语"><span class="nav-number">2.</span> <span class="nav-text">2、关键术语</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1、负载均衡（load-balance）"><span class="nav-number">2.1.</span> <span class="nav-text">2.1、负载均衡（load balance）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2、集群（Cluster）"><span class="nav-number">2.2.</span> <span class="nav-text">2.2、集群（Cluster）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3、高可用（HA）"><span class="nav-number">2.3.</span> <span class="nav-text">2.3、高可用（HA）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4、session复制-共享"><span class="nav-number">2.4.</span> <span class="nav-text">2.4、session复制/共享</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3、常用web集群"><span class="nav-number">3.</span> <span class="nav-text">3、常用web集群</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1、tomcat集群方案"><span class="nav-number">3.1.</span> <span class="nav-text">3.1、tomcat集群方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2、session复制"><span class="nav-number">3.2.</span> <span class="nav-text">3.2、session复制</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4、高可用-HA-和session共享-解决上面提到的两个问题"><span class="nav-number">4.</span> <span class="nav-text">4、高可用(HA)和session共享(解决上面提到的两个问题)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1、使用lvs-keepalive实现集群高可用，达到更健壮的LB"><span class="nav-number">4.1.</span> <span class="nav-text">4.1、使用lvs+keepalive实现集群高可用，达到更健壮的LB</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2、使用terracotta或者memcached使session共享"><span class="nav-number">4.2.</span> <span class="nav-text">4.2、使用terracotta或者memcached使session共享</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#4-2-1、terracotta是jvm级别的session共享"><span class="nav-number">4.2.1.</span> <span class="nav-text">4.2.1、terracotta是jvm级别的session共享</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-2、通过memcached实现内存级session共享"><span class="nav-number">4.3.</span> <span class="nav-text">4.2.2、通过memcached实现内存级session共享</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-3、其他方案"><span class="nav-number">4.4.</span> <span class="nav-text">4.2.3、其他方案</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">技术随手记</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+		<script type="text/javascript">
+		_hcwp = window._hcwp || [];
+
+		_hcwp.push({widget:"Bloggerstream", widget_id: 89144, selector:".hc-comment-count", label: "{\%COUNT%\}" });
+
+		
+		_hcwp.push({widget:"Stream", widget_id: 89144, xid: "2017/04/07/web/浅谈web应用的负载均衡、集群、高可用_HA_解决方案/"});
+		
+
+		(function() {
+		if("HC_LOAD_INIT" in window)return;
+		HC_LOAD_INIT = true;
+		var lang = (navigator.language || navigator.systemLanguage || navigator.userLanguage || "en").substr(0, 2).toLowerCase();
+		var hcc = document.createElement("script"); hcc.type = "text/javascript"; hcc.async = true;
+		hcc.src = ("https:" == document.location.protocol ? "https" : "http")+"://w.hypercomments.com/widget/hc/89144/"+lang+"/widget.js";
+		var s = document.getElementsByTagName("script")[0];
+		s.parentNode.insertBefore(hcc, s.nextSibling);
+		})();
+		</script>
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
