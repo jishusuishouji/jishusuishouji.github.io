@@ -4,8 +4,28 @@
 
     
   <url>
+    <loc>http://jishusuishouji.github.io/2017/04/07/jiqun/%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86/</loc>
+    <lastmod>2017-04-07T04:18:22.553Z</lastmod>
+    <data>
+        <display>
+        <title>反向代理</title>
+        <pubTime>2017-04-07T03:55:17.000Z</pubTime>
+        
+        <tag>反向代理</tag>
+         
+         
+           
+             
+              <breadCrumb title="反向代理" url="http://jishusuishouji.github.io/categories/%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://jishusuishouji.github.io/2017/04/07/fuzaijunheng/Nginx_LVS_HAProxy%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E8%BD%AF%E4%BB%B6%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9%E8%AF%A6%E8%A7%A3/</loc>
-    <lastmod>2017-04-07T03:48:37.486Z</lastmod>
+    <lastmod>2017-04-07T03:53:43.828Z</lastmod>
     <data>
         <display>
         <title>Nginx/LVS/HAProxy负载均衡软件的优缺点详解</title>
@@ -376,11 +396,11 @@
         <title>Apache Thrift学习之一（入门及Java实例演示）</title>
         <pubTime>2017-04-03T09:58:39.000Z</pubTime>
         
-        <tag>Thrift</tag>
-         
         <tag>facebook</tag>
          
         <tag>RPC</tag>
+         
+        <tag>Thrift</tag>
          
          
            
@@ -403,11 +423,11 @@
         <title>基于ZooKeeper和Thrift构建动态RPC调用</title>
         <pubTime>2017-04-03T10:49:07.000Z</pubTime>
         
-        <tag>Thrift</tag>
-         
         <tag>RPC</tag>
          
         <tag>ZoopKeeper</tag>
+         
+        <tag>Thrift</tag>
          
          
            
@@ -433,11 +453,11 @@
         <title>facebook的thriff 基于rpc的远程调用实现</title>
         <pubTime>2017-04-03T09:05:33.000Z</pubTime>
         
-        <tag>facebook</tag>
-         
         <tag>thriff</tag>
          
         <tag>rpc</tag>
+         
+        <tag>facebook</tag>
          
          
            
