@@ -1,0 +1,862 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="集群," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="技术随手记" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="基于Keepalived+Haproxy搭建四层负载均衡器">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于Keepalived+Haproxy搭建四层负载均衡器">
+<meta property="og:url" content="http://jishusuishouji.github.io/2017/04/07/jiqun/基于Keepalived_Haproxy搭建四层负载均衡器/index.html">
+<meta property="og:site_name" content="技术随手记">
+<meta property="og:description" content="基于Keepalived+Haproxy搭建四层负载均衡器">
+<meta property="og:updated_time" content="2017-04-07T05:13:34.253Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="基于Keepalived+Haproxy搭建四层负载均衡器">
+<meta name="twitter:description" content="基于Keepalived+Haproxy搭建四层负载均衡器">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://jishusuishouji.github.io/2017/04/07/jiqun/基于Keepalived_Haproxy搭建四层负载均衡器/"/>
+
+
+
+
+
+  <title> 基于Keepalived+Haproxy搭建四层负载均衡器 | 技术随手记 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">技术随手记</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://jishusuishouji.github.io/2017/04/07/jiqun/基于Keepalived_Haproxy搭建四层负载均衡器/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="技术随手记">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="技术随手记">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+            
+            
+              
+                基于Keepalived+Haproxy搭建四层负载均衡器
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-07T13:07:53+08:00">
+                2017-04-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/集群/" itemprop="url" rel="index">
+                    <span itemprop="name">集群</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            <!--noindex-->
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/04/07/jiqun/基于Keepalived_Haproxy搭建四层负载均衡器/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count hc-comment-count" data-xid="2017/04/07/jiqun/基于Keepalived_Haproxy搭建四层负载均衡器/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+              <!--/noindex-->
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  基于Keepalived+Haproxy搭建四层负载均衡器
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h2><p>Haproxy是稳定、高性能、高可用性的负载均衡解决方案，支持HTTP及TCP代理后端服务器池，因支持强大灵活的7层acl规则，广泛作为HTTP反向代理。本文则详细介绍如何利用它的四层交换与Keepalived实现一个负载均衡器，适用于Socket、ICE、mail、mysql、私有通讯等任意TCP服务。系统架构图如下：</p>
+<p>点击在新窗口中浏览此图片</p>
+<p>二、平台环境</p>
+<p>OS:Centos5.4(64X)<br>MASTER:192.168.0.20<br>BACKUP:192.168.0.21<br>VIP:192.168.0.100<br>Serivce Port:11231<br>三、平台安装配置</p>
+<p>1、添加非本机ip邦定支持</p>
+<p>#vi /etc/sysctl.conf<br>net.ipv4.ip_nonlocal_bind=1</p>
+<p>#sysctl –p<br>2、配置平台日志支持</p>
+<p>#vi /etc/syslog.conf<br>添加：<br>local3.<em>        /var/log/haproxy.log<br>local0.</em>        /var/log/haproxy.log</p>
+<p>#vi /etc/sysconfig/syslog<br>修改：<br>SYSLOGD_OPTIONS=”-r -m 0”</p>
+<p>#/etc/init.d/syslog restart<br>3、关闭SELINUX</p>
+<p>vi /etc/sysconfig/selinux<br>修改：<br>SELINUX=disabled</p>
+<p>#setenforce 0<br>4、配置iptables，添加VRRP通讯支持</p>
+<p>iptables -A INPUT -d 224.0.0.18 -j accept<br>5、Keepalived的安装、配置</p>
+<p>#mkdir -p /home/install/keepalivedha</p>
+<p>#cd /home/install/keepalivedha</p>
+<p>#wget <a href="http://www.keepalived.org/software/keepalived-1.2.2.tar.gz" target="_blank" rel="external">http://www.keepalived.org/software/keepalived-1.2.2.tar.gz</a></p>
+<p>#tar zxvf keepalived-1.2.2.tar.gz</p>
+<p>#cd keepalived-1.2.2</p>
+<p>#./configure</p>
+<p>#make &amp;&amp; make install</p>
+<p>#cp /usr/local/etc/rc.d/init.d/keepalived /etc/rc.d/init.d/</p>
+<p>#cp /usr/local/etc/sysconfig/keepalived /etc/sysconfig/</p>
+<p>#mkdir /etc/keepalived</p>
+<p>#cp /usr/local/etc/keepalived/keepalived.conf /etc/keepalived/</p>
+<p>#cp /usr/local/sbin/keepalived /usr/sbin/</p>
+<p>#vi /etc/keepalived/keepalived.conf</p>
+<p>! Configuration file for keepalived  </p>
+<p>global_defs {<br>   notification_email {<br>         liutiansi@gmail.com<br>   }<br>   notification_email_from liutiansi@gmail.com<br>   smtp_connect_timeout 3<br>   smtp_server 127.0.0.1<br>   router_id LVS_DEVEL<br>}<br>vrrp_script chk_haproxy {<br>    script “killall -0 haproxy”<br>    interval 2<br>    weight 2<br>}<br>vrrp_instance VI_1 {<br>    interface eth1<br>    state MASTER # 从为BACKUP<br>    priority 101 # 从为100<br>    virtual_router_id 50 #路由ID，可通过#tcpdump vrrp查看。<br>    garp_master_delay 1 #主从切换时间，单位为秒。  </p>
+<pre><code>authentication {  
+    auth_type PASS  
+    auth_pass KJj23576hYgu23IP  
+}  
+track_interface {  
+   eth0  
+   eth1  
+}  
+virtual_ipaddress {  
+    192.168.0.100  
+}  
+track_script {  
+    chk_haproxy  
+}  
+
+#状态通知  
+notify_master &quot;/etc/keepalived/Mailnotify.py master&quot;  
+notify_backup &quot;/etc/keepalived/Mailnotify.py backup&quot;  
+notify_fault &quot;/etc/keepalived/Mailnotify.py fault&quot;  
+</code></pre><p>}<br>6、Haproxy的安装与配置</p>
+<p>#cd /home/install/keepalivedha</p>
+<p>#wget <a href="http://haproxy.1wt.eu/download/1.4/src/haproxy-1.4.11.tar.gz" target="_blank" rel="external">http://haproxy.1wt.eu/download/1.4/src/haproxy-1.4.11.tar.gz</a></p>
+<p>#tar -zxvf haproxy-1.4.11.tar.gz</p>
+<p>#cd haproxy-1.4.11</p>
+<p>#make install</p>
+<p>#mkdir -p /usr/local/haproxy/etc</p>
+<p>#mkdir -p /usr/local/haproxy/sbin</p>
+<p>#cp examples/haproxy.cfg /usr/local/haproxy/etc</p>
+<p>#ln -s /usr/local/sbin/haproxy /usr/local/haproxy/sbin/haproxy </p>
+<p>#vi /usr/local/haproxy/etc/haproxy.cfg</p>
+<h1 id="this-config-needs-haproxy-1-1-28-or-haproxy-1-2-1"><a href="#this-config-needs-haproxy-1-1-28-or-haproxy-1-2-1" class="headerlink" title="this config needs haproxy-1.1.28 or haproxy-1.2.1"></a>this config needs haproxy-1.1.28 or haproxy-1.2.1</h1><p>global  </p>
+<h1 id="log-127-0-0-1-local0"><a href="#log-127-0-0-1-local0" class="headerlink" title="log 127.0.0.1   local0"></a>log 127.0.0.1   local0</h1><pre><code>log 127.0.0.1   local1 notice  
+maxconn 5000  
+uid 99  
+gid 99  
+
+daemon  
+pidfile /usr/local/haproxy/haproxy.pid  
+</code></pre><p>defaults<br>        log     global<br>        mode    http  </p>
+<pre><code>#option httplog  
+ option  dontlognull  
+ retries 3  
+ option redispatch  
+ maxconn 2000  
+ contimeout      5000  
+ clitimeout      50000  
+ srvtimeout      50000  
+</code></pre><p>listen  ICE01   192.168.0.100:11231<br>        mode tcp #配置TCP模式<br>        maxconn 2000<br>        balance roundrobin<br>        server  ice-192.168.0.128 192.168.0.128:11231 check inter 5000 fall 1 rise 2<br>        server  ice-192.168.0.129 192.168.0.129:11231 check inter 5000 fall 1 rise 2<br>        server  ice-192.168.0.130 192.168.0.130:11231 check inter 5000 fall 1 rise 2<br>        server  ice-192.168.0.131 192.168.0.131:11231 check inter 5000 fall 1 rise 2<br>        server  ice-192.168.0.132 192.168.0.132:11231 check inter 5000 fall 1 rise 2<br>        server  ice-192.168.0.34 192.168.0.34:11231 check inter 5000 fall 1 rise 2<br>        srvtimeout      20000  </p>
+<p>listen stats_auth 192.168.0.20:80  </p>
+<h1 id="listen-stats-auth-192-168-0-21-80-backup-config"><a href="#listen-stats-auth-192-168-0-21-80-backup-config" class="headerlink" title="listen stats_auth 192.168.0.21:80 # backup config"></a>listen stats_auth 192.168.0.21:80 # backup config</h1><pre><code>stats enable  
+stats uri  /admin-status #管理地址  
+stats auth  admin:123456 #管理帐号:管理密码  
+stats admin if TRUE  
+</code></pre><p>7、邮件通知程序(python实现)</p>
+<p>#vi /etc/keepalived/Mailnotify.py</p>
+<p>#!/usr/local/bin/python  </p>
+<p>#coding: utf-8<br>from email.MIMEMultipart import MIMEMultipart<br>from email.MIMEText import MIMEText<br>from email.MIMEImage import MIMEImage<br>from email.header import Header<br>import sys<br>import smtplib  </p>
+<p>#—————————————————————  </p>
+<h1 id="Name-Mailnotify-py"><a href="#Name-Mailnotify-py" class="headerlink" title="Name:        Mailnotify.py"></a>Name:        Mailnotify.py</h1><h1 id="Purpose-Mail-notify-to-SA"><a href="#Purpose-Mail-notify-to-SA" class="headerlink" title="Purpose:     Mail notify to SA"></a>Purpose:     Mail notify to SA</h1><h1 id="Author-Liutiansi"><a href="#Author-Liutiansi" class="headerlink" title="Author:      Liutiansi"></a>Author:      Liutiansi</h1><h1 id="Email-liutiansi-gamil-com"><a href="#Email-liutiansi-gamil-com" class="headerlink" title="Email:       liutiansi@gamil.com"></a>Email:       liutiansi@gamil.com</h1><h1 id="Created-2011-03-09"><a href="#Created-2011-03-09" class="headerlink" title="Created:     2011/03/09"></a>Created:     2011/03/09</h1><h1 id="Copyright-c-2011"><a href="#Copyright-c-2011" class="headerlink" title="Copyright:   (c) 2011"></a>Copyright:   (c) 2011</h1><p>#————————————————————–<br>strFrom = ‘admin@domain.com’<br>strTo = ‘liutiansi@gmail.com’<br>smtp_server=’smtp.domain.com’<br>smtp_pass=’123456’  </p>
+<p>if sys.argv[1]!=”master” and sys.argv[1]!=”backup”  and sys.argv[1]!=”fault”:<br>    sys.exit()<br>else:<br>    notify_type=sys.argv[1]  </p>
+<p>mail_title=’[紧急]负载均衡器邮件通知’<br>mail_body_plain=notify_type+’被激活，请做好应急处理。’<br>mail_body_html=’<b><font color="red">‘+notify_type+’被激活，请做好应急处理。</font></b>‘  </p>
+<p>msgRoot = MIMEMultipart(‘related’)<br>msgRoot[‘Subject’] =Header(mail_title,’utf-8’)<br>msgRoot[‘From’] = strFrom<br>msgRoot[‘To’] = strTo  </p>
+<p>msgAlternative = MIMEMultipart(‘alternative’)<br>msgRoot.attach(msgAlternative)  </p>
+<p>msgText = MIMEText(mail_body_plain, ‘plain’, ‘utf-8’)<br>msgAlternative.attach(msgText)  </p>
+<p>msgText = MIMEText(mail_body_html, ‘html’,’utf-8’)<br>msgAlternative.attach(msgText)  </p>
+<p>smtp = smtplib.SMTP()<br>smtp.connect(smtp_server)<br>smtp.login(smtp_user,smtp_pass)<br>smtp.sendmail(strFrom, strTo, msgRoot.as_string())<br>smtp.quit()<br>注：修改成系统python实际路径“#!/usr/local/bin/python”(第一行)</p>
+<p>#chmod +x /etc/keepalived/Mailnotify.py</p>
+<p>#/usr/local/haproxy/sbin/haproxy -f /usr/local/haproxy/etc/haproxy.cfg</p>
+<p>#service keepalived start<br>8、查看VRRP通讯记录</p>
+<p>#tcpdump vrrp<br>tcpdump: verbose output suppressed, use -v or -vv for full protocol decode<br>listening on eth0, link-type EN10MB (Ethernet), capture size 96 bytes<br>15:49:05.270017 IP 192.168.0.20 &gt; VRRP.MCAST.NET: VRRPv2, Advertisement, vrid 50, prio 100, authtype simple, intvl 1s, length 20<br>四、Haproxy界面</p>
+<p>访问<a href="http://192.168.0.20/admin-status，输入帐号admin密码123456进入管理监控平台。" target="_blank" rel="external">http://192.168.0.20/admin-status，输入帐号admin密码123456进入管理监控平台。</a></p>
+<p>点击在新窗口中浏览此图片</p>
+<p>haproxy-1.4.9以后版本最大的亮点是添加了手工启用/禁用功能，对升级变更应用时非常有用。</p>
+<p>五、邮件通知</p>
+<p>点击在新窗口中浏览此图片</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/集群/" rel="tag"># 集群</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/04/07/jiqun/nginx_keepalive主从双机热备_自动切换解决方案/" rel="next" title="nginx+keepalive主从双机热备+自动切换解决方案">
+                <i class="fa fa-chevron-left"></i> nginx+keepalive主从双机热备+自动切换解决方案
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/04/17/ServletContext总结.md/ServletContext总结/" rel="prev" title="ServletContext总结">
+                ServletContext总结 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="hypercomments_widget"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="技术随手记" />
+          <p class="site-author-name" itemprop="name">技术随手记</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+           
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">53</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">40</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">46</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、前言"><span class="nav-number">1.</span> <span class="nav-text">一、前言</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#this-config-needs-haproxy-1-1-28-or-haproxy-1-2-1"><span class="nav-number"></span> <span class="nav-text">this config needs haproxy-1.1.28 or haproxy-1.2.1</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#log-127-0-0-1-local0"><span class="nav-number"></span> <span class="nav-text">log 127.0.0.1   local0</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#listen-stats-auth-192-168-0-21-80-backup-config"><span class="nav-number"></span> <span class="nav-text">listen stats_auth 192.168.0.21:80 # backup config</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Name-Mailnotify-py"><span class="nav-number"></span> <span class="nav-text">Name:        Mailnotify.py</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Purpose-Mail-notify-to-SA"><span class="nav-number"></span> <span class="nav-text">Purpose:     Mail notify to SA</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Author-Liutiansi"><span class="nav-number"></span> <span class="nav-text">Author:      Liutiansi</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Email-liutiansi-gamil-com"><span class="nav-number"></span> <span class="nav-text">Email:       liutiansi@gamil.com</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Created-2011-03-09"><span class="nav-number"></span> <span class="nav-text">Created:     2011/03/09</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Copyright-c-2011"><span class="nav-number"></span> <span class="nav-text">Copyright:   (c) 2011</span></a></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">技术随手记</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+		<script type="text/javascript">
+		_hcwp = window._hcwp || [];
+
+		_hcwp.push({widget:"Bloggerstream", widget_id: 89144, selector:".hc-comment-count", label: "{\%COUNT%\}" });
+
+		
+		_hcwp.push({widget:"Stream", widget_id: 89144, xid: "2017/04/07/jiqun/基于Keepalived_Haproxy搭建四层负载均衡器/"});
+		
+
+		(function() {
+		if("HC_LOAD_INIT" in window)return;
+		HC_LOAD_INIT = true;
+		var lang = (navigator.language || navigator.systemLanguage || navigator.userLanguage || "en").substr(0, 2).toLowerCase();
+		var hcc = document.createElement("script"); hcc.type = "text/javascript"; hcc.async = true;
+		hcc.src = ("https:" == document.location.protocol ? "https" : "http")+"://w.hypercomments.com/widget/hc/89144/"+lang+"/widget.js";
+		var s = document.getElementsByTagName("script")[0];
+		s.parentNode.insertBefore(hcc, s.nextSibling);
+		})();
+		</script>
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

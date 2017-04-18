@@ -95,7 +95,7 @@
 <meta property="og:url" content="http://jishusuishouji.github.io/2017/04/07/fuzaijunheng/Nginx_LVS_HAProxy负载均衡软件的优缺点详解/index.html">
 <meta property="og:site_name" content="技术随手记">
 <meta property="og:description" content="Nginx/LVS/HAProxy负载均衡软件的优缺点详解">
-<meta property="og:updated_time" content="2017-04-07T03:53:43.828Z">
+<meta property="og:updated_time" content="2017-04-07T04:40:13.638Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Nginx/LVS/HAProxy负载均衡软件的优缺点详解">
 <meta name="twitter:description" content="Nginx/LVS/HAProxy负载均衡软件的优缺点详解">
@@ -388,90 +388,23 @@
 <h2 id="软件"><a href="#软件" class="headerlink" title="软件"></a>软件</h2><p>Nginx/LVS/HAProxy等基于Linux的开源免费的负载均衡软件，通过软件级别来实现，费用非常低廉。</p>
 <h2 id="合理流行的架构方案"><a href="#合理流行的架构方案" class="headerlink" title="合理流行的架构方案"></a>合理流行的架构方案</h2><h3 id="web"><a href="#web" class="headerlink" title="web"></a>web</h3><p>Nginx/HAProxy+Keepalived作负载均衡器</p>
 <h3 id="后端"><a href="#后端" class="headerlink" title="后端"></a>后端</h3><p>MySQL数据库一主多从和读写分离，采用LVS+Keepalived的架构。</p>
-<h2 id="Nginx"><a href="#Nginx" class="headerlink" title="Nginx"></a>Nginx</h2><h3 id="优点-1"><a href="#优点-1" class="headerlink" title="优点"></a>优点</h3><p>1、工作在网络协议的第7层，可以针对http应用做一些分流的策略，比如针对域名、目录结构，它的正则规则比HAProxy更为强大和灵活，这也是它目前广泛流行的主要原因之一，Nginx单凭这点可利用的场合就远多于LVS了。<br>2、Nginx对网络稳定性的依赖非常小，理论上能ping通就就能进行负载功能，这个也是它的优势之一；相反LVS对网络稳定性依赖比较大；<br>3、Nginx安装和配置比较简单，测试起来比较方便，日志功能很强大。LVS的配置、测试就要花比较长的时间了，LVS对网络依赖比较大。<br>3、可以承担高负载压力且稳定，在硬件不差的情况下一般能支撑几万次的并发量，负载度比LVS相对小些。<br>4、Nginx可以通过端口检测到服务器内部的故障，比如根据服务器处理网页返回的状态码、超时等等，并且会把返回错误的请求重新提交到另一个节点，不过其中缺点就是不支持url来检测。比如用户正在上传一个文件，而处理该上传的节点刚好在上传过程中出现故障，Nginx会把上传切到另一台服务器重新处理，而LVS就直接断掉了，如果是上传一个很大的文件或者很重要的文件的话，用户可能会因此而不满。<br>5、Nginx不仅仅是一款优秀的负载均衡器/反向代理软件，它同时也是功能强大的Web应用服务器。LNMP也是近几年非常流行的web架构，在高流量的环境中稳定性也很好。<br>6、Nginx现在作为Web反向加速缓存越来越成熟了，速度比传统的Squid服务器更快，可以考虑用其作为反向代理加速器。<br>7、Nginx可作为中层反向代理使用，这一层面Nginx基本上无对手，唯一可以对比Nginx的就只有lighttpd了，不过lighttpd目前还没有做到Nginx完全的功能，配置也不那么清晰易读，社区资料也远远没Nginx活跃。<br>8、Nginx也可作为静态网页和图片服务器，这方面的性能也无对手。还有Nginx社区非常活跃，第三方模块也很多。</p>
+<h2 id="Nginx"><a href="#Nginx" class="headerlink" title="Nginx"></a>Nginx</h2><h3 id="优点-1"><a href="#优点-1" class="headerlink" title="优点"></a>优点</h3><p>1、工作在网络协议的第7层，可以针对http应用做一些分流的策略，比如针对域名、目录结构，它的正则规则比HAProxy更为强大和灵活，这也是它目前广泛流行的主要原因之一，Nginx单凭这点可利用的场合就远多于LVS了。<br>2、Nginx对网络稳定性的依赖非常小，理论上能ping通就就能进行负载功能，这个也是它的优势之一；相反LVS对网络稳定性依赖比较大；<br>3、Nginx安装和配置比较简单，测试起来比较方便，日志功能很强大。LVS的配置、测试就要花比较长的时间了，LVS对网络依赖比较大。<br>3、可以承担高负载压力且稳定，在硬件不差的情况下一般能支撑几万次的并发量，负载度比LVS相对小些。<br>4、Nginx可以通过端口检测到服务器内部的故障，比如根据服务器处理网页返回的状态码、超时等等，并且会把返回错误的请求重新提交到另一个节点，不过其中缺点就是不支持url检测。比如用户正在上传一个文件，而处理该上传的节点刚好在上传过程中出现故障，Nginx会把上传切到另一台服务器重新处理，而LVS就直接断掉了，如果是上传一个很大的文件或者很重要的文件的话，用户可能会因此而不满。<br>5、Nginx不仅仅是一款优秀的负载均衡器/反向代理软件，它同时也是功能强大的Web应用服务器。LNMP也是近几年非常流行的web架构，在高流量的环境中稳定性也很好。<br>6、Nginx现在作为Web反向加速缓存越来越成熟了，速度比传统的Squid服务器更快，可以考虑用其作为反向代理加速器。<br>7、Nginx可作为中层反向代理使用，这一层面Nginx基本上无对手，唯一可以对比Nginx的就只有lighttpd了，不过lighttpd目前还没有做到Nginx完全的功能，配置也不那么清晰易读，社区资料也远远没Nginx活跃。<br>8、Nginx也可作为静态网页和图片服务器，这方面的性能也无对手。还有Nginx社区非常活跃，第三方模块也很多。</p>
 <p>淘宝的前端使用的Tengine就是基于nginx做的二次开发定制版。</p>
 <p>Nginx常规的HTTP请求和响应流程图：</p>
 <p>nginx</p>
-<p>Nginx的缺点是：<br>1、Nginx仅能支持http、https和Email协议，这样就在适用范围上面小些，这个是它的缺点。<br>2、对后端服务器的健康检查，只支持通过端口来检测，不支持通过url来检测。不支持Session的直接保持，但能通过ip_hash来解决。</p>
-<p>二、LVS<br>LVS：使用Linux内核集群实现一个高性能、高可用的负载均衡服务器，它具有很好的可伸缩性（Scalability)、可靠性（Reliability)和可管理性（Manageability)。</p>
-<p>LVS的优点是：<br>1、抗负载能力强、是工作在网络4层之上仅作分发之用，没有流量的产生，这个特点也决定了它在负载均衡软件里的性能最强的，对内存和cpu资源消耗比较低。<br>2、配置性比较低，这是一个缺点也是一个优点，因为没有可太多配置的东西，所以并不需要太多接触，大大减少了人为出错的几率。<br>3、工作稳定，因为其本身抗负载能力很强，自身有完整的双机热备方案，如LVS+Keepalived，不过我们在项目实施中用得最多的还是LVS/DR+Keepalived。<br>4、无流量，LVS只分发请求，而流量并不从它本身出去，这点保证了均衡器IO的性能不会收到大流量的影响。<br>5、应用范围比较广，因为LVS工作在4层，所以它几乎可以对所有应用做负载均衡，包括http、数据库、在线聊天室等等。</p>
+<h3 id="Nginx的缺点是："><a href="#Nginx的缺点是：" class="headerlink" title="Nginx的缺点是："></a>Nginx的缺点是：</h3><p>1、Nginx仅支持http、https和Email协议，适用范围比较小。<br>2、对后端服务器的健康检查，只支持通过端口来检测，不支持通过url来检测。不支持Session的直接保持，但能通过<code>ip_hash</code>来解决。</p>
+<h2 id="二、LVS"><a href="#二、LVS" class="headerlink" title="二、LVS"></a>二、LVS</h2><p>使用Linux内核集群实现一个高性能、高可用的负载均衡服务器，它具有很好的可伸缩性（Scalability)、可靠性（Reliability)和可管理性（Manageability)。</p>
+<h3 id="优点-2"><a href="#优点-2" class="headerlink" title="优点"></a>优点</h3><p>1、抗负载能力强、工作在网络协议第四层，仅作分发之用，没有流量的产生，这个特点也决定了它在负载均衡软件里的性能最强的，对内存和cpu资源消耗比较低。<br>2、配置性比较低，这是一个缺点也是一个优点，因为没有可太多配置的东西，所以并不需要太多接触，大大减少了人为出错的几率。<br>3、工作稳定，因为其本身抗负载能力很强，自身有完整的双机热备方案，如LVS+Keepalived，不过在项目实施中用得最多的还是LVS/DR+Keepalived。<br>4、无流量，LVS只分发请求，而流量并不从它本身出去，这点保证了均衡器IO的性能不会收到大流量的影响。<br>5、应用范围比较广，因为LVS工作在4层，所以它几乎可以对所有应用做负载均衡，包括http、数据库、在线聊天室等等。</p>
 <p>LVS DR(Direct Routing)模式的网络流程图：</p>
 <p>lvs_dr</p>
-<p>LVS的缺点是：<br>1、软件本身不支持正则表达式处理，不能做动静分离；而现在许多网站在这方面都有较强的需求，这个是Nginx/HAProxy+Keepalived的优势所在。<br>2、如果是网站应用比较庞大的话，LVS/DR+Keepalived实施起来就比较复杂了，特别后面有Windows Server的机器的话，如果实施及配置还有维护过程就比较复杂了，相对而言，Nginx/HAProxy+Keepalived就简单多了。</p>
-<p>三、HAProxy<br>HAProxy的特点是：<br>1、HAProxy也是支持虚拟主机的。<br>2、HAProxy的优点能够补充Nginx的一些缺点，比如支持Session的保持，Cookie的引导；同时支持通过获取指定的url来检测后端服务器的状态。<br>3、HAProxy跟LVS类似，本身就只是一款负载均衡软件；单纯从效率上来讲HAProxy会比Nginx有更出色的负载均衡速度，在并发处理上也是优于Nginx的。<br>4、HAProxy支持TCP协议的负载均衡转发，可以对MySQL读进行负载均衡，对后端的MySQL节点进行检测和负载均衡，大家可以用LVS+Keepalived对MySQL主从做负载均衡。<br>5、HAProxy负载均衡策略非常多，HAProxy的负载均衡算法现在具体有如下8种：<br>① roundrobin，表示简单的轮询，这个不多说，这个是负载均衡基本都具备的；<br>② static-rr，表示根据权重，建议关注；<br>③ leastconn，表示最少连接者先处理，建议关注；<br>④ source，表示根据请求源IP，这个跟Nginx的IP_hash机制类似，我们用其作为解决session问题的一种方法，建议关注；<br>⑤ ri，表示根据请求的URI；<br>⑥ rl_param，表示根据请求的URl参数’balance url_param’ requires an URL parameter name；<br>⑦ hdr(name)，表示根据HTTP请求头来锁定每一次HTTP请求；<br>⑧ rdp-cookie(name)，表示根据据cookie(name)来锁定并哈希每一次TCP请求。</p>
-<p>四、总结<br>Nginx和LVS对比的总结：<br>1、Nginx工作在网络的7层，所以它可以针对http应用本身来做分流策略，比如针对域名、目录结构等，相比之下LVS并不具备这样的功能，所以Nginx单凭这点可利用的场合就远多于LVS了；但Nginx有用的这些功能使其可调整度要高于LVS，所以经常要去触碰触碰，触碰多了，人为出问题的几率也就会大。<br>2、Nginx对网络稳定性的依赖较小，理论上只要ping得通，网页访问正常，Nginx就能连得通，这是Nginx的一大优势！Nginx同时还能区分内外网，如果是同时拥有内外网的节点，就相当于单机拥有了备份线路；LVS就比较依赖于网络环境，目前来看服务器在同一网段内并且LVS使用direct方式分流，效果较能得到保证。另外注意，LVS需要向托管商至少申请多一个ip来做Visual IP，貌似是不能用本身的IP来做VIP的。要做好LVS管理员，确实得跟进学习很多有关网络通信方面的知识，就不再是一个HTTP那么简单了。<br>3、Nginx安装和配置比较简单，测试起来也很方便，因为它基本能把错误用日志打印出来。LVS的安装和配置、测试就要花比较长的时间了；LVS对网络依赖比较大，很多时候不能配置成功都是因为网络问题而不是配置问题，出了问题要解决也相应的会麻烦得多。<br>4、Nginx也同样能承受很高负载且稳定，但负载度和稳定度差LVS还有几个等级：Nginx处理所有流量所以受限于机器IO和配置；本身的bug也还是难以避免的。<br>5、Nginx可以检测到服务器内部的故障，比如根据服务器处理网页返回的状态码、超时等等，并且会把返回错误的请求重新提交到另一个节点。目前LVS中 ldirectd也能支持针对服务器内部的情况来监控，但LVS的原理使其不能重发请求。比如用户正在上传一个文件，而处理该上传的节点刚好在上传过程中出现故障，Nginx会把上传切到另一台服务器重新处理，而LVS就直接断掉了，如果是上传一个很大的文件或者很重要的文件的话，用户可能会因此而恼火。<br>6、Nginx对请求的异步处理可以帮助节点服务器减轻负载，假如使用apache直接对外服务，那么出现很多的窄带链接时apache服务器将会占用大 量内存而不能释放，使用多一个Nginx做apache代理的话，这些窄带链接会被Nginx挡住，apache上就不会堆积过多的请求，这样就减少了相当多的资源占用。这点使用squid也有相同的作用，即使squid本身配置为不缓存，对apache还是有很大帮助的。<br>7、Nginx能支持http、https和email（email的功能比较少用），LVS所支持的应用在这点上会比Nginx更多。在使用上，一般最前端所采取的策略应是LVS，也就是DNS的指向应为LVS均衡器，LVS的优点令它非常适合做这个任务。重要的ip地址，最好交由LVS托管，比如数据库的 ip、webservice服务器的ip等等，这些ip地址随着时间推移，使用面会越来越大，如果更换ip则故障会接踵而至。所以将这些重要ip交给 LVS托管是最为稳妥的，这样做的唯一缺点是需要的VIP数量会比较多。Nginx可作为LVS节点机器使用，一是可以利用Nginx的功能，二是可以利用Nginx的性能。当然这一层面也可以直接使用squid，squid的功能方面就比Nginx弱不少了，性能上也有所逊色于Nginx。Nginx也可作为中层代理使用，这一层面Nginx基本上无对手，唯一可以撼动Nginx的就只有lighttpd了，不过lighttpd目前还没有能做到 Nginx完全的功能，配置也不那么清晰易读。另外，中层代理的IP也是重要的，所以中层代理也拥有一个VIP和LVS是最完美的方案了。具体的应用还得具体分析，如果是比较小的网站（日PV小于1000万），用Nginx就完全可以了，如果机器也不少，可以用DNS轮询，LVS所耗费的机器还是比较多的；大型网站或者重要的服务，机器不发愁的时候，要多多考虑利用LVS。</p>
+<h2 id="缺点-1"><a href="#缺点-1" class="headerlink" title="缺点"></a>缺点</h2><p>1、软件本身不支持正则表达式处理，不能做动静分离；而现在许多网站在这方面都有较强的需求，这个是Nginx/HAProxy+Keepalived的优势所在。<br>2、如果是网站应用比较庞大的话，LVS/DR+Keepalived实施起来就比较复杂了，特别后面有Windows Server的机器的话，实施、配置、维护比较复杂了，相对而言，Nginx/HAProxy+Keepalived简单多了。</p>
+<h2 id="三、HAProxy"><a href="#三、HAProxy" class="headerlink" title="三、HAProxy"></a>三、HAProxy</h2><p>###特点</p>
+<p>1、HAProxy也是支持虚拟主机的。<br>2、HAProxy的优点能够补充Nginx的一些缺点，比如支持Session的保持，Cookie的引导；同时支持通过获取指定的url来检测后端服务器的状态。<br>3、HAProxy跟LVS类似，本身就只是一款负载均衡软件；单纯从效率上来讲HAProxy会比Nginx有更出色的负载均衡速度，在并发处理上也是优于Nginx的。<br>4、HAProxy支持TCP协议的负载均衡转发，可以对MySQL读进行负载均衡，对后端的MySQL节点进行检测和负载均衡，可以用LVS+Keepalived对MySQL主从做负载均衡。<br>5、HAProxy负载均衡策略非常多，HAProxy的负载均衡算法现在具体有如下8种：<br>① roundrobin，表示轮询；<br>② static-rr，表示根据权重，建议关注；<br>③ leastconn，表示最少连接者先处理，建议关注；<br>④ source，表示根据请求源IP，这个跟Nginx的IP_hash机制类似，我们用其作为解决session问题的一种方法，建议关注；<br>⑤ ri，表示根据请求的URI；<br>⑥ rl_param，表示根据请求的URl参数’balance url_param’ requires an URL parameter name；<br>⑦ hdr(name)，表示根据HTTP请求头来锁定每一次HTTP请求；<br>⑧ rdp-cookie(name)，表示根据据cookie(name)来锁定并哈希每一次TCP请求。</p>
+<h2 id="四、总结"><a href="#四、总结" class="headerlink" title="四、总结"></a>四、总结</h2><h3 id="Nginx和LVS对比："><a href="#Nginx和LVS对比：" class="headerlink" title="Nginx和LVS对比："></a>Nginx和LVS对比：</h3><p>1、Nginx工作在网络的7层，所以它可以针对http应用本身来做分流策略，比如针对域名、目录结构等，相比之下LVS并不具备这样的功能，所以Nginx单凭这点可利用的场合就远多于LVS了；但Nginx配置灵活，配置人员易出错。<br>2、Nginx对网络稳定性的依赖较小，理论上只要ping得通，网页访问正常，Nginx就能连得通，这是Nginx的一大优势！Nginx同时还能区分内外网，如果是同时拥有内外网的节点，就相当于单机拥有了备份线路；LVS就比较依赖于网络环境，目前来看服务器在同一网段内并且LVS使用direct方式分流，效果较能得到保证。另外注意，LVS需要向托管商至少申请多一个ip来做Visual IP，貌似是不能用本身的IP来做VIP的。要做好LVS管理员，确实得跟进学习很多有关网络通信方面的知识，就不再是一个HTTP那么简单了。<br>3、Nginx安装和配置比较简单，测试起来也很方便，因为它基本能把错误用日志打印出来。LVS的安装和配置、测试就要花比较长的时间了；LVS对网络依赖比较大，很多时候不能配置成功都是因为网络问题而不是配置问题，出了问题要解决也相应的会麻烦得多。<br>4、Nginx也同样能承受很高负载且稳定，但负载度和稳定度差LVS还有几个等级：Nginx处理所有流量所以受限于机器IO和配置；本身的bug也还是难以避免的。<br>5、Nginx可以检测到服务器内部的故障，比如根据服务器处理网页返回的状态码、超时等等，并且会把返回错误的请求重新提交到另一个节点。目前LVS中 ldirectd也能支持针对服务器内部的情况来监控，但LVS的原理使其不能重发请求。比如用户正在上传一个文件，而处理该上传的节点刚好在上传过程中出现故障，Nginx会把上传切到另一台服务器重新处理，而LVS就直接断掉了，如果是上传一个很大的文件或者很重要的文件的话，用户可能会因此而恼火。<br>6、Nginx对请求的异步处理可以帮助节点服务器减轻负载，假如使用apache直接对外服务，那么出现很多的窄带链接时apache服务器将会占用大量内存而不能释放，使用多一个Nginx做apache代理的话，这些窄带链接会被Nginx挡住，apache上就不会堆积过多的请求，这样就减少了相当多的资源占用。这点使用squid也有相同的作用，即使squid本身配置为不缓存，对apache还是有很大帮助的。<br>7、Nginx能支持http、https和email（email的功能比较少用），LVS所支持的应用会比Nginx多。在使用上，一般最前端所采取的策略应是LVS，也就是DNS的指向应为LVS均衡器，LVS的优点令它非常适合做这个任务。重要的ip地址，最好交由LVS托管，比如数据库的 ip、webservice服务器的ip等等，这些ip地址随着时间推移，使用面会越来越大，如果更换ip则故障会接踵而至。所以将这些重要ip交给LVS托管是最为稳妥的，这样做的唯一缺点是需要的VIP数量会比较多。Nginx可作为LVS节点机器使用，一是可以利用Nginx的功能，二是可以利用Nginx的性能。当然这一层面也可以直接使用squid，squid的功能方面就比Nginx弱不少了，性能上也有所逊色于Nginx。Nginx也可作为中层代理使用，这一层面Nginx基本上无对手，唯一可以撼动Nginx的就只有lighttpd了，不过lighttpd目前还没有能做到 Nginx完全的功能，配置也不那么清晰易读。另外，中层代理的IP也是重要的，所以中层代理也拥有一个VIP和LVS是最完美的方案了。具体的应用还得具体分析，如果是比较小的网站（日PV小于1000万），用Nginx就完全可以了，如果机器也不少，可以用DNS轮询，LVS所耗费的机器还是比较多的；大型网站或者重要的服务，机器不发愁的时候，要多多考虑利用LVS。</p>
 <p>现在对网络负载均衡的使用是随着网站规模的提升根据不同的阶段来使用不同的技术：</p>
 <p>第一阶段：利用Nginx或HAProxy进行单点的负载均衡，这一阶段服务器规模刚脱离开单服务器、单数据库的模式，需要一定的负载均衡，但是仍然规模较小没有专业的维护团队来进行维护，也没有需要进行大规模的网站部署。这样利用Nginx或HAproxy就是第一选择，此时这些东西上手快， 配置容易，在七层之上利用HTTP协议就可以。这时是第一选择。</p>
 <p>第二阶段：随着网络服务进一步扩大，这时单点的Nginx已经不能满足，这时使用LVS或者商用Array就是首要选择，Nginx此时就作为LVS或者Array的节点来使用，具体LVS或Array的是选择是根据公司规模和预算来选择，Array的应用交付功能非常强大，本人在某项目中使用过，性价比也远高于F5，商用首选！但是一般来说这阶段相关人才跟不上业务的提升，所以购买商业负载均衡已经成为了必经之路。</p>
 <p>第三阶段：这时网络服务已经成为主流产品，此时随着公司知名度也进一步扩展，相关人才的能力以及数量也随之提升，这时无论从开发适合自身产品的定制，以及降低成本来讲开源的LVS，已经成为首选，这时LVS会成为主流。<br>最终形成比较理想的基本架构为：Array/LVS — Nginx/Haproxy — Squid/Varnish — AppServer。</p>
-<p>永久链接 : <a href="http://www.ha97.com/5646.html" target="_blank" rel="external">http://www.ha97.com/5646.html</a><br>本文相关评论 - 才 18 条评论 RSS for this comments | Trackback URI<br>( 展开所有评论 | 收起所有评论 ) 立刻发表评论 »<br>sean<br>2014-07-22 15:42:32</p>
-<p>Firefox 30.0 Firefox 30.0  Windows 8.1 x64 Edition Windows 8.1 x64 Edition<br>感谢总结，很棒！</p>
-<p>回复他(她)<br>rootop<br>2014-07-24 09:33:30</p>
-<p>uBrowser 6.x uBrowser 6.x  Windows 7 x64 Edition Windows 7 x64 Edition<br>感谢博主的总结，一直都很关注博主博客。受益匪浅。这里貌似有个小笔误。<br>“LVS需要向托管商至少申请多一个ip来做Visual IP” ，应该是virtual IP~~~</p>
-<p>回复他(她)<br>Godbach<br>2014-07-24 09:56:26</p>
-<p>Google Chrome 35.0.1916.153 Google Chrome 35.0.1916.153  Windows 7 x64 Edition Windows 7 x64 Edition<br>好文章。</p>
-<p>不过对于 HAProxy，static-rr 是简单的轮询，选择 server 的逻辑最为简单。而 roundrobin 其实是高级一点的轮询，支持 HAProxy 运行期间动态修改 server weight。</p>
-<p>不管是 static-rr， roundrobin 还是 leastconn，都是天然支持 weight 的。只是运行期间，static-rr 的 server weight 不可更改或者更改了也无效。所有 weight 为 1 的情形本身就是 weight-based 负载均衡算法的特例。</p>
-<p>HAProxy 缺点没有介绍。结合个人对 Nignx 的部分了解，列举一些 HAProxy 不及 Nginx 的地方，仅供参考：</p>
-<ol>
-<li>不支持 POP/SMTP 协议</li>
-<li>不支持 SPDY 协议</li>
-<li>不支持 HTTP cache 功能。现在不少开源的 lb 项目，都或多或少具备 HTTP cache 功能。</li>
-<li>重载配置的功能需要重启进程，虽然也是 soft restart，但没有 Nginx 的 reaload 更为平滑和友好。</li>
-<li>多进程模式支持不够好。</li>
-</ol>
-<p>回复他(她)<br>crazyxiao<br>2014-07-31 18:45:17</p>
-<p>Google Chrome 36.0.1985.125 Google Chrome 36.0.1985.125  Windows XP Windows XP<br>以前项目用的haproxy+nginx，配置确实很好上手</p>
-<p>回复他(她)<br>BigBomb<br>2014-11-12 00:03:51</p>
-<p>Google Chrome 35.0.1916.114 Google Chrome 35.0.1916.114  Windows 7 x64 Edition Windows 7 x64 Edition<br>我是路过顶教主的</p>
-<p>回复他(她)<br>疯梦<br>2015-01-08 16:46:34</p>
-<p>Google Chrome 31.0.1650.63 Google Chrome 31.0.1650.63  Windows 7 x64 Edition Windows 7 x64 Edition<br>用户上传一个文件，而处理该上传的节点刚好在上传过程中出现故障，Nginx会把上传切到另一台服务器重新处理，而LVS就直接断掉了，如果是上传一个很大的文件或者很重要的文件的话，用户可能会因此而不满。我想要问一下，对于这种情况有没有什么好点的解决办法？</p>
-<p>回复他(她)<br>疯梦<br>2015-01-08 16:55:07</p>
-<p>Google Chrome 31.0.1650.63 Google Chrome 31.0.1650.63  Windows 7 x64 Edition Windows 7 x64 Edition<br>用户上传文件，后台rs正好故障，nginx会切换到另一台服务器重新处理，lvs则直接断掉，我也在纠结这个问题，所以想请教下，有没有什么好点的办法？</p>
-<p>回复他(她)<br>疯梦<br>2015-01-09 11:05:12</p>
-<p>Google Chrome 31.0.1650.63 Google Chrome 31.0.1650.63  Windows 7 x64 Edition Windows 7 x64 Edition<br>当用户正在上传文件，如果后面RS突然故障，nginx会把请求发放给另一台RS来重新处理，而LVS则直接断掉，对于这种情况，因为我做的不多，请教下博主，有没有什么好点的办法呢？</p>
-<p>回复他(她)<br>求学网 » Nginx、LVS及HAProxy负载均衡软件的优缺点详解<br>2015-01-24 10:52:19<br>WordPress 3.4.1 WordPress 3.4.1<br>[…] 原文链接： Nginx/LVS/HAProxy负载均衡软件的优缺点详解 （责编/魏伟） […]</p>
-<p>回复他(她)<br>eaon<br>2015-03-13 13:32:00</p>
-<p>Google Chrome 35.0.1916.114 Google Chrome 35.0.1916.114  Windows 7 x64 Edition Windows 7 x64 Edition<br>学习了，不错。就是感觉比较重复。</p>
-<p>希望能有具体一些的数据来进行说明！</p>
-<p>谢谢！</p>
-<p>回复他(她)<br>eaon<br>2015-03-13 13:33:15</p>
-<p>Google Chrome 35.0.1916.114 Google Chrome 35.0.1916.114  Windows 7 x64 Edition Windows 7 x64 Edition<br>有些重复，希望可以列举写具体的测试数据来进行比较。谢谢！</p>
-<p>回复他(她)<br>seanlook<br>2015-05-19 01:19:05</p>
-<p>Safari 8.0.5 Safari 8.0.5  Mac OS X  10.10.3 Mac OS X 10.10.3<br>你好，nginx在前端做负载均衡，转发到后端，但我后端tomcat来处理静态文件和上传的图片不太合理把，需要在tomcat前面再加一个nginx或apache来过滤静态文件吗？ 因为像我的图片是上传到tomcat所在服务器的，最前端的nginx没办法访问。</p>
-<p>回复他(她)<br>yol<br>2015-05-29 11:00:50</p>
-<p>Android Webkit 4.0 Android Webkit 4.0  Android 4.4.3 Android 4.4.3<br>不错，学习了</p>
-<p>回复他(她)<br>wonderflow<br>2015-08-30 20:08:51</p>
-<p>Google Chrome 44.0.2403.157 Google Chrome 44.0.2403.157  Mac OS X  10.10.4 Mac OS X 10.10.4<br>好文章，受益匪浅，谢谢分享！</p>
-<p>回复他(她)<br>sun<br>2015-09-02 16:46:14</p>
-<p>Google Chrome 44.0.2403.125 Google Chrome 44.0.2403.125  Windows 10 x64 Edition Windows 10 x64 Edition<br>楼主分析透着，学有所获！</p>
-<p>回复他(她)<br>张戈博客<br>2016-04-26 22:53:34</p>
-<p>Google Chrome 45.0.2454.85 Google Chrome 45.0.2454.85  Mac OS X  10.11.3 Mac OS X 10.11.3<br>经常参考这篇文章，很有用的对比和参考。<br>这里补充下：<br>1.9版本以上Nginx已经支持TCP负载均衡了，UDP负载均衡貌似也有第三方开发了内部模块，遗憾没能弄到测试下。<br>另外，taobao的tengine已经支持url的健康检查，且也有第三方开发的支持健康检查模块</p>
-<p>回复他(她)<br>素梅好翔博客<br>2016-05-30 14:02:46</p>
-<p>Google Chrome 31.0.1650.63 Google Chrome 31.0.1650.63  Windows 10 Windows 10<br>写的很好，学习了，以后还会常来</p>
-<p>回复他(她)<br>kaliylinux<br>2016-07-30 13:42:59</p>
-<p>Firefox 47.0 Firefox 47.0  Windows 7 x64 Edition Windows 7 x64 Edition<br>好博文，博客地址已收藏！</p>
-<p>回复他(她)<br>昵称 *</p>
-<p>电子邮件 *</p>
-<p>网站/博客</p>
-<p> 发表<br>« 关于云计算基础架构IaaS层的几点看法（原创）RHEL/CentOS/OracleLinux 7.x使用EPEL和REMI第三方yum源 »<br>站内搜索</p>
-<p> Search<br>页面</p>
-<p>Nginx_download<br>关于博主<br>标签云<br>订阅本站<br>我的腾讯微博</p>
-<p>功能</p>
-<p>注册<br>登录<br>文章RSS<br>评论RSS<br>WordPress.org<br>近期文章</p>
-<p>（总结）Fedora 22跨版本升级到Fedora 24方法<br>（原创）机器学习开源框架Mahout配置与入门研究<br>大数据架构师技能图谱<br>主流大数据采集平台的架构图解<br>主流大数据厂商汇总分类<br>JDBC URL连接常用数据库格式<br>云计算十年：OpenStack如何成为开源IaaS的老大<br>2016年OpenStack &amp; Docker六大趋势预测<br>（总结）Hadoop 2.6报错解决：Could not find the main class: org.apache.hadoop.hdfs.server.namenode.NameNode.<br>odoo 8.0 VS odoo 9.0社区版&amp;企业版功能对比<br>（总结）CentOS 7.x里yum安装Odoo 8.0&amp;9.0（OpenERP）<br>（分享）GitHub上排名TOP100的Python项目<br>阿里蚂蚁金服的关系型数据库：OceanBase架构详解<br>SAP与OpenERP（Odoo）两大ERP系统比较<br>（总结）推荐10个实用的Python库<br>近期评论</p>
-<p>PHP程序员雷雪松发表在《MySQL安全配置详解》<br>PHP程序员雷雪松发表在《大数据架构师技能图谱》<br>PHP程序员雷雪松发表在《（总结）Fedora 22跨版本升级到Fedora 24方法》<br>PHP程序员雷雪松发表在《（总结）Linux下设置SSH Server保持长时间连接》<br>PHP程序员雷雪松发表在《（总结）隐藏PHP版本与PHP基本安全设置》<br>80后发表在《（总结）Nginx配置文件nginx.conf中文详解》<br>wenming发表在《关于博主》<br>小小萝卜发表在《（原创）Linux下查看系统版本号信息的方法》<br>key发表在《Sun被Oracle收购两年后》<br>标签</p>
-<p>2010 Apache centos Chrome Debian Google Linux mysql Nginx oracle PHP RedHat RHEL server Shell Web Windows WordPress XenServer yum 下载 互联网 优化 全球 原创 参数 命令 图解 安装 工具 常用 开源 总结 数据库 方法 服务器 架构 简介 系统 经典 脚本 腾讯 解决方法 详解 配置<br>博文浏览排名</p>
-<p>（总结）Nginx配置文件nginx.conf中文详解 - 256,935 views<br>系统吞吐量（TPS）、用户并发量、性能测试概念和公式 - 249,451 views<br>（原创）Linux下查看系统版本号信息的方法 - 123,584 views<br>（总结）CentOS Linux下VNC Server远程桌面配置详解 - 113,898 views<br>（总结）CentOS Linux搭建SVN Server配置详解 - 93,766 views<br>（总结）Nginx/LVS/HAProxy负载均衡软件的优缺点详解 - 68,122 views<br>（原创）Oracle 9i所有版本的最新下载地址（已验证！） - 68,093 views<br>（总结）Web性能压力测试工具之ApacheBench（ab）详解 - 68,052 views<br>（总结）Linux下su与su -命令的本质区别 - 62,910 views<br>Linux抓包工具tcpdump详解 - 62,762 views<br>分类目录</p>
-<p>Browser (7)<br>DataBase (70)<br>ERP (4)<br>Google (54)<br>IT精英 (32)<br>Linux (418)<br>MicroSoft (7)<br>Security (112)<br>SEO (22)<br>Tools (72)<br>UNIX (146)<br>VPS (14)<br>Web (155)<br>Web Server (77)<br>WordPress (39)<br>个人日记 (321)<br>书评影评 (6)<br>互联网 (221)<br>人文历史 (56)<br>人生百态 (93)<br>创业投资 (75)<br>原创总结 (135)<br>外文翻译 (76)<br>大数据应用 (14)<br>Hadoop (14)<br>开源世界 (45)<br>数据存储 (2)<br>旧文存档 (199)<br>服务器架构 (84)<br>未分类 (23)<br>游戏研究 (45)<br>科技资讯 (52)<br>编程开发 (129)<br>Python (15)<br>Shell (63)<br>网络应用 (14)<br>虚拟化与云计算 (46)<br>资源分享 (127)<br>运维经验 (39)<br>集群与负载均衡 (18)<br>项目管理 (9)<br>文章归档</p>
-<p>2016年八月 (1)<br>2016年七月 (1)<br>2016年六月 (1)<br>2016年五月 (4)<br>2016年一月 (1)<br>2015年十一月 (1)<br>2015年十月 (1)<br>2015年八月 (1)<br>2015年七月 (2)<br>2015年六月 (1)<br>2015年二月 (2)<br>2014年九月 (3)<br>2014年八月 (4)<br>2014年七月 (6)<br>2014年六月 (2)<br>2014年五月 (5)<br>2014年四月 (1)<br>2013年十月 (2)<br>2013年九月 (5)<br>2013年七月 (1)<br>2013年六月 (1)<br>2013年三月 (2)<br>2013年二月 (1)<br>2013年一月 (12)<br>2012年十二月 (5)<br>2012年十一月 (10)<br>2012年十月 (2)<br>2012年九月 (5)<br>2012年八月 (12)<br>2012年七月 (21)<br>2012年六月 (23)<br>2012年五月 (21)<br>2012年四月 (7)<br>2012年三月 (2)<br>2012年二月 (1)<br>2012年一月 (2)<br>2011年十二月 (7)<br>2011年十一月 (6)<br>2011年十月 (5)<br>2011年八月 (2)<br>2011年七月 (28)<br>2011年六月 (24)<br>2011年五月 (37)<br>2011年四月 (28)<br>2011年三月 (18)<br>2011年二月 (1)<br>2011年一月 (14)<br>2010年十二月 (3)<br>2010年十一月 (17)<br>2010年十月 (24)<br>2010年九月 (100)<br>2010年八月 (119)<br>2010年七月 (184)<br>2010年六月 (157)<br>2010年五月 (154)<br>2010年四月 (42)<br>日历</p>
-<p>2017年四月<br>一   二   三   四   五   六   日<br>« 8月<br>    1   2<br>3   4   5   6   7   8   9<br>10  11  12  13  14  15  16<br>17  18  19  20  21  22  23<br>24  25  26  27  28  29  30<br>Linux</p>
-<p>CentOS<br>China Linux Forum<br>ChinaUnix<br>Debian<br>Gentoo<br>GNU<br>Linux Kernel<br>开源中国社区<br>常用网站</p>
-<p>Google SSL<br>MySQL<br>PHP<br>SourceForge<br>豆瓣<br>技术blog</p>
-<p>DBA Notes<br>张宴博客<br>服务器运维与架构<br>素包子<br>技术手册</p>
-<p>LFS 6.6中文手册<br>Unix Toolbox中文版<br>开源世界旅行手册<br>鸟哥的Linux私房菜（简体版）<br>科技资讯</p>
-<p>Engadget<br>GigaOM<br>奇客的资讯<br>链接表</p>
-<p>绿盟科技<br>日志存档<br>2016年八月<br>2016年七月<br>2016年六月<br>2016年五月<br>2016年一月<br>2015年十一月<br>2015年十月<br>2015年八月<br>2015年七月<br>2015年六月<br>2015年二月<br>2014年九月<br>2014年八月<br>2014年七月<br>2014年六月<br>2014年五月<br>2014年四月<br>2013年十月<br>2013年九月<br>2013年七月<br>2013年六月<br>2013年三月<br>2013年二月<br>2013年一月<br>2012年十二月<br>2012年十一月<br>2012年十月<br>2012年九月<br>2012年八月<br>2012年七月<br>2012年六月<br>2012年五月<br>2012年四月<br>2012年三月<br>2012年二月<br>2012年一月<br>2011年十二月<br>2011年十一月<br>2011年十月<br>2011年八月<br>2011年七月<br>2011年六月<br>2011年五月<br>2011年四月<br>2011年三月<br>2011年二月<br>2011年一月</p>
 
       
     </div>
@@ -600,7 +533,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">48</span>
+                <span class="site-state-item-count">53</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -611,7 +544,7 @@
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">39</span>
+                <span class="site-state-item-count">40</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -622,7 +555,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">44</span>
+                <span class="site-state-item-count">46</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
@@ -664,7 +597,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#硬件"><span class="nav-number">1.</span> <span class="nav-text">硬件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#优点"><span class="nav-number">1.1.</span> <span class="nav-text">优点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#缺点"><span class="nav-number">1.2.</span> <span class="nav-text">缺点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#软件"><span class="nav-number">2.</span> <span class="nav-text">软件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#合理流行的架构方案"><span class="nav-number">3.</span> <span class="nav-text">合理流行的架构方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#web"><span class="nav-number">3.1.</span> <span class="nav-text">web</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#后端"><span class="nav-number">3.2.</span> <span class="nav-text">后端</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Nginx"><span class="nav-number">4.</span> <span class="nav-text">Nginx</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#优点-1"><span class="nav-number">4.1.</span> <span class="nav-text">优点</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#硬件"><span class="nav-number">1.</span> <span class="nav-text">硬件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#优点"><span class="nav-number">1.1.</span> <span class="nav-text">优点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#缺点"><span class="nav-number">1.2.</span> <span class="nav-text">缺点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#软件"><span class="nav-number">2.</span> <span class="nav-text">软件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#合理流行的架构方案"><span class="nav-number">3.</span> <span class="nav-text">合理流行的架构方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#web"><span class="nav-number">3.1.</span> <span class="nav-text">web</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#后端"><span class="nav-number">3.2.</span> <span class="nav-text">后端</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Nginx"><span class="nav-number">4.</span> <span class="nav-text">Nginx</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#优点-1"><span class="nav-number">4.1.</span> <span class="nav-text">优点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Nginx的缺点是："><span class="nav-number">4.2.</span> <span class="nav-text">Nginx的缺点是：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、LVS"><span class="nav-number">5.</span> <span class="nav-text">二、LVS</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#优点-2"><span class="nav-number">5.1.</span> <span class="nav-text">优点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#缺点-1"><span class="nav-number">6.</span> <span class="nav-text">缺点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、HAProxy"><span class="nav-number">7.</span> <span class="nav-text">三、HAProxy</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、总结"><span class="nav-number">8.</span> <span class="nav-text">四、总结</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Nginx和LVS对比："><span class="nav-number">8.1.</span> <span class="nav-text">Nginx和LVS对比：</span></a></li></ol></li></ol></div>
             
 
           </div>

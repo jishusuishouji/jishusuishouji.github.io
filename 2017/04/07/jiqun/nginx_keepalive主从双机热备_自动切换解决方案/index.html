@@ -1,0 +1,743 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="技术随手记" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="nginx+keepalive主从双机热备+自动切换解决方案">
+<meta property="og:type" content="article">
+<meta property="og:title" content="nginx+keepalive主从双机热备+自动切换解决方案">
+<meta property="og:url" content="http://jishusuishouji.github.io/2017/04/07/jiqun/nginx_keepalive主从双机热备_自动切换解决方案/index.html">
+<meta property="og:site_name" content="技术随手记">
+<meta property="og:description" content="nginx+keepalive主从双机热备+自动切换解决方案">
+<meta property="og:updated_time" content="2017-04-07T04:50:23.322Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="nginx+keepalive主从双机热备+自动切换解决方案">
+<meta name="twitter:description" content="nginx+keepalive主从双机热备+自动切换解决方案">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://jishusuishouji.github.io/2017/04/07/jiqun/nginx_keepalive主从双机热备_自动切换解决方案/"/>
+
+
+
+
+
+  <title> nginx+keepalive主从双机热备+自动切换解决方案 | 技术随手记 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">技术随手记</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://jishusuishouji.github.io/2017/04/07/jiqun/nginx_keepalive主从双机热备_自动切换解决方案/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="技术随手记">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="技术随手记">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+            
+            
+              
+                nginx+keepalive主从双机热备+自动切换解决方案
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-07T12:42:10+08:00">
+                2017-04-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+            <!--noindex-->
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/04/07/jiqun/nginx_keepalive主从双机热备_自动切换解决方案/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count hc-comment-count" data-xid="2017/04/07/jiqun/nginx_keepalive主从双机热备_自动切换解决方案/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+              <!--/noindex-->
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  nginx+keepalive主从双机热备+自动切换解决方案
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>cenots 6.3 64位</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">yum install -y make wget</div></pre></td></tr></table></figure>
+<h2 id="1-安装keepalive"><a href="#1-安装keepalive" class="headerlink" title="1.安装keepalive"></a>1.安装keepalive</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">tar zxvf keepalived-1.2.7.tar.gz</div><div class="line">cd keepalived-1.2.7</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">yum install -y gcc openssl-devel popt-devel</div><div class="line">./configure</div><div class="line">make &amp;&amp; make install </div><div class="line"></div><div class="line">cp /usr/local/etc/rc.d/init.d/keepalived /etc/init.d/</div><div class="line">cp /usr/local/etc/sysconfig/keepalived /etc/sysconfig/</div><div class="line">chmod +x /etc/init.d/keepalived</div><div class="line">chkconfig --add keepalived</div><div class="line">chkconfig keepalived on</div><div class="line">mkdir /etc/keepalived</div><div class="line">ln -s /usr/local/sbin/keepalived /usr/sbin/</div></pre></td></tr></table></figure>
+<h2 id="2-安装Nginx"><a href="#2-安装Nginx" class="headerlink" title="2.安装Nginx"></a>2.安装Nginx</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">tar zxvf  nginx-1.2.5.tar.gz</div><div class="line">cd nginx-1.2.5</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">yum install -y pcre-devel</div><div class="line">./configure --prefix=/usr/local/nginx --user=www --group=www  --with-http_stub_status_module --with-http_ssl_module</div><div class="line">make &amp;&amp; make install</div></pre></td></tr></table></figure>
+<h2 id="3-配置keepalive"><a href="#3-配置keepalive" class="headerlink" title="3.配置keepalive"></a>3.配置keepalive</h2><p>两台服务器端<code>keepalived.conf</code>内容如下，都设置为<code>backup</code>，不抢占，注意修改优先级不同：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div></pre></td><td class="code"><pre><div class="line">! Configuration file for keepalived</div><div class="line">global_defs &#123;</div><div class="line">   notification_email &#123;</div><div class="line">    admin@lvtao.net</div><div class="line">   &#125;</div><div class="line">   notification_email_from admin@lvtao.net</div><div class="line">   smtp_server 127.0.0.1</div><div class="line">   smtp_connect_timeout 30</div><div class="line">   router_id LVS_DEVEL</div><div class="line">&#125;</div><div class="line">#监控服务.NGINX mysql等</div><div class="line">vrrp_script chk_nginx &#123;</div><div class="line">    script &quot;/home/check_nginx.sh&quot;</div><div class="line">    interval 2</div><div class="line">    weight 2</div><div class="line">&#125;</div><div class="line"></div><div class="line">vrrp_instance VI_1 &#123;</div><div class="line">    state BACKUP  #主从设置 MASTER</div><div class="line">    interface eth2  #网卡名</div><div class="line">    virtual_router_id 51</div><div class="line">    mcast_src_ip 10.0.1.133 #本机ip</div><div class="line">    priority 50  #从机小于主机</div><div class="line">    advert_int 1</div><div class="line">    authentication &#123;</div><div class="line">        auth_type PASS</div><div class="line">        auth_pass chtopnet</div><div class="line">    &#125;</div><div class="line">    virtual_ipaddress &#123;</div><div class="line">        10.0.1.2  #VIP 的IP</div><div class="line">    &#125;</div><div class="line">    track_script &#123;</div><div class="line">        chk_nginx  #检测脚本</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div><div class="line"></div><div class="line">virtual_server 10.0.1.2 80 &#123;</div><div class="line">    delay_loop 6</div><div class="line">    lb_algo rr</div><div class="line">    lb_kind DR</div><div class="line">    persistence_timeout 50</div><div class="line">    protocol TCP</div><div class="line"></div><div class="line">    real_server 10.0.1.132 80 &#123;</div><div class="line">        weight 3</div><div class="line">        TCP_CHECK &#123;</div><div class="line">            connect_timeout 10</div><div class="line">            nb_get_retry 3</div><div class="line">            delay_before_retry 3</div><div class="line">            connect_port 80</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    real_server 10.0.1.133 80 &#123;</div><div class="line">        weight 3</div><div class="line">        TCP_CHECK &#123;</div><div class="line">            connect_timeout 10</div><div class="line">            nb_get_retry 3</div><div class="line">            delay_before_retry 3</div><div class="line">            connect_port 80</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>启动相关服务。我在这儿使用的是nginx ，每个上面开了一个站点，通过IP可以直接访问的。启动keepalive后，就可以通过VIP的虚拟IP 10.0.1.2来访问站点了，测试方法就是 停止任何其中一个站点，看它是否能自动切换到从服务器上。</p>
+<p>上面代码中nginx的检测脚本如下 ：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">#!/bin/bash</div><div class="line">if [ &quot;$(ps -ef | grep &quot;nginx: master process&quot;| grep -v grep )&quot; == &quot;&quot; ]</div><div class="line">then</div><div class="line"> /usr/local/nginx/sbin/nginx</div><div class="line"> sleep 5</div><div class="line"> if [ &quot;$(ps -ef | grep &quot;nginx: master process&quot;| grep -v grep )&quot; == &quot;&quot; ]</div><div class="line"> then</div><div class="line">     killall keepalived</div><div class="line"> fi</div><div class="line">fi</div></pre></td></tr></table></figure></p>
+<p>在两台Web Server上执行<code>realserver.sh</code>脚本，为lo:0绑定VIP地址10.0.1.2、抑制arp广播。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line">#!/bin/bash</div><div class="line">#description: Config realserver</div><div class="line"></div><div class="line">VIP=10.0.1.2</div><div class="line"> </div><div class="line">/etc/rc.d/init.d/functions</div><div class="line"> </div><div class="line">case &quot;$1&quot; in</div><div class="line">start)</div><div class="line">       /sbin/ifconfig lo:0 $VIP netmask 255.255.255.255 broadcast $VIP</div><div class="line">       /sbin/route add -host $VIP dev lo:0</div><div class="line">       echo &quot;1&quot; &gt;/proc/sys/net/ipv4/conf/lo/arp_ignore</div><div class="line">       echo &quot;2&quot; &gt;/proc/sys/net/ipv4/conf/lo/arp_announce</div><div class="line">       echo &quot;1&quot; &gt;/proc/sys/net/ipv4/conf/all/arp_ignore</div><div class="line">       echo &quot;2&quot; &gt;/proc/sys/net/ipv4/conf/all/arp_announce</div><div class="line">       sysctl -p &gt;/dev/null 2&gt;&amp;1</div><div class="line">       echo &quot;RealServer Start OK&quot;</div><div class="line">       ;;</div><div class="line">stop)</div><div class="line">       /sbin/ifconfig lo:0 down</div><div class="line">       /sbin/route del $VIP &gt;/dev/null 2&gt;&amp;1</div><div class="line">       echo &quot;0&quot; &gt;/proc/sys/net/ipv4/conf/lo/arp_ignore</div><div class="line">       echo &quot;0&quot; &gt;/proc/sys/net/ipv4/conf/lo/arp_announce</div><div class="line">       echo &quot;0&quot; &gt;/proc/sys/net/ipv4/conf/all/arp_ignore</div><div class="line">       echo &quot;0&quot; &gt;/proc/sys/net/ipv4/conf/all/arp_announce</div><div class="line">       echo &quot;RealServer Stoped&quot;</div><div class="line">       ;;</div><div class="line">*)</div><div class="line">       echo &quot;Usage: $0 &#123;start|stop&#125;&quot;</div><div class="line">       exit 1</div><div class="line">esac</div><div class="line"> </div><div class="line">exit 0</div></pre></td></tr></table></figure></p>
+<p>分别在主从机上执行<code>sh realserver.sh start</code>就可实现负载均衡及高可用集群了；</p>
+<p>keepalive相关参数说明<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div></pre></td><td class="code"><pre><div class="line"> ! Configuration File for keepalived</div><div class="line"></div><div class="line">global_defs &#123;</div><div class="line">   notification_email &#123;</div><div class="line">     admin@lvtao.net             #设置报警邮件地址，可以设置多个，每行一个。 需开启本机的sendmail服务</div><div class="line">   &#125;</div><div class="line">   notification_email_from  admin@lvtao.net        #设置邮件的发送地址</div><div class="line">   smtp_server 127.0.0.1                                #设置smtp server地址</div><div class="line">   smtp_connect_timeout 30                              #设置连接smtp server的超时时间</div><div class="line">   router_id LVS_DEVEL                                  #表示运行keepalived服务器的一个标识。发邮件时显示在邮件主题的信息</div><div class="line">&#125;</div><div class="line"></div><div class="line">vrrp_instance VI_1 &#123;</div><div class="line">    state MASTER              #指定keepalived的角色，MASTER表示此主机是主服务器，BACKUP表示此主机是备用服务器</div><div class="line">    interface eth0            #指定HA监测网络的接口</div><div class="line">    virtual_router_id 51      #虚拟路由标识，这个标识是一个数字，同一个vrrp实例使用唯一的标识。即同一vrrp_instance下，MASTER和BACKUP必须是一致的</div><div class="line">    priority 100              #定义优先级，数字越大，优先级越高，在同一个vrrp_instance下，MASTER的优先级必须大于BACKUP的优先级</div><div class="line">    advert_int 1              #设定MASTER与BACKUP负载均衡器之间同步检查的时间间隔，单位是秒</div><div class="line">    authentication &#123;          #设置验证类型和密码</div><div class="line">        auth_type PASS        #设置验证类型，主要有PASS和AH两种</div><div class="line">        auth_pass 1111        #设置验证密码，在同一个vrrp_instance下，MASTER与BACKUP必须使用相同的密码才能正常通信</div><div class="line">    &#125;</div><div class="line">    virtual_ipaddress &#123;       #设置虚拟IP地址，可以设置多个虚拟IP地址，每行一个</div><div class="line">        10.0.0.148</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">virtual_server 10.0.0.148 80 &#123;      #设置虚拟服务器，需要指定虚拟IP地址和服务端口，IP与端口之间用空格隔开</div><div class="line">    delay_loop 6                    #设置运行情况检查时间，单位是秒</div><div class="line">    lb_algo rr                      #设置负载调度算法，这里设置为rr，即轮询算法</div><div class="line">    lb_kind DR                      #设置LVS实现负载均衡的机制，有NAT、TUN、DR三个模式可选</div><div class="line">    persistence_timeout 50          #会话保持时间，单位是秒。这个选项对动态网页是非常有用的，为集群系统中的session共享提供了一个很好的解决方案。</div><div class="line">                                    #有了这个会话保持功能，用户的请求会被一直分发到某个服务节点，直到超过这个会话的保持时间。</div><div class="line">                                    #需要注意的是，这个会话保持时间是最大无响应超时时间，也就是说，用户在操作动态页面时，如果50秒内没有执行任何操作，</div><div class="line">                                    #那么接下来的操作会被分发到另外的节点，但是如果用户一直在操作动态页面，则不受50秒的时间限制</div><div class="line">    protocol TCP                    #指定转发协议类型，有TCP和UDP两种</div><div class="line"></div><div class="line">    real_server 10.0.0.137 80 &#123;     #配置服务节点1，需要指定real server的真实IP地址和端口，IP与端口之间用空格隔开</div><div class="line">        weight 3                    #配置服务节点的权值，权值大小用数字表示，数字越大，权值越高，设置权值大小可以为不同性能的服务器</div><div class="line">                                    #分配不同的负载，可以为性能高的服务器设置较高的权值，而为性能较低的服务器设置相对较低的权值，这样才能合理地利用和分配系统资源</div><div class="line">        TCP_CHECK &#123;                 #realserver的状态检测设置部分，单位是秒</div><div class="line">            connect_timeout 10      #表示3秒无响应超时</div><div class="line">            nb_get_retry 3          #表示重试次数</div><div class="line">            delay_before_retry 3    #表示重试间隔</div><div class="line">            connect_port 80</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    real_server 10.0.0.139 80 &#123;</div><div class="line">        weight 3</div><div class="line">        TCP_CHECK &#123;</div><div class="line">            connect_timeout 10</div><div class="line">            nb_get_retry 3</div><div class="line">            delay_before_retry 3</div><div class="line">            connect_port 80</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/04/07/fangxiangdaili/反向代理为何叫反向代理？/" rel="next" title="反向代理为何叫反向代理？">
+                <i class="fa fa-chevron-left"></i> 反向代理为何叫反向代理？
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/04/07/jiqun/基于Keepalived_Haproxy搭建四层负载均衡器/" rel="prev" title="基于Keepalived+Haproxy搭建四层负载均衡器">
+                基于Keepalived+Haproxy搭建四层负载均衡器 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="hypercomments_widget"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="技术随手记" />
+          <p class="site-author-name" itemprop="name">技术随手记</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+           
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">53</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">40</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">46</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-安装keepalive"><span class="nav-number">1.</span> <span class="nav-text">1.安装keepalive</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-安装Nginx"><span class="nav-number">2.</span> <span class="nav-text">2.安装Nginx</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-配置keepalive"><span class="nav-number">3.</span> <span class="nav-text">3.配置keepalive</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">技术随手记</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+		<script type="text/javascript">
+		_hcwp = window._hcwp || [];
+
+		_hcwp.push({widget:"Bloggerstream", widget_id: 89144, selector:".hc-comment-count", label: "{\%COUNT%\}" });
+
+		
+		_hcwp.push({widget:"Stream", widget_id: 89144, xid: "2017/04/07/jiqun/nginx_keepalive主从双机热备_自动切换解决方案/"});
+		
+
+		(function() {
+		if("HC_LOAD_INIT" in window)return;
+		HC_LOAD_INIT = true;
+		var lang = (navigator.language || navigator.systemLanguage || navigator.userLanguage || "en").substr(0, 2).toLowerCase();
+		var hcc = document.createElement("script"); hcc.type = "text/javascript"; hcc.async = true;
+		hcc.src = ("https:" == document.location.protocol ? "https" : "http")+"://w.hypercomments.com/widget/hc/89144/"+lang+"/widget.js";
+		var s = document.getElementsByTagName("script")[0];
+		s.parentNode.insertBefore(hcc, s.nextSibling);
+		})();
+		</script>
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
