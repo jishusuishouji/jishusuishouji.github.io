@@ -4,6 +4,86 @@
 
     
   <url>
+    <loc>http://jishusuishouji.github.io/2017/04/24/spring/Spring_%E8%B5%84%E6%BA%90%E8%AE%BF%E9%97%AE%E5%89%96%E6%9E%90%E5%92%8C%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F%E5%BA%94%E7%94%A8/</loc>
+    <lastmod>2017-04-24T14:45:40.704Z</lastmod>
+    <data>
+        <display>
+        <title>Spring 资源访问剖析和策略模式应用</title>
+        <pubTime>2017-04-24T14:45:24.000Z</pubTime>
+        
+        <tag>spring</tag>
+         
+         
+           
+             
+              <breadCrumb title="spring" url="http://jishusuishouji.github.io/categories/spring/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://jishusuishouji.github.io/2017/04/20/java/java_%E7%B1%BB%E5%9E%8B%E4%BF%A1%E6%81%AF_instanceof_%E5%92%8C_isInstance%E5%8C%BA%E5%88%AB/</loc>
+    <lastmod>2017-04-19T21:39:01.480Z</lastmod>
+    <data>
+        <display>
+        <title>java 类型信息 instanceof 和 isInstance区别</title>
+        <pubTime>2017-04-19T21:26:32.000Z</pubTime>
+        
+        <tag>java</tag>
+         
+         
+           
+             
+              <breadCrumb title="java" url="http://jishusuishouji.github.io/categories/java/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://jishusuishouji.github.io/2017/04/18/spring/spring_%E5%90%8E%E7%BD%AE%E5%A4%84%E7%90%86%E5%99%A8BeanFactoryPostProcessor%E5%92%8CBeanPostProcessor%E7%9A%84%E7%94%A8%E6%B3%95%E5%92%8C%E5%8C%BA%E5%88%AB/</loc>
+    <lastmod>2017-04-18T15:57:25.586Z</lastmod>
+    <data>
+        <display>
+        <title>spring 后置处理器BeanFactoryPostProcessor和BeanPostProcessor的用法和区别</title>
+        <pubTime>2017-04-18T15:48:50.000Z</pubTime>
+        
+        <tag>spring</tag>
+         
+         
+           
+             
+              <breadCrumb title="spring" url="http://jishusuishouji.github.io/categories/spring/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://jishusuishouji.github.io/2017/04/18/spring/%E5%AD%A6%E4%B9%A0Spring%E5%BF%85%E5%AD%A6%E7%9A%84Java%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86----PropertyEditor/</loc>
+    <lastmod>2017-04-18T15:47:58.746Z</lastmod>
+    <data>
+        <display>
+        <title>学习Spring必学的Java基础知识----PropertyEditor</title>
+        <pubTime>2017-04-18T15:41:21.000Z</pubTime>
+        
+        <tag>spring</tag>
+         
+         
+           
+             
+              <breadCrumb title="spring" url="http://jishusuishouji.github.io/categories/spring/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://jishusuishouji.github.io/2017/04/18/spring/%E6%8E%A2%E7%A7%98Spring%E7%9A%84PropertyEditor/</loc>
     <lastmod>2017-04-18T15:27:13.808Z</lastmod>
     <data>
@@ -233,11 +313,11 @@
         <title>启动ActiveMQ的Broker</title>
         <pubTime>2017-04-05T22:57:20.000Z</pubTime>
         
+        <tag>ActiveMQ</tag>
+         
         <tag>java</tag>
          
         <tag>JMS</tag>
-         
-        <tag>ActiveMQ</tag>
          
          
            
@@ -283,9 +363,9 @@
         <title>ActiveMQ实现负载均衡+高可用部署方案</title>
         <pubTime>2017-04-05T22:29:04.000Z</pubTime>
         
-        <tag>java</tag>
-         
         <tag>ActiveMQ</tag>
+         
+        <tag>java</tag>
          
          
            
@@ -311,11 +391,11 @@
         <title>ActiveMQ理解</title>
         <pubTime>2017-04-05T20:25:34.000Z</pubTime>
         
+        <tag>ActiveMQ</tag>
+         
         <tag>java</tag>
          
         <tag>JMS</tag>
-         
-        <tag>ActiveMQ</tag>
          
          
            
@@ -366,11 +446,11 @@
         <title>ActiveMq性能优化</title>
         <pubTime>2017-04-05T05:30:41.000Z</pubTime>
         
+        <tag>ActiveMQ</tag>
+         
         <tag>java</tag>
          
         <tag>JMS</tag>
-         
-        <tag>ActiveMQ</tag>
          
          
            
@@ -488,11 +568,11 @@
         <title>Apache Thrift学习之一（入门及Java实例演示）</title>
         <pubTime>2017-04-03T09:58:39.000Z</pubTime>
         
-        <tag>RPC</tag>
-         
         <tag>Thrift</tag>
          
         <tag>facebook</tag>
+         
+        <tag>RPC</tag>
          
          
            
@@ -515,11 +595,11 @@
         <title>基于ZooKeeper和Thrift构建动态RPC调用</title>
         <pubTime>2017-04-03T10:49:07.000Z</pubTime>
         
+        <tag>Thrift</tag>
+         
         <tag>RPC</tag>
          
         <tag>ZoopKeeper</tag>
-         
-        <tag>Thrift</tag>
          
          
            
@@ -1145,9 +1225,9 @@
          
         <tag>jta</tag>
          
-        <tag>jotm</tag>
-         
         <tag>分布式事务</tag>
+         
+        <tag>jotm</tag>
          
         <tag>atomikos</tag>
          

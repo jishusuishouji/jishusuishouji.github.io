@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://jishusuishouji.github.io/"/>
-  <updated>2017-04-18T15:27:13.808Z</updated>
+  <updated>2017-04-24T14:45:40.704Z</updated>
   <id>http://jishusuishouji.github.io/</id>
   
   <author>
@@ -14,6 +14,214 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Spring 资源访问剖析和策略模式应用</title>
+    <link href="http://jishusuishouji.github.io/2017/04/24/spring/Spring_%E8%B5%84%E6%BA%90%E8%AE%BF%E9%97%AE%E5%89%96%E6%9E%90%E5%92%8C%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F%E5%BA%94%E7%94%A8/"/>
+    <id>http://jishusuishouji.github.io/2017/04/24/spring/Spring_资源访问剖析和策略模式应用/</id>
+    <published>2017-04-24T14:45:24.000Z</published>
+    <updated>2017-04-24T14:45:40.704Z</updated>
+    
+    <summary type="html">
+    
+      Spring 资源访问剖析和策略模式应用
+    
+    </summary>
+    
+      <category term="spring" scheme="http://jishusuishouji.github.io/categories/spring/"/>
+    
+    
+      <category term="spring" scheme="http://jishusuishouji.github.io/tags/spring/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>java 类型信息 instanceof 和 isInstance区别</title>
+    <link href="http://jishusuishouji.github.io/2017/04/20/java/java_%E7%B1%BB%E5%9E%8B%E4%BF%A1%E6%81%AF_instanceof_%E5%92%8C_isInstance%E5%8C%BA%E5%88%AB/"/>
+    <id>http://jishusuishouji.github.io/2017/04/20/java/java_类型信息_instanceof_和_isInstance区别/</id>
+    <published>2017-04-19T21:26:32.000Z</published>
+    <updated>2017-04-19T21:39:01.480Z</updated>
+    
+    <content type="html"><![CDATA[<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">class A&#123;  </div><div class="line">      </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">class B extends A &#123;  </div><div class="line">      </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">class C extends B &#123;  </div><div class="line">      </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div></pre></td><td class="code"><pre><div class="line">public class T &#123;  </div><div class="line">  </div><div class="line">   </div><div class="line">    public static void main(String[] args) &#123;  </div><div class="line">        C c = new C();  </div><div class="line">        B b = new B();  </div><div class="line">        A a = new A();  </div><div class="line">          </div><div class="line">        B bc = new C();  </div><div class="line">        A ac = new C();  </div><div class="line">          </div><div class="line">        System.out.println(c instanceof C);  </div><div class="line">        System.out.println(c instanceof B);  </div><div class="line">        System.out.println(c instanceof A);  </div><div class="line">          </div><div class="line">        System.out.println();  </div><div class="line">          </div><div class="line">        System.out.println(c.getClass().isInstance(c));  </div><div class="line">        System.out.println(c.getClass().isInstance(b));  </div><div class="line">        System.out.println(c.getClass().isInstance(a));  </div><div class="line">          </div><div class="line">        System.out.println();  </div><div class="line">          </div><div class="line">        System.out.println(c.getClass().isInstance(bc));  </div><div class="line">        System.out.println(c.getClass().isInstance(ac));  </div><div class="line">          </div><div class="line">        System.out.println();  </div><div class="line">          </div><div class="line">        System.out.println(A.class.isInstance(a));  </div><div class="line">        System.out.println(A.class.isInstance(b));  </div><div class="line">        System.out.println(A.class.isInstance(c));  </div><div class="line">        System.out.println(A.class.isInstance(ac));  </div><div class="line">        System.out.println(A.class.isInstance(bc));  </div><div class="line">          </div><div class="line">        System.out.println();  </div><div class="line">          </div><div class="line">        System.out.println(B.class.isInstance(a));  </div><div class="line">        System.out.println(B.class.isInstance(b));  </div><div class="line">        System.out.println(B.class.isInstance(c));  </div><div class="line">        System.out.println(B.class.isInstance(ac));  </div><div class="line">        System.out.println(B.class.isInstance(bc));  </div><div class="line">          </div><div class="line">          </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">true</div><div class="line">true</div><div class="line">true</div><div class="line"></div><div class="line"></div><div class="line">true</div><div class="line">false</div><div class="line">false</div><div class="line"></div><div class="line"></div><div class="line">true</div><div class="line">true</div><div class="line"></div><div class="line"></div><div class="line">true</div><div class="line">true</div><div class="line">true</div><div class="line">true</div><div class="line">true</div><div class="line"></div><div class="line"></div><div class="line">false</div><div class="line">true</div><div class="line">true</div><div class="line">true</div><div class="line">true</div></pre></td></tr></table></figure>
+<h2 id="对象-instanceof-类"><a href="#对象-instanceof-类" class="headerlink" title="对象 instanceof 类"></a>对象 instanceof 类</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">obj instanceof class</div></pre></td></tr></table></figure>
+<p>如果<code>class obj1 = obj</code>成立的话，返回<code>true</code>，否则返回<code>false</code></p>
+<h2 id="类-isInstance-对象"><a href="#类-isInstance-对象" class="headerlink" title="类.isInstance(对象)"></a><code>类.isInstance(对象)</code></h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">class.isInstance(obj)</div></pre></td></tr></table></figure>
+<p>如果<code>class obj1 = obj</code>成立的话，返回<code>true</code>，否则返回<code>false</code></p>
+<p><code>instanceof</code>运算符只被用于对象引用变量，检查左边的被测试对象是不是 右边类或接口的实例化。如果被测对象是<code>null</code>值，则测试结果总是<code>false</code>。<br>形象地：自身实例或子类实例 <code>instanceof</code> 自身类   返回<code>true</code><br>例：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">String s=new String(&quot;javaisland&quot;);</div><div class="line">System.out.println(s instanceof String); //true</div></pre></td></tr></table></figure></p>
+<p>Class类的isInstance(Object obj)方法，obj是被测试的对象，如果obj是调用这个方法的class或接口 的实例，则返回true。这个方法是instanceof运算符的动态等价。<br>形象地：自身类.class.isInstance(自身实例或子类实例)  返回true<br>例：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">String s=new String(&quot;javaisland&quot;);</div><div class="line">System.out.println(String.class.isInstance(s)); //true</div></pre></td></tr></table></figure></p>
+<p>Class类的isAssignableFrom(Class cls)方法，如果调用这个方法的class或接口与 参数cls表示的类或接口相同，或者是参数cls表示的类或接口的父类，则返回true。<br>形象地：自身类.class.isAssignableFrom(自身类或子类.class)  返回true<br>例：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">System.out.println(ArrayList.class.isAssignableFrom(Object.class));  //false</div><div class="line">System.out.println(Object.class.isAssignableFrom(ArrayList.class));  //true</div></pre></td></tr></table></figure></p>
+]]></content>
+    
+    <summary type="html">
+    
+      java 类型信息 instanceof 和 isInstance区别
+    
+    </summary>
+    
+      <category term="java" scheme="http://jishusuishouji.github.io/categories/java/"/>
+    
+    
+      <category term="java" scheme="http://jishusuishouji.github.io/tags/java/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>spring 后置处理器BeanFactoryPostProcessor和BeanPostProcessor的用法和区别</title>
+    <link href="http://jishusuishouji.github.io/2017/04/18/spring/spring_%E5%90%8E%E7%BD%AE%E5%A4%84%E7%90%86%E5%99%A8BeanFactoryPostProcessor%E5%92%8CBeanPostProcessor%E7%9A%84%E7%94%A8%E6%B3%95%E5%92%8C%E5%8C%BA%E5%88%AB/"/>
+    <id>http://jishusuishouji.github.io/2017/04/18/spring/spring_后置处理器BeanFactoryPostProcessor和BeanPostProcessor的用法和区别/</id>
+    <published>2017-04-18T15:48:50.000Z</published>
+    <updated>2017-04-18T15:57:25.586Z</updated>
+    
+    <content type="html"><![CDATA[<p>主要区别就是：<code>BeanFactoryPostProcessor</code>(BeanFactory的后置处理器)可以修改BEAN的配置信息而<code>BeanPostProcessor</code>(Bean的后置处理器)不能:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">package com.springdemo.postProcessor;  </div><div class="line">  </div><div class="line">public class PostProcessorBean &#123;  </div><div class="line">    private String username;  </div><div class="line">      </div><div class="line">    private String password;  </div><div class="line">  </div><div class="line">    public String getPassword() &#123;  </div><div class="line">        return password;  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">    public void setPassword(String password) &#123;  </div><div class="line">        this.password = password;  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">    public String getUsername() &#123;  </div><div class="line">        return username;  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">    public void setUsername(String username) &#123;  </div><div class="line">        this.username = username;  </div><div class="line">    &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>MyBeanPostProcessor</code>类，实现了<code>BeanPostProcessor</code>接口:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line">package com.springdemo.postProcessor;  </div><div class="line">  </div><div class="line">import org.springframework.beans.BeansException;  </div><div class="line">import org.springframework.beans.factory.config.BeanPostProcessor;  </div><div class="line">  </div><div class="line">import com.springdemo.form.LoginForm;  </div><div class="line">  </div><div class="line">public class MyBeanPostProcessor implements BeanPostProcessor &#123;  </div><div class="line">  </div><div class="line">      </div><div class="line">      </div><div class="line">    public Object postProcessAfterInitialization(Object bean, String beanName)  </div><div class="line">            throws BeansException &#123;  </div><div class="line">        //如果是PostProcessorBean则username信息  </div><div class="line">        if(bean instanceof PostProcessorBean)  </div><div class="line">        &#123;  </div><div class="line">            System.out.println(&quot;PostProcessorBean Bean initialized&quot;);  </div><div class="line">            PostProcessorBean pb = (PostProcessorBean)bean;  </div><div class="line">              </div><div class="line">            System.out.println(&quot;username:&quot;+pb.getUsername());  </div><div class="line">        &#125;  </div><div class="line">        return bean;  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">    public Object postProcessBeforeInitialization(Object bean, String beanName)  </div><div class="line">            throws BeansException &#123;  </div><div class="line">         if(bean instanceof PostProcessorBean)  </div><div class="line">        &#123;  </div><div class="line">            System.out.println(&quot;PostProcessorBean Bean initializing&quot;);  </div><div class="line">            PostProcessorBean pb = (PostProcessorBean)bean;  </div><div class="line">              </div><div class="line">            System.out.println(&quot;username:&quot;+pb.getUsername());  </div><div class="line">        &#125;  </div><div class="line">        return bean;  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>MyBeanFactoryPostProcessor</code>实现了<code>BeanFactoryPostProcessor</code>接口:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">package com.springdemo.postProcessor;  </div><div class="line">  </div><div class="line">import org.springframework.beans.BeansException;  </div><div class="line">import org.springframework.beans.MutablePropertyValues;  </div><div class="line">import org.springframework.beans.factory.config.BeanDefinition;  </div><div class="line">import org.springframework.beans.factory.config.BeanFactoryPostProcessor;  </div><div class="line">import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;  </div><div class="line">  </div><div class="line">public class MyBeanFactoryPostProcessor implements BeanFactoryPostProcessor &#123;  </div><div class="line">  </div><div class="line">    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory)  </div><div class="line">            throws BeansException &#123;  </div><div class="line">        </div><div class="line">        //BeanFactoryPostProcessor可以修改BEAN的配置信息而BeanPostProcessor不能  </div><div class="line">        //在这里修改postProcessorBean的username注入属性  </div><div class="line">        BeanDefinition bd = beanFactory.getBeanDefinition(&quot;postProcessorBean&quot;);  </div><div class="line">        MutablePropertyValues pv =  bd.getPropertyValues();  </div><div class="line">        if(pv.contains(&quot;username&quot;))  </div><div class="line">        &#123;  </div><div class="line">            pv.addPropertyValue(&quot;username&quot;, &quot;xiaojun&quot;);  </div><div class="line">        &#125;  </div><div class="line">          </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>编写测试用例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line">package com.springdemo.test;  </div><div class="line">  </div><div class="line">  </div><div class="line">import org.springframework.context.ApplicationContext;  </div><div class="line">import org.springframework.context.support.ClassPathXmlApplicationContext;  </div><div class="line">  </div><div class="line">import com.springdemo.factory.ApplicationContextFactory;  </div><div class="line">  </div><div class="line">import com.springdemo.postProcessor.PostProcessorBean;  </div><div class="line">  </div><div class="line">import junit.framework.TestCase;  </div><div class="line">  </div><div class="line">public class BeanPostPorcessorTest extends TestCase &#123;  </div><div class="line">    private ApplicationContext context;  </div><div class="line">    protected void setUp() throws Exception &#123;  </div><div class="line">        super.setUp();  </div><div class="line">        String[] paths = &#123;&quot;classpath*:/spring/applicationContext-*.xml&quot;&#125;;  </div><div class="line">  </div><div class="line">        context = new ClassPathXmlApplicationContext(paths);  </div><div class="line">          </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">    protected void tearDown() throws Exception &#123;  </div><div class="line">        super.tearDown();  </div><div class="line">    &#125;  </div><div class="line">      </div><div class="line">    public void testBeanPostProcessor()  </div><div class="line">    &#123;  </div><div class="line">          </div><div class="line">    &#125;  </div><div class="line">    public void testBeanFactoryPostProcessor()  </div><div class="line">    &#123;  </div><div class="line">        PostProcessorBean bean =(PostProcessorBean)context.getBean(&quot;postProcessorBean&quot;);  </div><div class="line">        System.out.println(&quot;---------------testBeanFactoryPostProcessor----------------&quot;);  </div><div class="line">        System.out.println(&quot;username:&quot;+bean.getUsername());  </div><div class="line">        System.out.println(&quot;password:&quot;+bean.getPassword());    </div><div class="line">    &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>spring配置文件如下（先不启用<code>MyBeanFactoryPostProcessor</code>）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;  </div><div class="line">&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;  </div><div class="line">    xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;  </div><div class="line">    xsi:schemaLocation=&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd&quot;&gt;  </div><div class="line">      </div><div class="line">    &lt;bean class=&quot;com.springdemo.postProcessor.MyBeanPostProcessor&quot;&gt;&lt;/bean&gt;  </div><div class="line">    &lt;!--我们先把BeanFactoryPostProcessor注释掉，不启用,然后查看测试输出结果    </div><div class="line">    &lt;bean class=&quot;com.springdemo.postProcessor.MyBeanFactoryPostProcessor&quot;&gt;&lt;/bean&gt;  </div><div class="line">    --&gt;  </div><div class="line">    &lt;bean id=&quot;postProcessorBean&quot; class=&quot;com.springdemo.postProcessor.PostProcessorBean&quot; &gt;  </div><div class="line">        &lt;property name=&quot;username&quot; value=&quot;test&quot;&gt;&lt;/property&gt;  </div><div class="line">        &lt;property name=&quot;password&quot; value=&quot;test&quot;&gt;&lt;/property&gt;  </div><div class="line">    &lt;/bean&gt;  </div><div class="line">&lt;/beans&gt;</div></pre></td></tr></table></figure>
+<p>测试输出结果如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">PostProcessorBean Bean initializing</div><div class="line">username:test</div><div class="line">PostProcessorBean Bean initialized</div><div class="line">username:test</div><div class="line">---------------testBeanFactoryPostProcessor----------------</div><div class="line">username:test</div><div class="line">password:test</div></pre></td></tr></table></figure></p>
+<p>然后我们取消注释启用<code>MyBeanFactoryPostProcessor</code>，测试结果如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">PostProcessorBean Bean initializing</div><div class="line">username:xiaojun</div><div class="line">PostProcessorBean Bean initialized</div><div class="line">username:xiaojun</div><div class="line">---------------testBeanFactoryPostProcessor----------------</div><div class="line">username:xiaojun</div><div class="line">password:test</div></pre></td></tr></table></figure></p>
+<p>从结果可以看出：<code>BeanFactoryPostProcessor</code>的回调比<code>BeanPostProcessor</code>要早，因为<code>BeanPostProcess</code>中输出的<code>username</code>已经变成了<code>xiaojun</code>,而不是<code>test</code>.还有就是<code>BeanFactoryPostProcessor</code>确实有能力改变初始化BEAN的内容.</p>
+<p><code>BeanPostProcessor</code>也能改变bean的值。但值得奇怪的是，如果在<code>BeanFactoryPostProcessor</code>里面调用<code>factory.getBean()</code>，则会对bean进行初始化，但是这个初始化过程不会回调<code>BeanPostProcessor</code>的两个回调方法。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      spring 后置处理器BeanFactoryPostProcessor和BeanPostProcessor的用法和区别
+    
+    </summary>
+    
+      <category term="spring" scheme="http://jishusuishouji.github.io/categories/spring/"/>
+    
+    
+      <category term="spring" scheme="http://jishusuishouji.github.io/tags/spring/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>学习Spring必学的Java基础知识----PropertyEditor</title>
+    <link href="http://jishusuishouji.github.io/2017/04/18/spring/%E5%AD%A6%E4%B9%A0Spring%E5%BF%85%E5%AD%A6%E7%9A%84Java%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86----PropertyEditor/"/>
+    <id>http://jishusuishouji.github.io/2017/04/18/spring/学习Spring必学的Java基础知识----PropertyEditor/</id>
+    <published>2017-04-18T15:41:21.000Z</published>
+    <updated>2017-04-18T15:47:58.746Z</updated>
+    
+    <content type="html"><![CDATA[<p>在Spring配置文件里是通过字面值为Bean各种类型的属性提供设置值：不管是double类型还是int类型，在配置文件中都对应字符串类型的字面值。<br><code>BeanWrapper</code>填充Bean属性时如何将这个字面值转换为对应的<code>double</code>或<code>int</code>等内部类型呢？</p>
+<p>任何实现<code>java.beans.PropertyEditor</code>接口的类都是属性编辑器。属性编辑器是将外部的设置值转换为JVM内部的对应类型，属性编辑器就是一个类型转换器。 </p>
+<p><code>PropertyEditor</code>是JavaBean规范定义的接口。 </p>
+<h2 id="JavaBean的编辑器"><a href="#JavaBean的编辑器" class="headerlink" title="JavaBean的编辑器"></a>JavaBean的编辑器</h2><p>Sun所制定的JavaBean规范，很大程度上是为IDE准备的——它让IDE能够以可视化的方式设置JavaBean的属性。如果在IDE中开发一个可视化应用程序，我们需要通过属性设置的方式对组成应用的各种组件进行定制，IDE通过属性编辑器让开发人员使用可视化的方式设置组件的属性。 </p>
+<p>一般的IDE都支持JavaBean规范所定义的属性编辑器，当组件开发商发布一个组件时，它往往将组件对应的属性编辑器捆绑发行，这样开发者就可以在IDE环境下方便地利用属性编辑器对组件进行定制工作。 </p>
+<p>JavaBean规范通过<code>java.beans.PropertyEditor</code>定义了设置JavaBean属性的方法，通过<code>BeanInfo</code>描述了JavaBean哪些属性是可定制的，此外还描述了可定制属性与<code>PropertyEditor</code>的对应关系。 </p>
+<p>BeanInfo与JavaBean之间的对应关系，通过两者之间规范的命名确立：对应JavaBean的BeanInfo采用如下的命名规范：<bean>BeanInfo。如<code>ChartBean</code>对应的<code>BeanInfo</code>为<code>ChartBeanBeanInfo</code>；<code>Car</code>对应的<code>BeanInfo</code>为<code>CarBeanInfo</code>。当JavaBean连同其属性编辑器相同的组件注册到IDE中后，当在开发界面中对JavaBean进行定制时，IDE就会根据JavaBean规范找到对应的BeanInfo，再根据BeanInfo中的描述信息找到JavaBean属性描述（是否开放、使用哪个属性编辑器），进而为JavaBean生成特定开发编辑界面。 </bean></p>
+<p>JavaBean规范提供了一个管理默认属性编辑器的管理器：<code>PropertyEditorManager</code>，该管理器内保存着一些常见类型的属性编辑器，如果某个JavaBean的常见类型属性没有通过BeanInfo显式指定属性编辑器，IDE将自动使用PropertyEditorManager中注册的对应默认属性编辑器。 </p>
+<p>由于JavaBean对应的属性编辑器等IDE环境相关的资源和组件需要动态加载，所以在纯Java的IDE中开发基于组件的应用时，总会感觉IDE反应很迟钝，不像Delphi、C++Builder一样灵敏快捷。但在Eclipse开发环境中，设计包括可视化组件的应用时却很快捷，原因是Eclipse没有使用Java的标准用户界面组件库，当然也就没有按照JavaBean的规范开发设计GUI组件了。 </p>
+<h2 id="PropertyEditor"><a href="#PropertyEditor" class="headerlink" title="PropertyEditor"></a><code>PropertyEditor</code></h2><p><code>PropertyEditor</code>是属性编辑器的接口，它规定了将外部设置值转换为内部JavaBean属性值的转换接口方法。<code>PropertyEditor</code>主要的接口方法说明如下：<br>  Object getValue()：返回属性的当前值。基本类型被封装成对应的封装类实例；<br>  void setValue(Object newValue)：设置属性的值，基本类型以封装类传入；<br>  String getAsText()：将属性对象用一个字符串表示，以便外部的属性编辑器能以可视化的方式显示。缺省返回null，表示该属性不能以字符串表示；<br>  void setAsText(String text)：用一个字符串去更新属性的内部值，这个字符串一般从外部属性编辑器传入；<br>  String[] getTags()：返回表示有效属性值的字符串数组（如boolean属性对应的有效Tag为true和false），以便属性编辑器能以下拉框的方式显示出来。缺省返回null，表示属性没有匹配的字符值有限集合；<br>  String getJavaInitializationString()：为属性提供一个表示初始值的字符串，属性编辑器以此值作为属性的默认值。</p>
+<p>可以看出PropertyEditor接口方法是内部属性值和外部设置值的沟通桥梁。此外，我们可以很容易地发现该接口的很多方法是专为IDE中的可视化属性编辑器提供的：如getTags()、getJavaInitializationString()以及另外一些我们未此介绍的接口方法。 </p>
+<p>Java为PropertyEditor提供了一个方便类：PropertyEditorSupport，该类实现了PropertyEditor接口并提供默认实现，一般情况下，用户可以通过扩展这个方便类设计自己的属性编辑器。 </p>
+<p>BeanInfo </p>
+<p>BeanInfo主要描述了JavaBean哪些属性可以编辑以及对应的属性编辑器，每一个属性对应一个属性描述器PropertyDescriptor。PropertyDescriptor的构造函数有两个入参：<br>PropertyDescriptor(String propertyName, Class beanClass) ，其中propertyName为属性名；而beanClass为JavaBean对应的Class。 </p>
+<p>此外PropertyDescriptor还有一个setPropertyEditorClass(Class propertyEditorClass)方法，为JavaBean属性指定编辑器。BeanInfo接口最重要的方法就是：PropertyDescriptor[] getPropertyDescriptors() ，该方法返回JavaBean的属性描述器数组。 </p>
+<p>BeanInfo接口有一个常用的实现类：SimpleBeanInfo，一般情况下，可以通过扩展SimpleBeanInfo实现自己的功能。 </p>
+<p>一个实例 </p>
+<p>在本节中，我们来看一个具体属性编辑器的实例，该实例根据《Core Java Ⅱ》上的一个例子改编而成。 </p>
+<p>ChartBean是一个可定制图表组件，允许通过属性的设置定制图表的样式以得到满足各种不同使用场合要求的图表。我们忽略ChartBean的其他属性，仅关注其中的两个属性： </p>
+<p>代码清单5-2  CharBean<br>Java代码  收藏代码<br>public class ChartBean extends JPanel{<br>   private int titlePosition = CENTER;<br>   private boolean inverse;<br>   //省略get/setter方法<br>}  </p>
+<p>下面，我们为titlePosition属性提供一个属性编辑器。我们不去直接实现PropertyEditor，而是通过扩展PropertyEditorSupport这个方便类来定义我们的属性编辑器： </p>
+<p>代码清单5-3  TitlePositionEditor<br>Java代码  收藏代码<br>import java.beans.*;<br> public class TitlePositionEditor extends PropertyEditorSupport{<br>    private String[] options = { “Left”, “Center”, “Right” };   </p>
+<pre><code>//①代表可选属性值的字符串标识数组  
+public String[] getTags() { return options; }      
+
+//②代表属性初始值的字符串  
+public String getJavaInitializationString() { return &quot;&quot; + getValue(); }   
+
+//③将内部属性值转换为对应的字符串表示形式，供属性编辑器显示之用  
+public String getAsText(){  
+   int value = (Integer) getValue();  
+   return options[value];  
+}  
+
+//④将外部设置的字符串转换为内部属性的值  
+public void setAsText(String s){   
+   for (int i = 0; i &lt; options.length; i++){  
+      if (options[i].equals(s)){  
+         setValue(i);  
+         return;  
+      }  
+   }  
+}  
+</code></pre><p> }  </p>
+<p>①处通过getTags()方法返回一个字符串数组，因此在IDE中该属性对应的编辑器将自动提供一个下拉框，下拉框中包含3个可选项：“Left”、“Center”、“Right”。而③和④处的两个方法分别完成属性值到字符串的双向转换功能。CharBean的inverse属性也有一个相似的编辑器InverseEditor，我们忽略不讲。 </p>
+<p>下面编写ChartBean对应的BeanInfo，根据JavaBean的命名规范，这个BeanInfo应该命名为ChartBeanBeanInfo，它负责将属性编辑器和ChartBean的属性挂钩起来： </p>
+<p>代码清单5-4  ChartBeanBeanInfo<br>Java代码  收藏代码<br>import java.beans.*;<br> public class ChartBeanBeanInfo extends SimpleBeanInfo{<br>    public PropertyDescriptor[] getPropertyDescriptors() {<br>       try{  </p>
+<p>//①将TitlePositionEditor绑定到ChartBean的titlePosition属性中<br>PropertyDescriptor titlePositionDescriptor<br>             = new PropertyDescriptor(“titlePosition”, ChartBean.class);<br>          titlePositionDescriptor.setPropertyEditorClass(TitlePositionEditor.class);  </p>
+<p>//②将InverseEditor绑定到ChartBean的inverse属性中<br>PropertyDescriptor inverseDescriptor<br>             = new PropertyDescriptor(“inverse”, ChartBean.class);<br>          inverseDescriptor.setPropertyEditorClass(InverseEditor.class);<br>          return new PropertyDescriptor[]{titlePositionDescriptor, inverseDescriptor};<br>       }<br>       catch (IntrospectionException e){<br>          e.printStackTrace();<br>          return null;<br>       }<br>    }<br> }  </p>
+<p>在ChartBeanBeanInfo中，我们分别为ChartBean和titlePosition和inverse属性指定对应的属性编辑器。将ChartBean连同属性编辑器以及ChartBeanBeanInfo打成JAR包，使用IDE组件扩展管理功能注册到IDE中。这样，我们就可以像使用TextField、Checkbox等这些组对ChartBean进行可视化的开发设计工作了。下面是ChartBean在NetBeans IDE中的属性编辑器效果图，如图5-5所示。 </p>
+<p>ChartBean可设置的属性都列在属性查看器中，当单击titlePosition属性时，下拉框中列出了我们提供的3个选项。 </p>
+<p>Spring默认属性编辑器 </p>
+<p>Spring的属性编辑器和传统的用于IDE开发时的属性编辑器不同，它们没有UI界面，仅负责将配置文件中的文本配置值转换为Bean属性的对应值，所以Spring的属性编辑器并非传统意义上的JavaBean属性编辑器。 </p>
+<p>Spring为常见的属性类型提供了默认的属性编辑器。从图5-4中，我们可以看出BeanWrapperImpl类扩展了PropertyEditorRegistrySupport类，Spring在PropertyEditor RegistrySupport中为常见属性类型提供了默认的属性编辑器，这些“常见的类型”共32个，可分为3大类，总结如下： </p>
+<p>表5-1  Spring提供的默认属性编辑器<br>类    别  说    明<br>基础数据类型  分为几个小类： 1）基本数据类型，如：boolean、byte、short、int等； 2）基本数据类型封装类，如：Long、Character、Integer等；  3）两个基本数据类型的数组，char[]和byte[]；    4）大数类，BigDecimal和BigInteger<br>集合类 为5种类型的集合类Collection、Set、SortedSet、List和SortedMap提供了编辑器<br>资源类 用于访问外部资源的8个常见类Class、Class[]、File、InputStream、Locale、Properties、Resource[]和URL   </p>
+<p>PropertyEditorRegistrySupport中有两个用于保存属性编辑器的Map类型变量：<br>  defaultEditors：用于保存默认属性类型的编辑器，元素的键为属性类型，值为对应的属性编辑器实例；<br>  customEditors：用于保存用户自定义的属性编辑器，元素的键值和defaultEditors相同。</p>
+<p>PropertyEditorRegistrySupport通过类似以下的代码定义默认属性编辑器：<br>Java代码  收藏代码<br>this.defaultEditors.put(char.class, new CharacterEditor(false));<br>this.defaultEditors.put(Character.class, new CharacterEditor(true));<br>this.defaultEditors.put(Locale.class, new LocaleEditor());<br>this.defaultEditors.put(Properties.class, new PropertiesEditor());  </p>
+<p>这些默认的属性编辑器解决常见属性类型的注册问题，如果用户的应用包括一些特殊类型的属性，且希望在配置文件中以字面值提供配置值，那么就需要编写自定义属性编辑器并注册到Spring容器中。这样，Spring才能将配置文件中的属性配置值转换为对应的属性类型值。 </p>
+<p>自定义属性编辑器 </p>
+<p>Spring大部分默认属性编辑器都直接扩展于java.beans.PropertyEditorSupport类，用户也可以通过扩展PropertyEditorSupport实现自己的属性编辑器。比起用于IDE环境的属性编辑器来说，Spring环境下使用的属性编辑器的功能非常单一：仅需要将配置文件中字面值转换为属性类型的对象即可，并不需要提供UI界面，因此仅需要简单覆盖PropertyEditorSupport的setAsText()方法就可以了。 </p>
+<p>一个实例 </p>
+<p>我们继续使用第4章中Boss和Car的例子，假设我们现在希望在配置Boss时，不通过引用Bean的方式注入Boss的car属性，而希望直接通过字符串字面值提供配置。为了方便阅读，这里再次列出Boss和Car类的简要代码： </p>
+<p>代码清单5-5  Car<br>Java代码  收藏代码<br>package com.baobaotao.editor;<br>public class Car {<br>    private int maxSpeed;<br>    public String brand;<br>    private double price;<br>    //省略get/setter<br>}  </p>
+<p>代码清单5-6  Boss<br>Java代码  收藏代码<br>package com.baobaotao.editor;<br>public class Boss {<br>    private String name;<br>    private Car car = new Car();<br>    //省略get/setter<br>}  </p>
+<p>Boss有两个属性：name和car，分别对应String类型和Car类型。Spring拥有String类型的默认属性编辑器，因此对于String类型的属性我们不用操心。但Car类型是我们自定义的类型，要配置Boss的car属性，有两种方案：<br>1）在配置文件中为car专门配置一个<bean>，然后在boss的<bean>中通过ref引用car Bean，这正是我们上一章中所用的方法；<br>2）为Car类型提供一个自定义的属性编辑器，这样，我们就通过字面值为Boss的car属性提供配置值。</bean></bean></p>
+<p>第一种方案是常用的方法，但是在有些情况下，这种方式需要将属性对象一步步肢解为最终可以用基本类型表示的Bean，使配置文件变得不够清晰，直接为属性类提供一个对应的自定义属性编辑器可能会是更好的替代方案。 </p>
+<p>现在，我们来为Car编写一个自定义的属性编辑器，其代码如下所示： </p>
+<p>代码清单5-7  CustomCarEditor<br>Java代码  收藏代码<br>package com.baobaotao.editor;<br>import java.beans.PropertyEditorSupport;  </p>
+<p>public class CustomCarEditor extends PropertyEditorSupport {  </p>
+<pre><code>//①将字面值转换为属性类型对象  
+public void setAsText(String text){   
+    if(text == null || text.indexOf(&quot;,&quot;) == -1){  
+        throw new IllegalArgumentException(&quot;设置的字符串格式不正确&quot;);  
+    }  
+    String[] infos = text.split(&quot;,&quot;);  
+    Car car = new Car();  
+    car.setBrand(infos[0]);  
+    car.setMaxSpeed(Integer.parseInt(infos[1]));  
+    car.setPrice(Double.parseDouble(infos[2]));  
+
+     //②调用父类的setValue()方法设置转换后的属性对象  
+    setValue(car);   
+}  
+</code></pre><p>}  </p>
+<p>CustomCarEditor很简单，它仅覆盖PropertyEditorSupport便利类的setAsText(String text)方法，该方法负责将配置文件以字符串提供的字面值转换为Car对象。字面值采用逗号分隔的格式同时为brand、maxSpeed和price属性值提供设置值，setAsText()方法解析这个字面值并生成对应的Car对象。由于我们并不需要将Boss内部的car属性反显到属性编辑器中，因此不需要覆盖getAsText()方法。 </p>
+<p>注册自定义的属性编辑器 </p>
+<p>在IDE环境下，自定义属性编辑器在使用之前必须通过扩展组件功能进行注册，在Spring环境中也需要通过一定的方法注册自定义的属性编辑器。 </p>
+<p>如果使用BeanFactory，用户需要手工调用registerCustomEditor(Class requiredType, PropertyEditor propertyEditor)方法注册自定义属性编辑器；如果使用ApplicationContext，则只需要在配置文件通过CustomEditorConfigurer注册就可以了。CustomEditorConfigurer实现BeanFactoryPostProcessor接口，因此是一个Bean工厂后处理器。我们知道Bean工厂后处理器在Spring容器加载配置文件并生成BeanDefinition半成品后就会被自动执行。因此CustomEditorConfigurer有容器启动时有机会注入自定义的属性编辑器。下面的配置片断定义了一个CustomEditorConfigurer： </p>
+<p>Xml代码  收藏代码<br><!--①配置自动注册属性编辑器的CustomEditorConfigurer -->  </p>
+<bean class="org.springframework.beans.factory.config.CustomEditorConfigurer"><br>        <property name="customEditors"><br>            <map><br>                   <!--②-1属性编辑器对应的属性类型--><br>                   <entry key="com.baobaotao.editor.Car"><br><br>                         <!--②-2对应的属性编辑器Bean --><br>                    <bean class="com.baobaotao.editor.CustomCarEditor"><br>                </bean></entry><br>            </map><br>        </property><br>    </bean><br> <bean id="boss" class="com.baobaotao.editor.Boss"><br>       <property name="name" value="John"><br>       <!--③该属性将使用②处的属性编辑器完成属性填充操作--><br>       <property name="car" value="红旗CA72,200,20000.00"><br></property></property></bean>  
+
+
+<p>在①处，我们定义了用于注册自定义属性编辑器的CustomEditorConfigurer，Spring容器将通过反射机制自动调用这个Bean。CustomEditorConfigurer通过一个Map属性定义需要自动注册的自定义属性编辑器。在②处，我们为Car类型指定了对应属性编辑器CustomCarEditor，注意键是属性类型，而值是对应的属性编辑器Bean，而不是属性编辑器的类名。 </p>
+<p>最精彩的部分当然是③处的配置，我们原来通过一个<bean>元素标签配置好car Bean，然后在boss的<bean>中通过ref引用car Bean，但是现在我们直接通过value为car属性提供配置。BeanWrapper在设置boss的car属性时，它将检索自定义属性编辑器的注册表，当发现Car属性类型拥有对应的属性编辑器CustomCarEditor时，它就会利用CustomCarEditor将“红旗CA72,200,20000.00”转换为Car对象。 </bean></bean></p>
+<p>引用<br>按照JavaBeans的规范，JavaBeans的基础设施会在JavaBean相同类包下查找是否存在<javabean>Editor的类，如果存在，自动使用<javabean>Editor作为该JavaBean的PropertyEditor。<br>如com.baobaotao.domain.UserEditor会自动成为com.baobaotao.domain.User对应的PropertyEditor。Spring也支持这个规范，也即如果采用这种规约命令PropertyEditor，就无须显式在CustomEditorConfigurer中注册了，Spring将自动查找并注册这个PropertyEditor。</javabean></javabean></p>
+<p>另：Spring 3.0除支持PropertyEditor外，还在核心包中引入了自建的ConversionService,它提供了更为强大的类型转换的能力，可以完成任意类型之间的转换，还可以在转换过程中参考目标对象所在宿主类的上下文信息。Spring的类型转换同时支持PropertyEdito和ConversionService。 </p>
+]]></content>
+    
+    <summary type="html">
+    
+      学习Spring必学的Java基础知识----PropertyEditor
+    
+    </summary>
+    
+      <category term="spring" scheme="http://jishusuishouji.github.io/categories/spring/"/>
+    
+    
+      <category term="spring" scheme="http://jishusuishouji.github.io/tags/spring/"/>
+    
+  </entry>
   
   <entry>
     <title>探秘Spring的PropertyEditor</title>
@@ -746,11 +954,11 @@ public class RunningBroker {
       <category term="ActiveMQ" scheme="http://jishusuishouji.github.io/categories/java/JMS/ActiveMQ/"/>
     
     
+      <category term="ActiveMQ" scheme="http://jishusuishouji.github.io/tags/ActiveMQ/"/>
+    
       <category term="java" scheme="http://jishusuishouji.github.io/tags/java/"/>
     
       <category term="JMS" scheme="http://jishusuishouji.github.io/tags/JMS/"/>
-    
-      <category term="ActiveMQ" scheme="http://jishusuishouji.github.io/tags/ActiveMQ/"/>
     
   </entry>
   
@@ -829,9 +1037,9 @@ public class RunningBroker {
       <category term="ActiveMQ" scheme="http://jishusuishouji.github.io/categories/java/JMS/ActiveMQ/"/>
     
     
-      <category term="java" scheme="http://jishusuishouji.github.io/tags/java/"/>
-    
       <category term="ActiveMQ" scheme="http://jishusuishouji.github.io/tags/ActiveMQ/"/>
+    
+      <category term="java" scheme="http://jishusuishouji.github.io/tags/java/"/>
     
   </entry>
   
@@ -1245,11 +1453,11 @@ public class RunningBroker {
       <category term="ActiveMQ" scheme="http://jishusuishouji.github.io/categories/java/JMS/ActiveMQ/"/>
     
     
+      <category term="ActiveMQ" scheme="http://jishusuishouji.github.io/tags/ActiveMQ/"/>
+    
       <category term="java" scheme="http://jishusuishouji.github.io/tags/java/"/>
     
       <category term="JMS" scheme="http://jishusuishouji.github.io/tags/JMS/"/>
-    
-      <category term="ActiveMQ" scheme="http://jishusuishouji.github.io/tags/ActiveMQ/"/>
     
   </entry>
   
@@ -1339,562 +1547,6 @@ public class RunningBroker {
       <category term="java" scheme="http://jishusuishouji.github.io/tags/java/"/>
     
       <category term="JMS" scheme="http://jishusuishouji.github.io/tags/JMS/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>ActiveMq性能优化</title>
-    <link href="http://jishusuishouji.github.io/2017/04/05/activemq/ActiveMq%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/"/>
-    <id>http://jishusuishouji.github.io/2017/04/05/activemq/ActiveMq性能优化/</id>
-    <published>2017-04-05T05:30:41.000Z</published>
-    <updated>2017-04-05T05:38:01.424Z</updated>
-    
-    <content type="html"><![CDATA[<p>ActiveMq是比较稳定的，吞吐速度也很快，如果出现入队列或者出队列慢问题，先检查一下自己的代码，是不是本身取到数据后处理过慢。</p>
-<h2 id="1-使用spring的JmsTemplate"><a href="#1-使用spring的JmsTemplate" class="headerlink" title="1. 使用spring的JmsTemplate"></a>1. 使用spring的<code>JmsTemplate</code></h2><p><code>JmsTemplate</code>的<code>send</code>和<code>convertAndSend</code>会使用持久化<code>mode</code>，即使你设置了<code>NON_PERSISTENT</code>。这会导致入队列速度变得非常慢。</p>
-<p>解决办法，使用下面的<code>MyJmsTemplate</code>代替<code>JmsTemplate</code>。</p>
-<pre><code>public class MyJmsTemplate extends JmsTemplate {
-    private Session session;
-
-    public MyJmsTemplate() {
-        super();
-    }
-
-    public MyJmsTemplate(ConnectionFactory connectionFactory) {
-        super(connectionFactory);
-    }
-
-    public void doSend(MessageProducer producer, Message message) throws JMSException {
-        if (isExplicitQosEnabled()) {
-            producer.send(message, getDeliveryMode(), getPriority(), getTimeToLive());
-        } else {
-            producer.send(message);
-        }
-    }
-
-    public Session getSession() {
-        return session;
-    }
-
-    public void setSession(Session session) {
-        this.session = session;
-    }
-}
-</code></pre><h2 id="2-DeliveryMode的选择，如果你入队列的数据，不考虑MQ挂掉的情况（这概率很小），使用NON-PERSISTENT会显著提高数据写入速度。"><a href="#2-DeliveryMode的选择，如果你入队列的数据，不考虑MQ挂掉的情况（这概率很小），使用NON-PERSISTENT会显著提高数据写入速度。" class="headerlink" title="2. DeliveryMode的选择，如果你入队列的数据，不考虑MQ挂掉的情况（这概率很小），使用NON_PERSISTENT会显著提高数据写入速度。"></a>2. <code>DeliveryMode</code>的选择，如果你入队列的数据，不考虑MQ挂掉的情况（这概率很小），使用<code>NON_PERSISTENT</code>会显著提高数据写入速度。</h2><h2 id="3-生产者使用事务会提高入队列性能，但是消费者如果启动了事务则会显著影响数据的消费速度。"><a href="#3-生产者使用事务会提高入队列性能，但是消费者如果启动了事务则会显著影响数据的消费速度。" class="headerlink" title="3. 生产者使用事务会提高入队列性能，但是消费者如果启动了事务则会显著影响数据的消费速度。"></a>3. 生产者使用事务会提高入队列性能，但是消费者如果启动了事务则会显著影响数据的消费速度。</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);</div></pre></td></tr></table></figure>
-<p>代码中的<code>false</code>代表不启动事物。</p>
-<h2 id="4-消费者的消息处理即onMessage方法优化"><a href="#4-消费者的消息处理即onMessage方法优化" class="headerlink" title="4. 消费者的消息处理即onMessage方法优化:"></a>4. 消费者的消息处理即<code>onMessage方</code>法优化:</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line">public class SmsMoPool implements MessageListener &#123;</div><div class="line">    private final static Logger logger = LoggerFactory.getLogger(SmsMoPool.class);</div><div class="line">    private DefaultEventPubliser moEventPublisher;</div><div class="line">    private final EventFactory eventFactory = new DefaultEventFactory();</div><div class="line">    private DefaultDataGather dataGather;</div><div class="line">    private ExecutorService pool = Executors.newFixedThreadPool(5);</div><div class="line"></div><div class="line">    @Override</div><div class="line">    public void onMessage(final Message message) &#123;</div><div class="line">        pool.execute(new Runnable() &#123;</div><div class="line">            @Override</div><div class="line">            public void run() &#123;</div><div class="line">                final ObjectMessage msg = (ObjectMessage) message;</div><div class="line">                Serializable obj = null;</div><div class="line">                try &#123;</div><div class="line">                    obj = msg.getObject();</div><div class="line">                &#125; catch (JMSException e) &#123;</div><div class="line">                    logger.error(&quot;从消息队列获得上行信息异常&#123;&#125;&quot;, e);</div><div class="line">                &#125;</div><div class="line">                if (obj != null) &#123;</div><div class="line">                    dataGather.incrementDateCount(MasEntityConstants.TRAFFIC_SMS_MO_IN);</div><div class="line">                    AgentToServerReq req = (AgentToServerReq) obj;</div><div class="line">                    if (logger.isInfoEnabled()) &#123;</div><div class="line">                        logger.info(&quot;驱动--&gt;调度：&#123;&#125;&quot;, req.toXmlStr());</div><div class="line">                    &#125;</div><div class="line">                    Event event = eventFactory.createMoEvent(req);</div><div class="line">                    moEventPublisher.publishEvent(event);</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>这段代码使用了线程池，另一点要注意的是<code>msg.getObject();</code>这个方法是一个比较耗时的方法，你的代码中不应该出现多次<code>getObject()</code>。</p>
-<h2 id="5-消费者使用预取，如何使用预取，下面以spring版本为例"><a href="#5-消费者使用预取，如何使用预取，下面以spring版本为例" class="headerlink" title="5. 消费者使用预取，如何使用预取，下面以spring版本为例"></a>5. 消费者使用预取，如何使用预取，下面以spring版本为例</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&lt;bean class=&quot;org.apache.activemq.command.ActiveMQQueue&quot;&gt;</div><div class="line">    &lt;constructor-arg value=&quot;data.mo?consumer.prefetchSize=100&quot;/&gt;</div><div class="line">&lt;/bean&gt;</div></pre></td></tr></table></figure>
-<p>预取数量根据具体入队列数据而定，以上设置100，是针对2000/sec入队列速度设定的。<br>另外如果是慢消费者，这里可设置为1。</p>
-<h2 id="6-检查你的MQ数据吞吐速度，保持生产和消费的平衡，不会出现大量积压。"><a href="#6-检查你的MQ数据吞吐速度，保持生产和消费的平衡，不会出现大量积压。" class="headerlink" title="6. 检查你的MQ数据吞吐速度，保持生产和消费的平衡，不会出现大量积压。"></a>6. 检查你的MQ数据吞吐速度，保持生产和消费的平衡，不会出现大量积压。</h2><h2 id="7-ActiveMQ使用TCP协议时tcpNoDelay-默认是false-，设置为true可以提高性能。"><a href="#7-ActiveMQ使用TCP协议时tcpNoDelay-默认是false-，设置为true可以提高性能。" class="headerlink" title="7. ActiveMQ使用TCP协议时tcpNoDelay=默认是false ，设置为true可以提高性能。"></a>7. ActiveMQ使用TCP协议时<code>tcpNoDelay=</code>默认是<code>false</code> ，设置为<code>true</code>可以提高性能。</h2><p>还是spring版本的：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&lt;bean id=&quot;mqPoolConnectionFactory&quot; class=&quot;org.apache.activemq.pool.PooledConnectionFactory&quot; destroy-method=&quot;stop&quot;&gt;</div><div class="line">       &lt;property name=&quot;connectionFactory&quot;&gt;</div><div class="line">           &lt;bean id=&quot;mqConnectionFactory&quot; class=&quot;org.apache.activemq.ActiveMQConnectionFactory&quot; p:useAsyncSend=&quot;true&quot;</div><div class="line">                 p:brokerURL=&quot;failover://(tcp://127.0.0.1:61616?tcpNoDelay=true)&quot;/&gt;</div><div class="line">       &lt;/property&gt;</div><div class="line">   &lt;/bean&gt;</div></pre></td></tr></table></figure></p>
-]]></content>
-    
-    <summary type="html">
-    
-      ActiveMq性能优化
-    
-    </summary>
-    
-      <category term="java" scheme="http://jishusuishouji.github.io/categories/java/"/>
-    
-      <category term="JMS" scheme="http://jishusuishouji.github.io/categories/java/JMS/"/>
-    
-      <category term="ActivefMQ" scheme="http://jishusuishouji.github.io/categories/java/JMS/ActivefMQ/"/>
-    
-    
-      <category term="java" scheme="http://jishusuishouji.github.io/tags/java/"/>
-    
-      <category term="JMS" scheme="http://jishusuishouji.github.io/tags/JMS/"/>
-    
-      <category term="ActiveMQ" scheme="http://jishusuishouji.github.io/tags/ActiveMQ/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>深入浅出JMS(一)--JMS基本概念</title>
-    <link href="http://jishusuishouji.github.io/2017/04/05/activemq/%E6%B7%B1%E5%85%A5%E6%B5%85%E5%87%BAJMS_%E4%B8%80_--JMS%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/"/>
-    <id>http://jishusuishouji.github.io/2017/04/05/activemq/深入浅出JMS_一_--JMS基本概念/</id>
-    <published>2017-04-05T05:15:49.000Z</published>
-    <updated>2017-04-05T05:28:39.827Z</updated>
-    
-    <content type="html"><![CDATA[<blockquote>
-<p>The Java Message Service (JMS) API is a messaging standard that allows application components based on the Java Platform Enterprise Edition (Java EE) to create, send, receive, and read messages. It enables distributed communication that is loosely coupled, reliable, and asynchronous.</p>
-</blockquote>
-<p>JMS（JAVA Message Service,java消息服务）API是一个消息服务的标准(规范)，允许基于JavaEE平台的应用程序组件创建、发送、接收和读取消息。它使分布式通信耦合度更低，消息服务更加可靠并采用异步方式。</p>
-<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><p>JMS是java的消息服务，JMS的客户端之间通过JMS服务进行异步消息传输。</p>
-<h3 id="消息模型"><a href="#消息模型" class="headerlink" title="消息模型"></a>消息模型</h3><ul>
-<li>Point-to-Point(P2P)</li>
-<li>Publish/Subscribe(Pub/Sub)</li>
-</ul>
-<p>即点对点和发布订阅模型</p>
-<h4 id="P2P"><a href="#P2P" class="headerlink" title="P2P"></a>P2P</h4><p><img src="/img/JMS P2P模式" alt="JMS P2P模式"></p>
-<ul>
-<li>消息队列（Queue）</li>
-<li>发送者(Sender)</li>
-<li>接收者(Receiver)</li>
-</ul>
-<p>每个消息都被发送到一个特定的队列，接收者从队列中获取消息。队列保留着消息，直到它们被消费或超时。</p>
-<h5 id="P2P的特点"><a href="#P2P的特点" class="headerlink" title="P2P的特点"></a>P2P的特点</h5><p>每个消息只有一个消费者（Consumer）(即一旦被消费，消息就不再在消息队列中)<br>发送者和接收者之间在时间上没有依赖性，也就是说当发送者发送了消息之后，不管接收者有没有正在运行，它不会影响到消息被发送到队列；接收者在成功接收消息之后需向队列应答成功；如果你希望发送的每个消息都应该被成功处理的话，那么你需要P2P模式。</p>
-<h4 id="Pub-Sub"><a href="#Pub-Sub" class="headerlink" title="Pub/Sub"></a>Pub/Sub</h4><p><img src="/img/Pub Sub模式图" alt="Pub/Sub模式图"> </p>
-<ul>
-<li>主题（Topic）</li>
-<li>发布者（Publisher）</li>
-<li>订阅者（Subscriber） </li>
-</ul>
-<p>多个发布者将消息发送到Topic,系统将这些消息传递给多个订阅者。</p>
-<h5 id="Pub-Sub的特点"><a href="#Pub-Sub的特点" class="headerlink" title="Pub/Sub的特点"></a>Pub/Sub的特点</h5><ul>
-<li>每个消息可以有多个消费者</li>
-<li>发布者和订阅者之间有时间上的依赖性。针对某个主题（Topic）的订阅者，它必须创建一个订阅者之后，才能消费发布者的消息，而且为了消费消息，订阅者必须保持运行的状态。</li>
-<li>为了缓和这样严格的时间相关性，JMS允许订阅者创建一个可持久化的订阅。这样，即使订阅者没有被激活（运行），它也能接收到发布者的消息。</li>
-<li>如果你希望发送的消息可以不被做任何处理、或者被一个消息者处理、或者可以被多个消费者处理的话，那么可以采用Pub/Sub模型</li>
-</ul>
-<h2 id="消息的消费"><a href="#消息的消费" class="headerlink" title="消息的消费"></a>消息的消费</h2><p>在JMS中，消息的产生和消息是异步的。</p>
-<ul>
-<li>同步<br>订阅者或接收者调用<code>receive</code>方法来接收消息，<code>receive</code>方法在能够接收到消息之前（或超时之前）将一直阻塞 </li>
-<li>异步<br>订阅者或接收者可以注册为一个消息监听器。当消息到达之后，系统自动调用监听器的<code>onMessage</code>方法。</li>
-</ul>
-<h2 id="JMS编程模型"><a href="#JMS编程模型" class="headerlink" title="JMS编程模型"></a>JMS编程模型</h2><p>(1) <code>ConnectionFactory</code></p>
-<p>创建<code>Connection</code>对象的工厂，针对两种不同的jms消息模型，分别有<code>QueueConnectionFactory</code>和<code>TopicConnectionFactory</code>两种。可以通过JNDI来查找<code>ConnectionFactory</code>对象。</p>
-<p>(2) <code>Destination</code></p>
-<p><code>Destination</code>的意思是消息生产者的消息发送目标或者说消息消费者的消息来源。对于消息生产者或消费者来说，它的<code>Destination</code>是某个队列（Queue）或某个主题（Topic）。</p>
-<p><code>Destination</code>实际上就是两种类型的对象：<code>Queue</code>、<code>Topic</code>。<br>(3) <code>Connection</code></p>
-<p><code>Connection</code>表示在客户端和JMS系统之间建立的链接（对TCP/IP socket的包装）。<code>Connection</code>可以产生一个或多个<code>Session</code>。跟<code>ConnectionFactory</code>一样，<code>Connection</code>也有两种类型：<code>QueueConnection</code>和<code>TopicConnection</code>。</p>
-<p>(4) <code>Session</code></p>
-<p><code>Session</code>是操作消息的接口。可以通过session创建生产者、消费者、消息等。<code>Session</code>提供了事务的功能。当需要使用session发送/接收多个消息时，可以将这些发送/接收动作放到一个事务中。同样，也分<code>QueueSession</code>和<code>TopicSession</code>。</p>
-<p>(5) 消息的生产者</p>
-<p>消息生产者由<code>Session</code>创建，并用于将消息发送到<code>Destination</code>。同样，消息生产者分两种类型：<code>QueueSender</code>和<code>TopicPublisher</code>。可以调用消息生产者的方法（<code>send</code>或<code>publish</code>方法）发送消息。</p>
-<p>(6) 消息消费者</p>
-<p>消息消费者由<code>Session</code>创建，用于接收被发送到<code>Destination</code>的消息。两种类型：<code>QueueReceiver</code>和<code>TopicSubscriber</code>。可分别通过<code>session</code>的<code>createReceiver(Queue)</code>或<code>createSubscriber(Topic)</code>来创建。当然，也可以<code>session</code>的<code>creatDurableSubscriber</code>方法来创建持久化的订阅者。</p>
-<p>(7) <code>MessageListener</code></p>
-<p>消息监听器。如果注册了消息监听器，一旦消息到达，将自动调用监听器的<code>onMessage</code>方法。EJB中的MDB（Message-Driven Bean）就是一种<code>MessageListener</code>。</p>
-<h2 id="企业消息系统的好处"><a href="#企业消息系统的好处" class="headerlink" title="企业消息系统的好处"></a>企业消息系统的好处</h2><p>应用程序A将Message发送到服务器上，然后应用程序B从服务器中接收A发来的消息： </p>
-<p><img src="/img/企业消息系统的好处" alt="企业消息系统的好处"></p>
-<ul>
-<li>提供消息灵活性</li>
-<li>松散耦合</li>
-<li>异步性</li>
-</ul>
-]]></content>
-    
-    <summary type="html">
-    
-      深入浅出JMS(一)--JMS基本概念
-    
-    </summary>
-    
-      <category term="java" scheme="http://jishusuishouji.github.io/categories/java/"/>
-    
-      <category term="JMS" scheme="http://jishusuishouji.github.io/categories/java/JMS/"/>
-    
-    
-      <category term="JMS" scheme="http://jishusuishouji.github.io/tags/JMS/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>ActiveMQ入门实例</title>
-    <link href="http://jishusuishouji.github.io/2017/04/05/activemq/ActiveMQ%E5%85%A5%E9%97%A8%E5%AE%9E%E4%BE%8B/"/>
-    <id>http://jishusuishouji.github.io/2017/04/05/activemq/ActiveMQ入门实例/</id>
-    <published>2017-04-05T05:08:11.000Z</published>
-    <updated>2017-04-05T05:14:59.913Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="1-下载ActiveMQ"><a href="#1-下载ActiveMQ" class="headerlink" title="1.下载ActiveMQ"></a>1.下载ActiveMQ</h2><p>去官方网站下载：<a href="http://activemq.apache.org/" target="_blank" rel="external">http://activemq.apache.org/</a></p>
-<h2 id="2-运行ActiveMQ"><a href="#2-运行ActiveMQ" class="headerlink" title="2.运行ActiveMQ"></a>2.运行ActiveMQ</h2><p>解压缩<code>apache-activemq-5.5.1-bin.zip</code>，然后双击<code>apache-activemq-5.5.1\bin\activemq.bat</code>运行ActiveMQ程序。</p>
-<p>启动ActiveMQ以后，登陆：<code>http://localhost:8161/admin/</code>，创建一个<code>Queue</code>，命名为<code>FirstQueue</code>。</p>
-<h2 id="3-创建Eclipse项目并运行"><a href="#3-创建Eclipse项目并运行" class="headerlink" title="3.创建Eclipse项目并运行"></a>3.创建Eclipse项目并运行</h2><p>创建project：<code>ActiveMQ-5.5</code>，并导入<code>apache-activemq-5.5.1\lib</code>目录下需要用到的jar文件，项目结构如下图所示：</p>
-<p><img src="/img/ActiveMQ的Eclipse项目.jpg" alt="ActiveMQ的Eclipse项目"></p>
-<h3 id="3-1-Sender-java"><a href="#3-1-Sender-java" class="headerlink" title="3.1.Sender.java"></a>3.1.<code>Sender.java</code></h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div></pre></td><td class="code"><pre><div class="line">package com.xuwei.activemq;</div><div class="line"></div><div class="line">import javax.jms.Connection;</div><div class="line">import javax.jms.ConnectionFactory;</div><div class="line">import javax.jms.DeliveryMode;</div><div class="line">import javax.jms.Destination;</div><div class="line">import javax.jms.MessageProducer;</div><div class="line">import javax.jms.Session;</div><div class="line">import javax.jms.TextMessage;</div><div class="line">import org.apache.activemq.ActiveMQConnection;</div><div class="line">import org.apache.activemq.ActiveMQConnectionFactory;</div><div class="line"></div><div class="line">public class Sender &#123;</div><div class="line">    private static final int SEND_NUMBER = 5;</div><div class="line"></div><div class="line">    public static void main(String[] args) &#123;</div><div class="line">        // ConnectionFactory ：连接工厂，JMS 用它创建连接</div><div class="line">        ConnectionFactory connectionFactory;</div><div class="line">        // Connection ：JMS 客户端到JMS Provider 的连接</div><div class="line">        Connection connection = null;</div><div class="line">        // Session： 一个发送或接收消息的线程</div><div class="line">        Session session;</div><div class="line">        // Destination ：消息的目的地;消息发送给谁.</div><div class="line">        Destination destination;</div><div class="line">        // MessageProducer：消息发送者</div><div class="line">        MessageProducer producer;</div><div class="line">        // TextMessage message;</div><div class="line">        // 构造ConnectionFactory实例对象，此处采用ActiveMq的实现jar</div><div class="line">        connectionFactory = new ActiveMQConnectionFactory(</div><div class="line">                ActiveMQConnection.DEFAULT_USER,</div><div class="line">                ActiveMQConnection.DEFAULT_PASSWORD,</div><div class="line">                &quot;tcp://localhost:61616&quot;);</div><div class="line">        try &#123;</div><div class="line">            // 构造从工厂得到连接对象</div><div class="line">            connection = connectionFactory.createConnection();</div><div class="line">            // 启动</div><div class="line">            connection.start();</div><div class="line">            // 获取操作连接</div><div class="line">            session = connection.createSession(Boolean.TRUE,</div><div class="line">                    Session.AUTO_ACKNOWLEDGE);</div><div class="line">            destination = session.createQueue(&quot;FirstQueue&quot;);</div><div class="line">            // 得到消息生成者【发送者】</div><div class="line">            producer = session.createProducer(destination);</div><div class="line">            // 设置不持久化，此处学习，实际根据项目决定</div><div class="line">            producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);</div><div class="line">            // 构造消息，此处写死</div><div class="line">            sendMessage(session, producer);</div><div class="line">            session.commit();</div><div class="line">        &#125; catch (Exception e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125; finally &#123;</div><div class="line">            try &#123;</div><div class="line">                if (null != connection)</div><div class="line">                    connection.close();</div><div class="line">            &#125; catch (Throwable ignore) &#123;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public static void sendMessage(Session session, MessageProducer producer)</div><div class="line">            throws Exception &#123;</div><div class="line">        for (int i = 1; i &lt;= SEND_NUMBER; i++) &#123;</div><div class="line">            TextMessage message = session</div><div class="line">                    .createTextMessage(&quot;ActiveMq 发送的消息&quot; + i);</div><div class="line">            // 发送消息到目的地方</div><div class="line">            System.out.println(&quot;发送消息：&quot; + &quot;ActiveMq 发送的消息&quot; + i);</div><div class="line">            producer.send(message);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h3 id="3-2-Receiver-java"><a href="#3-2-Receiver-java" class="headerlink" title="3.2.Receiver.java"></a>3.2.Receiver.java</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div></pre></td><td class="code"><pre><div class="line">package com.xuwei.activemq;</div><div class="line"></div><div class="line">import javax.jms.Connection;</div><div class="line">import javax.jms.ConnectionFactory;</div><div class="line">import javax.jms.Destination;</div><div class="line">import javax.jms.MessageConsumer;</div><div class="line">import javax.jms.Session;</div><div class="line">import javax.jms.TextMessage;</div><div class="line">import org.apache.activemq.ActiveMQConnection;</div><div class="line">import org.apache.activemq.ActiveMQConnectionFactory;</div><div class="line"></div><div class="line">public class Receiver &#123;</div><div class="line">    public static void main(String[] args) &#123;</div><div class="line">        // ConnectionFactory ：连接工厂，JMS 用它创建连接</div><div class="line">        ConnectionFactory connectionFactory;</div><div class="line">        // Connection ：JMS 客户端到JMS Provider 的连接</div><div class="line">        Connection connection = null;</div><div class="line">        // Session： 一个发送或接收消息的线程</div><div class="line">        Session session;</div><div class="line">        // Destination ：消息的目的地;消息发送给谁.</div><div class="line">        Destination destination;</div><div class="line">        // 消费者，消息接收者</div><div class="line">        MessageConsumer consumer;</div><div class="line">        connectionFactory = new ActiveMQConnectionFactory(</div><div class="line">                ActiveMQConnection.DEFAULT_USER,</div><div class="line">                ActiveMQConnection.DEFAULT_PASSWORD,</div><div class="line">                &quot;tcp://localhost:61616&quot;);</div><div class="line">        try &#123;</div><div class="line">            // 构造从工厂得到连接对象</div><div class="line">            connection = connectionFactory.createConnection();</div><div class="line">            // 启动</div><div class="line">            connection.start();</div><div class="line">            // 获取操作连接</div><div class="line">            session = connection.createSession(Boolean.FALSE,</div><div class="line">                    Session.AUTO_ACKNOWLEDGE);</div><div class="line">   </div><div class="line">            destination = session.createQueue(&quot;FirstQueue&quot;);</div><div class="line">            consumer = session.createConsumer(destination);</div><div class="line">            while (true) &#123;</div><div class="line">                //设置接收者接收消息的时间，为了便于测试，这里谁定为100s</div><div class="line">                TextMessage message = (TextMessage) consumer.receive(100000);</div><div class="line">                if (null != message) &#123;</div><div class="line">                    System.out.println(&quot;收到消息&quot; + message.getText());</div><div class="line">                &#125; else &#123;</div><div class="line">                    break;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125; catch (Exception e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125; finally &#123;</div><div class="line">            try &#123;</div><div class="line">                if (null != connection)</div><div class="line">                    connection.close();</div><div class="line">            &#125; catch (Throwable ignore) &#123;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h2 id="4-注意事项"><a href="#4-注意事项" class="headerlink" title="4.注意事项"></a>4.注意事项</h2><p>最后接收者跟发送者在不同的机器上测试</p>
-<h2 id="5-测试过程"><a href="#5-测试过程" class="headerlink" title="5.测试过程"></a>5.测试过程</h2><p>运行<code>Receiver</code>后没有任何信息，运行Sender以后，显示如下信息：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">发送消息：ActiveMq 发送的消息1</div><div class="line">发送消息：ActiveMq 发送的消息2</div><div class="line">发送消息：ActiveMq 发送的消息3</div><div class="line">发送消息：ActiveMq 发送的消息4</div><div class="line">发送消息：ActiveMq 发送的消息5</div></pre></td></tr></table></figure></p>
-<p>而<code>Receiver</code>现如下信息：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">收到消息ActiveMq 发送的消息1</div><div class="line">收到消息ActiveMq 发送的消息2</div><div class="line">收到消息ActiveMq 发送的消息3</div><div class="line">收到消息ActiveMq 发送的消息4</div><div class="line">收到消息ActiveMq 发送的消息5</div></pre></td></tr></table></figure></p>
-]]></content>
-    
-    <summary type="html">
-    
-      ActiveMQ入门实例
-    
-    </summary>
-    
-      <category term="java" scheme="http://jishusuishouji.github.io/categories/java/"/>
-    
-      <category term="JMS" scheme="http://jishusuishouji.github.io/categories/java/JMS/"/>
-    
-      <category term="ActiveMQ" scheme="http://jishusuishouji.github.io/categories/java/JMS/ActiveMQ/"/>
-    
-    
-      <category term="ActiveMQ" scheme="http://jishusuishouji.github.io/tags/ActiveMQ/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>activemq的几种基本通信方式总结</title>
-    <link href="http://jishusuishouji.github.io/2017/04/05/activemq/activemq%E7%9A%84%E5%87%A0%E7%A7%8D%E5%9F%BA%E6%9C%AC%E9%80%9A%E4%BF%A1%E6%96%B9%E5%BC%8F%E6%80%BB%E7%BB%93/"/>
-    <id>http://jishusuishouji.github.io/2017/04/05/activemq/activemq的几种基本通信方式总结/</id>
-    <published>2017-04-05T03:09:12.000Z</published>
-    <updated>2017-04-05T05:07:35.171Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>面向消息队列是一个总体比较合理的应用系统集成方案。<br>ActiveMQ是JMS消息通信规范的一个实现。消息通信模式主要有发布-订阅、点对点。</p>
-<h2 id="基础流程"><a href="#基础流程" class="headerlink" title="基础流程"></a>基础流程</h2><p>ActiveMQ启动服务的过程:</p>
-<ol>
-<li>获得JMS connection factory，通过提供特定环境的连接信息来构造factory。</li>
-<li>利用factory构造JMS connection.</li>
-<li>启动connection</li>
-<li>通过connection创建JMS session.</li>
-<li>指定JMS destination.</li>
-<li>创建JMS producer和JMS message并提供destination.</li>
-<li>创建JMS consumer和注册JMS message listener.</li>
-<li>发送和接收JMS message.</li>
-<li>关闭所有JMS资源，包括connection, session, producer, consumer等。</li>
-</ol>
-<h2 id="publish-subscribe"><a href="#publish-subscribe" class="headerlink" title="publish-subscribe"></a>publish-subscribe</h2><p>发布订阅模式类似于订阅报纸。</p>
-<p><img src="/img/JMS发布订阅模式示意图.jpg" alt="JMS发布订阅模式示意图"></p>
-<h3 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h3><h4 id="publisher"><a href="#publisher" class="headerlink" title="publisher"></a>publisher</h4><p>publisher是属于发布信息的一方，它通过定义一个或者多个topic，然后给这些topic发送消息。<br>publisher的构造函数如下：</p>
-<pre><code>public Publisher() throws JMSException {  
-    factory = new ActiveMQConnectionFactory(brokerURL);  
-    connection = factory.createConnection();  
-    try {  
-        connection.start();  
-    } catch (JMSException jmse) {  
-        connection.close();  
-        throw jmse;  
-    }  
-    session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);  
-    producer = session.createProducer(null);  
-}
-</code></pre><p>按照前面说的流程定义了基本的<code>connectionFactory</code>, <code>connection</code>,<code>session</code>,<code>producer</code>。。</p>
-<h4 id="接着定义一系列的topic让所有的consumer来订阅"><a href="#接着定义一系列的topic让所有的consumer来订阅" class="headerlink" title="接着定义一系列的topic让所有的consumer来订阅"></a>接着定义一系列的topic让所有的consumer来订阅</h4><pre><code>protected void setTopics(String[] stocks) throws JMSException {  
-    destinations = new Destination[stocks.length];  
-    for(int i = 0; i &lt; stocks.length; i++) {  
-        destinations[i] = session.createTopic(&quot;STOCKS.&quot; + stocks[i]);  
-    }  
-}  
-</code></pre><h4 id="定义好topic之后要给这些指定的topic发消息："><a href="#定义好topic之后要给这些指定的topic发消息：" class="headerlink" title="定义好topic之后要给这些指定的topic发消息："></a>定义好topic之后要给这些指定的topic发消息：</h4><pre><code>protected void sendMessage(String[] stocks) throws JMSException {  
-    for(int i = 0; i &lt; stocks.length; i++) {  
-        Message message = createStockMessage(stocks[i], session);  
-        System.out.println(&quot;Sending: &quot; + ((ActiveMQMapMessage)message).getContentMap() + &quot; on destination: &quot; + destinations[i]);  
-        producer.send(destinations[i], message);  
-    }  
-}  
-
-protected Message createStockMessage(String stock, Session session) throws JMSException {  
-    MapMessage message = session.createMapMessage();  
-    message.setString(&quot;stock&quot;, stock);  
-    message.setDouble(&quot;price&quot;, 1.00);  
-    message.setDouble(&quot;offer&quot;, 0.01);  
-    message.setBoolean(&quot;up&quot;, true);          
-    return message;  
-}  
-</code></pre><p>在<code>sendMessage</code>方法里遍历每个<code>topic</code>，然后给每个<code>topic</code>发送定义的<code>Message</code>消息。</p>
-<h4 id="publisher发布消息"><a href="#publisher发布消息" class="headerlink" title="publisher发布消息"></a>publisher发布消息</h4><pre><code>public static void main(String[] args) throws JMSException {  
-    if(args.length &lt; 1)  
-        throw new IllegalArgumentException();  
-
-    // Create publisher       
-    Publisher publisher = new Publisher();  
-
-    // Set topics  
-    publisher.setTopics(args);  
-
-    for(int i = 0; i &lt; 10; i++) {  
-        publisher.sendMessage(args);  
-        System.out.println(&quot;Publisher &apos;&quot; + i + &quot; price messages&quot;);  
-        try {  
-            Thread.sleep(1000);  
-        } catch(InterruptedException e) {  
-            e.printStackTrace();  
-        }  
-    }  
-    // Close all resources  
-    publisher.close();  
-}  
-</code></pre><h4 id="close方法关闭资源："><a href="#close方法关闭资源：" class="headerlink" title="close方法关闭资源："></a><code>close</code>方法关闭资源：</h4><pre><code>public void close() throws JMSException {  
-    if (connection != null) {  
-        connection.close();  
-    }  
-}  
-</code></pre><h3 id="consumer"><a href="#consumer" class="headerlink" title="consumer"></a>consumer</h3><p>具体的步骤:<br>1.初始化资源。 </p>
-<ol>
-<li>接收消息。 </li>
-<li>必要的时候关闭资源。</li>
-</ol>
-<h4 id="初始化资源放到构造函数里面："><a href="#初始化资源放到构造函数里面：" class="headerlink" title="初始化资源放到构造函数里面："></a>初始化资源放到构造函数里面：</h4><pre><code>public Consumer() throws JMSException {  
-    factory = new ActiveMQConnectionFactory(brokerURL);  
-    connection = factory.createConnection();  
-    connection.start();  
-    session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);  
-}  
-</code></pre><h4 id="接收和处理消息的方法"><a href="#接收和处理消息的方法" class="headerlink" title="接收和处理消息的方法"></a>接收和处理消息的方法</h4><p>分为同步和异步的：</p>
-<ul>
-<li>同步  <code>MessageConsumer.receive()</code>方法</li>
-<li><p>异步  注册<code>MessageListener</code>，使用<code>MessageConsumer.setMessageListener()</code>。</p>
-<p>  public static void main(String[] args) throws JMSException {  </p>
-<pre><code>Consumer consumer = new Consumer();  
-for (String stock : args) {  
-    Destination destination = consumer.getSession().createTopic(&quot;STOCKS.&quot; + stock);  
-    MessageConsumer messageConsumer = consumer.getSession().createConsumer(destination);  
-    messageConsumer.setMessageListener(new Listener());  
-}  
-</code></pre><p>  }  </p>
-<p>  public Session getSession() {  </p>
-<pre><code>return session;  
-</code></pre><p>  }  </p>
-</li>
-</ul>
-<blockquote>
-<p>这里的代码不要当真了，写得很烂</p>
-</blockquote>
-<h4 id="Listener负责处理接收到的消息："><a href="#Listener负责处理接收到的消息：" class="headerlink" title="Listener负责处理接收到的消息："></a><code>Listener</code>负责处理接收到的消息：</h4><pre><code>public class Listener implements MessageListener {  
-    public void onMessage(Message message) {  
-        try {  
-            MapMessage map = (MapMessage)message;  
-            String stock = map.getString(&quot;stock&quot;);  
-            double price = map.getDouble(&quot;price&quot;);  
-            double offer = map.getDouble(&quot;offer&quot;);  
-            boolean up = map.getBoolean(&quot;up&quot;);  
-            DecimalFormat df = new DecimalFormat( &quot;#,###,###,##0.00&quot; );  
-            System.out.println(stock + &quot;\t&quot; + df.format(price) + &quot;\t&quot; + df.format(offer) + &quot;\t&quot; + (up?&quot;up&quot;:&quot;down&quot;));  
-        } catch (Exception e) {  
-            e.printStackTrace();  
-        }  
-    }  
-}  
-</code></pre><p>实现了<code>MessageListener</code>接口，里面的<code>onMessage</code>方法在接收到消息之后会被调用的方法。</p>
-<h3 id="实现pub-sub模式的步骤"><a href="#实现pub-sub模式的步骤" class="headerlink" title="实现pub-sub模式的步骤"></a>实现pub-sub模式的步骤</h3><p>两者设定一个共同的topic。</p>
-<p>在publisher端通过<code>session</code>创建<code>producer</code>，根据指定的参数创建<code>destination</code>，然后将消息和<code>destination</code>作为<code>producer.send()</code>方法的参数。</p>
-<p>在consumer端也要创建类似的<code>connection</code>,<code>session</code>。通过<code>session</code>得到<code>destination</code>，再通过<code>session.createConsumer(destination)</code>来得到一个<code>MessageConsumer</code>对象。有了这个<code>MessageConsumer</code>就可以自行选择是直接同步的<code>receive</code>消息还是注册listener了。</p>
-<h2 id="p2p"><a href="#p2p" class="headerlink" title="p2p"></a>p2p</h2><p><img src="/img/JMS点对点模式示意图.jpg" alt="JMS点对点模式示意图"></p>
-<p>在p2p的场景里，相互通信的双方是通过一个类似于队列的方式来进行交流。和pub-sub的区别在于一个消息会发送给订阅此topic的多个订阅者，而在p2p里queue的消息只能被一个接受者接受。</p>
-<h3 id="发送者"><a href="#发送者" class="headerlink" title="发送者"></a>发送者</h3><pre><code>public Publisher() throws JMSException {  
-    factory = new ActiveMQConnectionFactory(brokerURL);  
-    connection = factory.createConnection();  
-    connection.start();  
-    session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);  
-    producer = session.createProducer(null);  
-}
-</code></pre><h4 id="发送消息："><a href="#发送消息：" class="headerlink" title="发送消息："></a>发送消息：</h4><pre><code>public void sendMessage() throws JMSException {  
-    for(int i = 0; i &lt; jobs.length; i++)  
-    {  
-        String job = jobs[i];  
-        Destination destination = session.createQueue(&quot;JOBS.&quot; + job);  
-        Message message = session.createObjectMessage(i);  
-        System.out.println(&quot;Sending: id: &quot; + ((ObjectMessage)message).getObject() + &quot; on queue: &quot; + destination);  
-        producer.send(destination, message);  
-    }  
-}  
-</code></pre><h4 id="消息发送者的启动代码："><a href="#消息发送者的启动代码：" class="headerlink" title="消息发送者的启动代码："></a>消息发送者的启动代码：</h4><pre><code>public static void main(String[] args) throws JMSException {  
-    Publisher publisher = new Publisher();  
-    for(int i = 0; i &lt; 10; i++) {  
-        publisher.sendMessage();  
-        System.out.println(&quot;Published &quot; + i + &quot; job messages&quot;);  
-    try {  
-            Thread.sleep(1000);  
-        } catch (InterruptedException x) {  
-            e.printStackTrace();  
-        }  
-    }  
-    publisher.close();  
-}  
-</code></pre><p>在这里发送10条消息，在每个<code>sendMessage</code>的方法里实际上是针对每个<code>queue</code>发送了10条。</p>
-<h3 id="接收者"><a href="#接收者" class="headerlink" title="接收者"></a>接收者</h3><pre><code>public Consumer() throws JMSException {  
-    factory = new ActiveMQConnectionFactory(brokerURL);  
-    connection = factory.createConnection();  
-    connection.start();  
-    session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);  
-}  
-
-
-public static void main(String[] args) throws JMSException {  
-        Consumer consumer = new Consumer();  
-        for (String job : consumer.jobs) {  
-            Destination destination = consumer.getSession().createQueue(&quot;JOBS.&quot; + job);  
-            MessageConsumer messageConsumer = consumer.getSession().createConsumer(destination);  
-            messageConsumer.setMessageListener(new Listener(job));  
-        }  
-    }  
-
-    public Session getSession() {  
-        return session;  
-    }
-</code></pre><h4 id="MessageListener接口实现类"><a href="#MessageListener接口实现类" class="headerlink" title="MessageListener接口实现类"></a><code>MessageListener</code>接口实现类</h4><pre><code>import javax.jms.Message;  
-import javax.jms.MessageListener;  
-import javax.jms.ObjectMessage;  
-
-public class Listener implements MessageListener {        
-    private String job;  
-
-    public Listener(String job) {  
-        this.job = job;  
-    }  
-
-    public void onMessage(Message message) {  
-        try {  
-            //do something here  
-            System.out.println(job + &quot; id:&quot; + ((ObjectMessage)message).getObject());  
-        } catch (Exception e) {  
-            e.printStackTrace();  
-        }  
-    }        
-}
-</code></pre><h2 id="比较pub-sub和p2p模式"><a href="#比较pub-sub和p2p模式" class="headerlink" title="比较pub-sub和p2p模式"></a>比较pub-sub和p2p模式</h2><p>基本的处理流程都是类似的，除了在pub-sub中要通过<code>createTopic</code>来设置topic，而在p2p中要通过<code>createQueue</code>来创建通信队列。</p>
-<h2 id="request-response"><a href="#request-response" class="headerlink" title="request-response"></a>request-response</h2><p>和前面两种方式比较起来，request-response的通信方式很常见，但是不是默认提供的一种模式。在前面的两种模式中都是一方负责发送消息而另外一方负责处理。而实际中的很多应用需要双方都能给对方发送消息。<br>请求-应答方式并不是JMS规范系统默认提供的一种通信方式，而是通过在现有通信方式的基础上稍微运用一点技巧实现的。</p>
-<blockquote>
-<p>以下这种方式只能说是很差，并不是什么高明的做法</p>
-</blockquote>
-<p><img src="/img/JMS实际应用中产生的应答方式示意图.jpg" alt="JMS实际应用中产生的应答方式示意图"><br>在JMS里面，如果要实现请求/应答的方式，可以利用<code>JMSReplyTo</code>和<code>JMSCorrelationID</code>消息头来将通信的双方关联起来。另外，<code>QueueRequestor</code>和<code>TopicRequestor</code>能够支持简单的请求/应答过程。</p>
-<pre><code>// client side  
-Destination tempDest = session.createTemporaryQueue();  
-MessageConsumer responseConsumer = session.createConsumer(tempDest);  
-...  
-
-// send a request..  
-message.setJMSReplyTo(tempDest)  
-message.setJMSCorrelationID(myCorrelationID);  
-
-producer.send(message);  
-</code></pre><p>client端创建一个临时队列并在发送的消息里指定了发送返回消息的<code>destination</code>以及<code>correlationID</code>。那么在处理消息的server端得到这个消息后就知道该发送给谁了。Server端的大致流程如下：</p>
-<pre><code>public void onMessage(Message request) {  
-
-  Message response = session.createMessage();  
-  response.setJMSCorrelationID(request.getJMSCorrelationID())  
-
-  producer.send(request.getJMSReplyTo(), response)  
-}  
-</code></pre><p>这里是在server端注册<code>MessageListener</code>，通过设置返回信息的<code>CorrelationID</code>和<code>JMSReplyTo</code>将信息返回。</p>
-<h3 id="Client"><a href="#Client" class="headerlink" title="Client:"></a>Client:</h3><pre><code>public Client() {  
-    ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(&quot;tcp://localhost:61616&quot;);  
-    Connection connection;  
-    try {  
-        connection = connectionFactory.createConnection();  
-        connection.start();  
-        Session session = connection.createSession(transacted, ackMode);  
-        Destination adminQueue = session.createQueue(clientQueueName);  
-
-        //Setup a message producer to send message to the queue the server is consuming from  
-        this.producer = session.createProducer(adminQueue);  
-        this.producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);  
-
-        //Create a temporary queue that this client will listen for responses on then create a consumer  
-        //that consumes message from this temporary queue...for a real application a client should reuse  
-        //the same temp queue for each message to the server...one temp queue per client  
-        Destination tempDest = session.createTemporaryQueue();  
-        MessageConsumer responseConsumer = session.createConsumer(tempDest);  
-
-        //This class will handle the messages to the temp queue as well  
-        responseConsumer.setMessageListener(this);  
-
-        //Now create the actual message you want to send  
-        TextMessage txtMessage = session.createTextMessage();  
-        txtMessage.setText(&quot;MyProtocolMessage&quot;);  
-
-        //Set the reply to field to the temp queue you created above, this is the queue the server  
-        //will respond to  
-        txtMessage.setJMSReplyTo(tempDest);  
-
-        //Set a correlation ID so when you get a response you know which sent message the response is for  
-        //If there is never more than one outstanding message to the server then the  
-        //same correlation ID can be used for all the messages...if there is more than one outstanding  
-        //message to the server you would presumably want to associate the correlation ID with this  
-        //message somehow...a Map works good  
-        String correlationId = this.createRandomString();  
-        txtMessage.setJMSCorrelationID(correlationId);  
-        this.producer.send(txtMessage);  
-    } catch (JMSException e) {  
-        //Handle the exception appropriately  
-    }  
-}  
-</code></pre><p>这里的代码除了初始化构造函数里的参数还同时设置了两个destination，一个是自己要发送消息出去的destination，在<code>session.createProducer(adminQueue);</code>这一句设置。另外一个是自己要接收的消息destination, 通过<code>Destination tempDest = session.createTemporaryQueue(); responseConsumer = session.createConsumer(tempDest);</code> 这两句指定了要接收消息的目的地。这里是用的一个临时队列。在前面指定了返回消息的通信队列之后，需要通知server端知道发送返回消息给哪个队列。于是<code>txtMessage.setJMSReplyTo(tempDest);</code>指定了这一部分，同时<code>txtMessage.setJMSCorrelationID(correlationId);</code>方法主要是为了保证每次发送回来请求的server端能够知道对应的是哪个请求。这里一个请求和一个应答是相当于对应一个相同的序列号一样。</p>
-<p>同时，因为client端在发送消息之后还要接收server端返回的消息，所以它也要实现一个消息receiver的功能。这里采用实现<code>MessageListener</code>接口的方式：</p>
-<pre><code>public void onMessage(Message message) {  
-    String messageText = null;  
-    try {  
-        if (message instanceof TextMessage) {  
-            TextMessage textMessage = (TextMessage) message;  
-            messageText = textMessage.getText();  
-            System.out.println(&quot;messageText = &quot; + messageText);  
-        }  
-    } catch (JMSException e) {  
-        //Handle the exception appropriately  
-    }  
-}  
-</code></pre><h3 id="Server"><a href="#Server" class="headerlink" title="Server:"></a>Server:</h3><p>这里server端要执行的过程和client端相反，它是先接收消息，在接收到消息后根据提供的<code>JMSCorelationID</code>来发送返回的消息：</p>
-<pre><code>public void onMessage(Message message) {  
-    try {  
-        TextMessage response = this.session.createTextMessage();  
-        if (message instanceof TextMessage) {  
-            TextMessage txtMsg = (TextMessage) message;  
-            String messageText = txtMsg.getText();  
-            response.setText(this.messageProtocol.handleProtocolMessage(messageText));  
-        }  
-
-        //Set the correlation ID from the received message to be the correlation id of the response message  
-        //this lets the client identify which message this is a response to if it has more than  
-        //one outstanding message to the server  
-        response.setJMSCorrelationID(message.getJMSCorrelationID());  
-
-        //Send the response to the Destination specified by the JMSReplyTo field of the received message,  
-        //this is presumably a temporary queue created by the client  
-        this.replyProducer.send(message.getJMSReplyTo(), response);  
-    } catch (JMSException e) {  
-        //Handle the exception appropriately  
-    }  
-}
-</code></pre><p>前面，在<code>replyProducer.send()</code>方法里，<code>message.getJMSReplyTo()</code>就得到了要发送消息回去的destination。<br>另外，设置这些发送返回信息的replyProducer的信息主要在构造函数相关的方法里实现了：</p>
-<pre><code>public Server() {  
-    try {  
-        //This message broker is embedded  
-        BrokerService broker = new BrokerService();  
-        broker.setPersistent(false);  
-        broker.setUseJmx(false);  
-        broker.addConnector(messageBrokerUrl);  
-        broker.start();  
-    } catch (Exception e) {  
-        //Handle the exception appropriately  
-    }  
-
-    //Delegating the handling of messages to another class, instantiate it before setting up JMS so it  
-    //is ready to handle messages  
-    this.messageProtocol = new MessageProtocol();  
-    this.setupMessageQueueConsumer();  
-}  
-
-private void setupMessageQueueConsumer() {  
-    ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(messageBrokerUrl);  
-    Connection connection;  
-    try {  
-        connection = connectionFactory.createConnection();  
-        connection.start();  
-        this.session = connection.createSession(this.transacted, ackMode);  
-        Destination adminQueue = this.session.createQueue(messageQueueName);  
-
-        //Setup a message producer to respond to messages from clients, we will get the destination  
-        //to send to from the JMSReplyTo header field from a Message  
-        this.replyProducer = this.session.createProducer(null);  
-        this.replyProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);  
-
-        //Set up a consumer to consume messages off of the admin queue  
-        MessageConsumer consumer = this.session.createConsumer(adminQueue);  
-        consumer.setMessageListener(this);  
-    } catch (JMSException e) {  
-        //Handle the exception appropriately  
-    }  
-}
-</code></pre><p>对于请求/应答的方式来说，这种典型交互的过程就是Client端在设定正常发送请求的Queue同时也设定一个临时的Queue。同时在要发送的message里头指定要返回消息的destination以及CorelationID，这些就好比是一封信里面所带的回执。根据这个信息人家才知道怎么给你回信。对于Server端来说则要额外创建一个producer，在处理接收到消息的方法里再利用producer将消息发回去。这一系列的过程看起来很像http协议里面请求-应答的方式，都是一问一答。</p>
-<h2 id="一些应用和改进"><a href="#一些应用和改进" class="headerlink" title="一些应用和改进"></a>一些应用和改进</h2><p>回顾前面三种基本的通信方式，发现它们都存在着一定的共同点，比如说都要初始化<code>ConnectionFactory</code>, <code>Connection</code>, <code>Session</code>等。在使用完之后都要将这些资源关闭。如果每一个实现它的通信端都这么写一通的话，其实是一种简单的重复。从工程的角度来看是完全没有必要的。</p>
-<h3 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h3><p>通过工厂方法封装这些对象的创建和销毁，然后简单的通过调用工厂方法的方式得到它们。<br>既然基本的流程都是在开头创建资源在结尾销毁，也可以采用Template Method模式的思路。通过继承一个抽象类，在抽象类里提供了资源的封装。所有继承的类只要实现怎么去使用这些资源的方法就可以了。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      activemq的几种基本通信方式总结
-    
-    </summary>
-    
-      <category term="java" scheme="http://jishusuishouji.github.io/categories/java/"/>
-    
-      <category term="JMS，ActiveMQ" scheme="http://jishusuishouji.github.io/categories/java/JMS%EF%BC%8CActiveMQ/"/>
-    
-    
-      <category term="activeMQ" scheme="http://jishusuishouji.github.io/tags/activeMQ/"/>
     
   </entry>
   

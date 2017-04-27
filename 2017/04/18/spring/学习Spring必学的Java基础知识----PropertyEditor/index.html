@@ -1,0 +1,855 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="spring," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="技术随手记" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="学习Spring必学的Java基础知识----PropertyEditor">
+<meta property="og:type" content="article">
+<meta property="og:title" content="学习Spring必学的Java基础知识----PropertyEditor">
+<meta property="og:url" content="http://jishusuishouji.github.io/2017/04/18/spring/学习Spring必学的Java基础知识----PropertyEditor/index.html">
+<meta property="og:site_name" content="技术随手记">
+<meta property="og:description" content="学习Spring必学的Java基础知识----PropertyEditor">
+<meta property="og:updated_time" content="2017-04-18T15:47:58.746Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="学习Spring必学的Java基础知识----PropertyEditor">
+<meta name="twitter:description" content="学习Spring必学的Java基础知识----PropertyEditor">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://jishusuishouji.github.io/2017/04/18/spring/学习Spring必学的Java基础知识----PropertyEditor/"/>
+
+
+
+
+
+  <title> 学习Spring必学的Java基础知识----PropertyEditor | 技术随手记 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">技术随手记</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://jishusuishouji.github.io/2017/04/18/spring/学习Spring必学的Java基础知识----PropertyEditor/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="技术随手记">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="技术随手记">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+            
+            
+              
+                学习Spring必学的Java基础知识----PropertyEditor
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-18T23:41:21+08:00">
+                2017-04-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/spring/" itemprop="url" rel="index">
+                    <span itemprop="name">spring</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            <!--noindex-->
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/04/18/spring/学习Spring必学的Java基础知识----PropertyEditor/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count hc-comment-count" data-xid="2017/04/18/spring/学习Spring必学的Java基础知识----PropertyEditor/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+              <!--/noindex-->
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  学习Spring必学的Java基础知识----PropertyEditor
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在Spring配置文件里是通过字面值为Bean各种类型的属性提供设置值：不管是double类型还是int类型，在配置文件中都对应字符串类型的字面值。<br><code>BeanWrapper</code>填充Bean属性时如何将这个字面值转换为对应的<code>double</code>或<code>int</code>等内部类型呢？</p>
+<p>任何实现<code>java.beans.PropertyEditor</code>接口的类都是属性编辑器。属性编辑器是将外部的设置值转换为JVM内部的对应类型，属性编辑器就是一个类型转换器。 </p>
+<p><code>PropertyEditor</code>是JavaBean规范定义的接口。 </p>
+<h2 id="JavaBean的编辑器"><a href="#JavaBean的编辑器" class="headerlink" title="JavaBean的编辑器"></a>JavaBean的编辑器</h2><p>Sun所制定的JavaBean规范，很大程度上是为IDE准备的——它让IDE能够以可视化的方式设置JavaBean的属性。如果在IDE中开发一个可视化应用程序，我们需要通过属性设置的方式对组成应用的各种组件进行定制，IDE通过属性编辑器让开发人员使用可视化的方式设置组件的属性。 </p>
+<p>一般的IDE都支持JavaBean规范所定义的属性编辑器，当组件开发商发布一个组件时，它往往将组件对应的属性编辑器捆绑发行，这样开发者就可以在IDE环境下方便地利用属性编辑器对组件进行定制工作。 </p>
+<p>JavaBean规范通过<code>java.beans.PropertyEditor</code>定义了设置JavaBean属性的方法，通过<code>BeanInfo</code>描述了JavaBean哪些属性是可定制的，此外还描述了可定制属性与<code>PropertyEditor</code>的对应关系。 </p>
+<p>BeanInfo与JavaBean之间的对应关系，通过两者之间规范的命名确立：对应JavaBean的BeanInfo采用如下的命名规范：<bean>BeanInfo。如<code>ChartBean</code>对应的<code>BeanInfo</code>为<code>ChartBeanBeanInfo</code>；<code>Car</code>对应的<code>BeanInfo</code>为<code>CarBeanInfo</code>。当JavaBean连同其属性编辑器相同的组件注册到IDE中后，当在开发界面中对JavaBean进行定制时，IDE就会根据JavaBean规范找到对应的BeanInfo，再根据BeanInfo中的描述信息找到JavaBean属性描述（是否开放、使用哪个属性编辑器），进而为JavaBean生成特定开发编辑界面。 </bean></p>
+<p>JavaBean规范提供了一个管理默认属性编辑器的管理器：<code>PropertyEditorManager</code>，该管理器内保存着一些常见类型的属性编辑器，如果某个JavaBean的常见类型属性没有通过BeanInfo显式指定属性编辑器，IDE将自动使用PropertyEditorManager中注册的对应默认属性编辑器。 </p>
+<p>由于JavaBean对应的属性编辑器等IDE环境相关的资源和组件需要动态加载，所以在纯Java的IDE中开发基于组件的应用时，总会感觉IDE反应很迟钝，不像Delphi、C++Builder一样灵敏快捷。但在Eclipse开发环境中，设计包括可视化组件的应用时却很快捷，原因是Eclipse没有使用Java的标准用户界面组件库，当然也就没有按照JavaBean的规范开发设计GUI组件了。 </p>
+<h2 id="PropertyEditor"><a href="#PropertyEditor" class="headerlink" title="PropertyEditor"></a><code>PropertyEditor</code></h2><p><code>PropertyEditor</code>是属性编辑器的接口，它规定了将外部设置值转换为内部JavaBean属性值的转换接口方法。<code>PropertyEditor</code>主要的接口方法说明如下：<br>  Object getValue()：返回属性的当前值。基本类型被封装成对应的封装类实例；<br>  void setValue(Object newValue)：设置属性的值，基本类型以封装类传入；<br>  String getAsText()：将属性对象用一个字符串表示，以便外部的属性编辑器能以可视化的方式显示。缺省返回null，表示该属性不能以字符串表示；<br>  void setAsText(String text)：用一个字符串去更新属性的内部值，这个字符串一般从外部属性编辑器传入；<br>  String[] getTags()：返回表示有效属性值的字符串数组（如boolean属性对应的有效Tag为true和false），以便属性编辑器能以下拉框的方式显示出来。缺省返回null，表示属性没有匹配的字符值有限集合；<br>  String getJavaInitializationString()：为属性提供一个表示初始值的字符串，属性编辑器以此值作为属性的默认值。</p>
+<p>可以看出PropertyEditor接口方法是内部属性值和外部设置值的沟通桥梁。此外，我们可以很容易地发现该接口的很多方法是专为IDE中的可视化属性编辑器提供的：如getTags()、getJavaInitializationString()以及另外一些我们未此介绍的接口方法。 </p>
+<p>Java为PropertyEditor提供了一个方便类：PropertyEditorSupport，该类实现了PropertyEditor接口并提供默认实现，一般情况下，用户可以通过扩展这个方便类设计自己的属性编辑器。 </p>
+<p>BeanInfo </p>
+<p>BeanInfo主要描述了JavaBean哪些属性可以编辑以及对应的属性编辑器，每一个属性对应一个属性描述器PropertyDescriptor。PropertyDescriptor的构造函数有两个入参：<br>PropertyDescriptor(String propertyName, Class beanClass) ，其中propertyName为属性名；而beanClass为JavaBean对应的Class。 </p>
+<p>此外PropertyDescriptor还有一个setPropertyEditorClass(Class propertyEditorClass)方法，为JavaBean属性指定编辑器。BeanInfo接口最重要的方法就是：PropertyDescriptor[] getPropertyDescriptors() ，该方法返回JavaBean的属性描述器数组。 </p>
+<p>BeanInfo接口有一个常用的实现类：SimpleBeanInfo，一般情况下，可以通过扩展SimpleBeanInfo实现自己的功能。 </p>
+<p>一个实例 </p>
+<p>在本节中，我们来看一个具体属性编辑器的实例，该实例根据《Core Java Ⅱ》上的一个例子改编而成。 </p>
+<p>ChartBean是一个可定制图表组件，允许通过属性的设置定制图表的样式以得到满足各种不同使用场合要求的图表。我们忽略ChartBean的其他属性，仅关注其中的两个属性： </p>
+<p>代码清单5-2  CharBean<br>Java代码  收藏代码<br>public class ChartBean extends JPanel{<br>   private int titlePosition = CENTER;<br>   private boolean inverse;<br>   //省略get/setter方法<br>}  </p>
+<p>下面，我们为titlePosition属性提供一个属性编辑器。我们不去直接实现PropertyEditor，而是通过扩展PropertyEditorSupport这个方便类来定义我们的属性编辑器： </p>
+<p>代码清单5-3  TitlePositionEditor<br>Java代码  收藏代码<br>import java.beans.*;<br> public class TitlePositionEditor extends PropertyEditorSupport{<br>    private String[] options = { “Left”, “Center”, “Right” };   </p>
+<pre><code>//①代表可选属性值的字符串标识数组  
+public String[] getTags() { return options; }      
+
+//②代表属性初始值的字符串  
+public String getJavaInitializationString() { return &quot;&quot; + getValue(); }   
+
+//③将内部属性值转换为对应的字符串表示形式，供属性编辑器显示之用  
+public String getAsText(){  
+   int value = (Integer) getValue();  
+   return options[value];  
+}  
+
+//④将外部设置的字符串转换为内部属性的值  
+public void setAsText(String s){   
+   for (int i = 0; i &lt; options.length; i++){  
+      if (options[i].equals(s)){  
+         setValue(i);  
+         return;  
+      }  
+   }  
+}  
+</code></pre><p> }  </p>
+<p>①处通过getTags()方法返回一个字符串数组，因此在IDE中该属性对应的编辑器将自动提供一个下拉框，下拉框中包含3个可选项：“Left”、“Center”、“Right”。而③和④处的两个方法分别完成属性值到字符串的双向转换功能。CharBean的inverse属性也有一个相似的编辑器InverseEditor，我们忽略不讲。 </p>
+<p>下面编写ChartBean对应的BeanInfo，根据JavaBean的命名规范，这个BeanInfo应该命名为ChartBeanBeanInfo，它负责将属性编辑器和ChartBean的属性挂钩起来： </p>
+<p>代码清单5-4  ChartBeanBeanInfo<br>Java代码  收藏代码<br>import java.beans.*;<br> public class ChartBeanBeanInfo extends SimpleBeanInfo{<br>    public PropertyDescriptor[] getPropertyDescriptors() {<br>       try{  </p>
+<p>//①将TitlePositionEditor绑定到ChartBean的titlePosition属性中<br>PropertyDescriptor titlePositionDescriptor<br>             = new PropertyDescriptor(“titlePosition”, ChartBean.class);<br>          titlePositionDescriptor.setPropertyEditorClass(TitlePositionEditor.class);  </p>
+<p>//②将InverseEditor绑定到ChartBean的inverse属性中<br>PropertyDescriptor inverseDescriptor<br>             = new PropertyDescriptor(“inverse”, ChartBean.class);<br>          inverseDescriptor.setPropertyEditorClass(InverseEditor.class);<br>          return new PropertyDescriptor[]{titlePositionDescriptor, inverseDescriptor};<br>       }<br>       catch (IntrospectionException e){<br>          e.printStackTrace();<br>          return null;<br>       }<br>    }<br> }  </p>
+<p>在ChartBeanBeanInfo中，我们分别为ChartBean和titlePosition和inverse属性指定对应的属性编辑器。将ChartBean连同属性编辑器以及ChartBeanBeanInfo打成JAR包，使用IDE组件扩展管理功能注册到IDE中。这样，我们就可以像使用TextField、Checkbox等这些组对ChartBean进行可视化的开发设计工作了。下面是ChartBean在NetBeans IDE中的属性编辑器效果图，如图5-5所示。 </p>
+<p>ChartBean可设置的属性都列在属性查看器中，当单击titlePosition属性时，下拉框中列出了我们提供的3个选项。 </p>
+<p>Spring默认属性编辑器 </p>
+<p>Spring的属性编辑器和传统的用于IDE开发时的属性编辑器不同，它们没有UI界面，仅负责将配置文件中的文本配置值转换为Bean属性的对应值，所以Spring的属性编辑器并非传统意义上的JavaBean属性编辑器。 </p>
+<p>Spring为常见的属性类型提供了默认的属性编辑器。从图5-4中，我们可以看出BeanWrapperImpl类扩展了PropertyEditorRegistrySupport类，Spring在PropertyEditor RegistrySupport中为常见属性类型提供了默认的属性编辑器，这些“常见的类型”共32个，可分为3大类，总结如下： </p>
+<p>表5-1  Spring提供的默认属性编辑器<br>类    别  说    明<br>基础数据类型  分为几个小类： 1）基本数据类型，如：boolean、byte、short、int等； 2）基本数据类型封装类，如：Long、Character、Integer等；  3）两个基本数据类型的数组，char[]和byte[]；    4）大数类，BigDecimal和BigInteger<br>集合类 为5种类型的集合类Collection、Set、SortedSet、List和SortedMap提供了编辑器<br>资源类 用于访问外部资源的8个常见类Class、Class[]、File、InputStream、Locale、Properties、Resource[]和URL   </p>
+<p>PropertyEditorRegistrySupport中有两个用于保存属性编辑器的Map类型变量：<br>  defaultEditors：用于保存默认属性类型的编辑器，元素的键为属性类型，值为对应的属性编辑器实例；<br>  customEditors：用于保存用户自定义的属性编辑器，元素的键值和defaultEditors相同。</p>
+<p>PropertyEditorRegistrySupport通过类似以下的代码定义默认属性编辑器：<br>Java代码  收藏代码<br>this.defaultEditors.put(char.class, new CharacterEditor(false));<br>this.defaultEditors.put(Character.class, new CharacterEditor(true));<br>this.defaultEditors.put(Locale.class, new LocaleEditor());<br>this.defaultEditors.put(Properties.class, new PropertiesEditor());  </p>
+<p>这些默认的属性编辑器解决常见属性类型的注册问题，如果用户的应用包括一些特殊类型的属性，且希望在配置文件中以字面值提供配置值，那么就需要编写自定义属性编辑器并注册到Spring容器中。这样，Spring才能将配置文件中的属性配置值转换为对应的属性类型值。 </p>
+<p>自定义属性编辑器 </p>
+<p>Spring大部分默认属性编辑器都直接扩展于java.beans.PropertyEditorSupport类，用户也可以通过扩展PropertyEditorSupport实现自己的属性编辑器。比起用于IDE环境的属性编辑器来说，Spring环境下使用的属性编辑器的功能非常单一：仅需要将配置文件中字面值转换为属性类型的对象即可，并不需要提供UI界面，因此仅需要简单覆盖PropertyEditorSupport的setAsText()方法就可以了。 </p>
+<p>一个实例 </p>
+<p>我们继续使用第4章中Boss和Car的例子，假设我们现在希望在配置Boss时，不通过引用Bean的方式注入Boss的car属性，而希望直接通过字符串字面值提供配置。为了方便阅读，这里再次列出Boss和Car类的简要代码： </p>
+<p>代码清单5-5  Car<br>Java代码  收藏代码<br>package com.baobaotao.editor;<br>public class Car {<br>    private int maxSpeed;<br>    public String brand;<br>    private double price;<br>    //省略get/setter<br>}  </p>
+<p>代码清单5-6  Boss<br>Java代码  收藏代码<br>package com.baobaotao.editor;<br>public class Boss {<br>    private String name;<br>    private Car car = new Car();<br>    //省略get/setter<br>}  </p>
+<p>Boss有两个属性：name和car，分别对应String类型和Car类型。Spring拥有String类型的默认属性编辑器，因此对于String类型的属性我们不用操心。但Car类型是我们自定义的类型，要配置Boss的car属性，有两种方案：<br>1）在配置文件中为car专门配置一个<bean>，然后在boss的<bean>中通过ref引用car Bean，这正是我们上一章中所用的方法；<br>2）为Car类型提供一个自定义的属性编辑器，这样，我们就通过字面值为Boss的car属性提供配置值。</bean></bean></p>
+<p>第一种方案是常用的方法，但是在有些情况下，这种方式需要将属性对象一步步肢解为最终可以用基本类型表示的Bean，使配置文件变得不够清晰，直接为属性类提供一个对应的自定义属性编辑器可能会是更好的替代方案。 </p>
+<p>现在，我们来为Car编写一个自定义的属性编辑器，其代码如下所示： </p>
+<p>代码清单5-7  CustomCarEditor<br>Java代码  收藏代码<br>package com.baobaotao.editor;<br>import java.beans.PropertyEditorSupport;  </p>
+<p>public class CustomCarEditor extends PropertyEditorSupport {  </p>
+<pre><code>//①将字面值转换为属性类型对象  
+public void setAsText(String text){   
+    if(text == null || text.indexOf(&quot;,&quot;) == -1){  
+        throw new IllegalArgumentException(&quot;设置的字符串格式不正确&quot;);  
+    }  
+    String[] infos = text.split(&quot;,&quot;);  
+    Car car = new Car();  
+    car.setBrand(infos[0]);  
+    car.setMaxSpeed(Integer.parseInt(infos[1]));  
+    car.setPrice(Double.parseDouble(infos[2]));  
+
+     //②调用父类的setValue()方法设置转换后的属性对象  
+    setValue(car);   
+}  
+</code></pre><p>}  </p>
+<p>CustomCarEditor很简单，它仅覆盖PropertyEditorSupport便利类的setAsText(String text)方法，该方法负责将配置文件以字符串提供的字面值转换为Car对象。字面值采用逗号分隔的格式同时为brand、maxSpeed和price属性值提供设置值，setAsText()方法解析这个字面值并生成对应的Car对象。由于我们并不需要将Boss内部的car属性反显到属性编辑器中，因此不需要覆盖getAsText()方法。 </p>
+<p>注册自定义的属性编辑器 </p>
+<p>在IDE环境下，自定义属性编辑器在使用之前必须通过扩展组件功能进行注册，在Spring环境中也需要通过一定的方法注册自定义的属性编辑器。 </p>
+<p>如果使用BeanFactory，用户需要手工调用registerCustomEditor(Class requiredType, PropertyEditor propertyEditor)方法注册自定义属性编辑器；如果使用ApplicationContext，则只需要在配置文件通过CustomEditorConfigurer注册就可以了。CustomEditorConfigurer实现BeanFactoryPostProcessor接口，因此是一个Bean工厂后处理器。我们知道Bean工厂后处理器在Spring容器加载配置文件并生成BeanDefinition半成品后就会被自动执行。因此CustomEditorConfigurer有容器启动时有机会注入自定义的属性编辑器。下面的配置片断定义了一个CustomEditorConfigurer： </p>
+<p>Xml代码  收藏代码<br><!--①配置自动注册属性编辑器的CustomEditorConfigurer -->  </p>
+<bean class="org.springframework.beans.factory.config.CustomEditorConfigurer"><br>        <property name="customEditors"><br>            <map><br>                   <!--②-1属性编辑器对应的属性类型--><br>                   <entry key="com.baobaotao.editor.Car"><br><br>                         <!--②-2对应的属性编辑器Bean --><br>                    <bean class="com.baobaotao.editor.CustomCarEditor"><br>                </bean></entry><br>            </map><br>        </property><br>    </bean><br> <bean id="boss" class="com.baobaotao.editor.Boss"><br>       <property name="name" value="John"><br>       <!--③该属性将使用②处的属性编辑器完成属性填充操作--><br>       <property name="car" value="红旗CA72,200,20000.00"><br></property></property></bean>  
+
+
+<p>在①处，我们定义了用于注册自定义属性编辑器的CustomEditorConfigurer，Spring容器将通过反射机制自动调用这个Bean。CustomEditorConfigurer通过一个Map属性定义需要自动注册的自定义属性编辑器。在②处，我们为Car类型指定了对应属性编辑器CustomCarEditor，注意键是属性类型，而值是对应的属性编辑器Bean，而不是属性编辑器的类名。 </p>
+<p>最精彩的部分当然是③处的配置，我们原来通过一个<bean>元素标签配置好car Bean，然后在boss的<bean>中通过ref引用car Bean，但是现在我们直接通过value为car属性提供配置。BeanWrapper在设置boss的car属性时，它将检索自定义属性编辑器的注册表，当发现Car属性类型拥有对应的属性编辑器CustomCarEditor时，它就会利用CustomCarEditor将“红旗CA72,200,20000.00”转换为Car对象。 </bean></bean></p>
+<p>引用<br>按照JavaBeans的规范，JavaBeans的基础设施会在JavaBean相同类包下查找是否存在<javabean>Editor的类，如果存在，自动使用<javabean>Editor作为该JavaBean的PropertyEditor。<br>如com.baobaotao.domain.UserEditor会自动成为com.baobaotao.domain.User对应的PropertyEditor。Spring也支持这个规范，也即如果采用这种规约命令PropertyEditor，就无须显式在CustomEditorConfigurer中注册了，Spring将自动查找并注册这个PropertyEditor。</javabean></javabean></p>
+<p>另：Spring 3.0除支持PropertyEditor外，还在核心包中引入了自建的ConversionService,它提供了更为强大的类型转换的能力，可以完成任意类型之间的转换，还可以在转换过程中参考目标对象所在宿主类的上下文信息。Spring的类型转换同时支持PropertyEdito和ConversionService。 </p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/spring/" rel="tag"># spring</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/04/18/spring/探秘Spring的PropertyEditor/" rel="next" title="探秘Spring的PropertyEditor">
+                <i class="fa fa-chevron-left"></i> 探秘Spring的PropertyEditor
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/04/18/spring/spring_后置处理器BeanFactoryPostProcessor和BeanPostProcessor的用法和区别/" rel="prev" title="spring 后置处理器BeanFactoryPostProcessor和BeanPostProcessor的用法和区别">
+                spring 后置处理器BeanFactoryPostProcessor和BeanPostProcessor的用法和区别 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="hypercomments_widget"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="技术随手记" />
+          <p class="site-author-name" itemprop="name">技术随手记</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+           
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">57</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">40</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">46</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#JavaBean的编辑器"><span class="nav-number">1.</span> <span class="nav-text">JavaBean的编辑器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PropertyEditor"><span class="nav-number">2.</span> <span class="nav-text">PropertyEditor</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">技术随手记</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+		<script type="text/javascript">
+		_hcwp = window._hcwp || [];
+
+		_hcwp.push({widget:"Bloggerstream", widget_id: 89144, selector:".hc-comment-count", label: "{\%COUNT%\}" });
+
+		
+		_hcwp.push({widget:"Stream", widget_id: 89144, xid: "2017/04/18/spring/学习Spring必学的Java基础知识----PropertyEditor/"});
+		
+
+		(function() {
+		if("HC_LOAD_INIT" in window)return;
+		HC_LOAD_INIT = true;
+		var lang = (navigator.language || navigator.systemLanguage || navigator.userLanguage || "en").substr(0, 2).toLowerCase();
+		var hcc = document.createElement("script"); hcc.type = "text/javascript"; hcc.async = true;
+		hcc.src = ("https:" == document.location.protocol ? "https" : "http")+"://w.hypercomments.com/widget/hc/89144/"+lang+"/widget.js";
+		var s = document.getElementsByTagName("script")[0];
+		s.parentNode.insertBefore(hcc, s.nextSibling);
+		})();
+		</script>
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
