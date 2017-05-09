@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://jishusuishouji.github.io/"/>
-  <updated>2017-05-08T16:32:50.276Z</updated>
+  <updated>2017-05-09T16:52:44.634Z</updated>
   <id>http://jishusuishouji.github.io/</id>
   
   <author>
@@ -16,11 +16,490 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>Java的类加载机制</title>
+    <link href="http://jishusuishouji.github.io/2017/05/10/Java%E7%9A%84%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6.md/Java%E7%9A%84%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/"/>
+    <id>http://jishusuishouji.github.io/2017/05/10/Java的类加载机制.md/Java的类加载机制/</id>
+    <published>2017-05-09T16:52:35.000Z</published>
+    <updated>2017-05-09T16:52:44.634Z</updated>
+    
+    <summary type="html">
+    
+      Java的类加载机制
+    
+    </summary>
+    
+      <category term="java" scheme="http://jishusuishouji.github.io/categories/java/"/>
+    
+    
+      <category term="java" scheme="http://jishusuishouji.github.io/tags/java/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Java虚拟机：Java类加载机制</title>
+    <link href="http://jishusuishouji.github.io/2017/05/09/java/Java%E8%99%9A%E6%8B%9F%E6%9C%BA%EF%BC%9AJava%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/"/>
+    <id>http://jishusuishouji.github.io/2017/05/09/java/Java虚拟机：Java类加载机制/</id>
+    <published>2017-05-09T14:57:56.000Z</published>
+    <updated>2017-05-09T16:03:43.800Z</updated>
+    
+    <content type="html"><![CDATA[<p>源代码(<code>.java</code>)会被编译为class文件(<code>.class</code>文件)，<code>.class</code>文件描述了类的各种信息，<code>.class</code>文件需要加载到虚拟机之后才能运行和使用。</p>
+<h2 id="类加载使用的7个阶段"><a href="#类加载使用的7个阶段" class="headerlink" title="类加载使用的7个阶段"></a>类加载使用的7个阶段</h2><p>类从加载到虚拟机到到卸载出内存，整个生命周期包括：加载（Loading）、验证（Verification）、准备（Preparation）、解析（Resolution）、初始化（Initiallization）、使用（Using）和卸载（Unloading）这7个阶段。<br><img src="/img/类加载使用的7个阶段.png" alt="类加载使用的7个阶段"><br>其中验证、准备、解析这个三个阶段统称为连接（Linking）<br>加载、验证、准备、初始化、卸载这五个阶段的顺序是确定的，而解析阶段不一定：它在某些情况下可以初始化阶段之后再开始，这是为了支持Java语言的运行时绑定（也称为动态绑定）。<br>加载、验证、准备、解析、初始化五个阶段组成了一个完整的类加载过程。<br>卸载属于GC的工作。</p>
+<h3 id="加载（Loading）"><a href="#加载（Loading）" class="headerlink" title="加载（Loading）"></a>加载（Loading）</h3><h4 id="有两种时机会触发类加载："><a href="#有两种时机会触发类加载：" class="headerlink" title="有两种时机会触发类加载："></a>有两种时机会触发类加载：</h4><p>1、预加载。虚拟机启动时加载，加载的是<code>JAVA_HOME/lib/</code>下的<code>rt.jar</code>中的<code>.class</code>文件，由于<code>rt.jar</code>包中的类经常被使用，因此随着虚拟机启动一起被加载。</p>
+<h5 id="验证rt-java包中的类是否在虚拟器启动的时候被加载"><a href="#验证rt-java包中的类是否在虚拟器启动的时候被加载" class="headerlink" title="验证rt.java包中的类是否在虚拟器启动的时候被加载"></a>验证<code>rt.java</code>包中的类是否在虚拟器启动的时候被加载</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">public class Test &#123;</div><div class="line">    public static void main(String[] args) &#123;&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>编译运行该类:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">&gt;javac Test.java</div><div class="line">&gt;java -XX:+TraceClassLoading Test</div><div class="line">[Opened C:\Program Files\Java\jdk1.8.0_111\jre\lib\rt.jar]</div><div class="line">[Loaded java.lang.Object from C:\Program Files\Java\jdk1.8.0_111\jre\lib\rt.jar]</div><div class="line">[Loaded java.io.Serializable from C:\Program Files\Java\jdk1.8.0_111\jre\lib\rt.jar]</div><div class="line">[Loaded java.lang.Comparable from C:\Program Files\Java\jdk1.8.0_111\jre\lib\rt.jar]</div><div class="line">[Loaded java.lang.CharSequence from C:\Program Files\Java\jdk1.8.0_111\jre\lib\rt.jar]</div><div class="line">[Loaded java.lang.String from C:\Program Files\Java\jdk1.8.0_111\jre\lib\rt.jar]</div><div class="line">[Loaded java.lang.reflect.AnnotatedElement from C:\Program Files\Java\jdk1.8.0_111\jre\lib\rt.jar]</div><div class="line">[Loaded java.lang.reflect.GenericDeclaration from C:\Program Files\Java\jdk1.8.0_111\jre\lib\rt.jar]</div><div class="line">[Loaded java.lang.reflect.Type from C:\Program Files\Java\jdk1.8.0_111\jre\lib\rt.jar]</div><div class="line">[Loaded java.lang.Class from C:\Program Files\Java\jdk1.8.0_111\jre\lib\rt.jar]</div><div class="line">[Loaded java.lang.Cloneable from C:\Program Files\Java\jdk1.8.0_111\jre\lib\rt.jar]</div><div class="line">[Loaded java.lang.ClassLoader from C:\Program Files\Java\jdk1.8.0_111\jre\lib\rt.jar]</div><div class="line">...</div></pre></td></tr></table></figure></p>
+<p>2、运行时加载。虚拟机在用到一个<code>.class</code>文件的时会先去内存中查看一下这个<code>.class</code>文件有没有被加载，如果没有就会按照类的全限定名来加载这个类。</p>
+<h4 id="加载阶段做的事情"><a href="#加载阶段做的事情" class="headerlink" title="加载阶段做的事情"></a>加载阶段做的事情</h4><p>1、获取.class文件的二进制流<br>2、将<code>.class</code>文件中包含的类信息、静态变量、字节码、常量等内容放入方法区中<br>3、在内存中生成一个代表这个<code>.class</code>文件的<code>java.lang.Class</code>对象，作为方法区这个类的各种数据的访问入口。一般这个Class是在堆里的，不过HotSpot虚拟机是放在方法区中的。</p>
+<p>虚拟机规范对这三点并没有做详细的规定，因此虚拟机实现的灵活度是相当大的。<br>加载阶段对于开发者来说是可控性最强的一个阶段。</p>
+<h3 id="验证"><a href="#验证" class="headerlink" title="验证"></a>验证</h3><p>连接阶段的第一步，主要是为了确保<code>.class</code>文件的字节流包含的信息符合当前虚拟机的要求，并且不会危害虚拟机自身的安全。</p>
+<p><code>.class</code>文件不一定要从Java源码编译而来，可以使用任何途径产生，甚至包括用十六进制编辑器直接编写来产生<code>.class</code>文件。虚拟机如果不检查输入的字节流，对其完全信任的话，很可能会因为载入了有害的字节流而导致系统崩溃，所以验证是虚拟机对自身保护的一项重要工作。</p>
+<h4 id="验证阶段主要包含以下几个工作："><a href="#验证阶段主要包含以下几个工作：" class="headerlink" title="验证阶段主要包含以下几个工作："></a>验证阶段主要包含以下几个工作：</h4><p>1、文件格式验证<br><code>.class</code>文件的第5~第8个字节表示的是该<code>.class</code>文件的主次版本号，验证的时候会对这4个字节做一个验证，高版本的JDK能向下兼容以前版本的<code>.class</code>文件，但不能运行以后的class文件，即使文件格式未发生任何变化，虚拟机也必须拒绝执行超过其版本号的<code>.class</code>文件。例如有一段java代码是JDK1.6编译的，那么JDK1.6、JDK1.7能运行编译出来<code>.class</code>文件，而JDK1.5、JDK1.4以及更低的JDK版本是无法运行这个<code>.class</code>文件的。如果运行，会抛出<code>java.lang.UnsupportedClassVersionError</code>。</p>
+<p>2、元数据验证</p>
+<p>3、字节码验证</p>
+<p>4、符号引用验证</p>
+<h3 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h3><p>准备阶段是正式为类变量分配内存并设置其初始值的阶段，这些变量所使用的内存都将在方法区中分配。<br>1、这时候进行内存分配的仅仅是类变量（被<code>static</code>修饰的变量），而不是实例变量，实例变量将会在对象实例化的时候随着对象一起分配在Java堆中<br>2、这个阶段赋初始值的变量指的是那些不被<code>final</code>修饰的<code>static</code>变量，比如<code>public static int value = 123;</code>，<code>value</code>在准备阶段过后是<code>0</code>而不是<code>123</code>，给<code>value</code>赋值为<code>123</code>的动作是在初始化阶段才进行的；而<code>public static final int value = 123;</code>,在准备阶段，虚拟机就会给<code>value</code>赋值为<code>123</code>。</p>
+<h3 id="解析"><a href="#解析" class="headerlink" title="解析"></a>解析</h3><p>解析阶段是虚拟机将常量池内的符号引用替换为直接引用的过程。</p>
+<h3 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h3><p>初始化阶段是类加载过程的最后一步，初始化阶段是真正执行类中定义的Java字节码的过程。初始化过程是一个执行类构造器<code>&lt;clinit&gt;()</code>方法的过程，根据程序员通过程序制定的主观计划去初始化类变量和其它资源。初始化阶段做的事就是给<code>static</code>变量赋予用户指定的值以及执行静态代码块。</p>
+<p>注意一下，虚拟机会保证类的初始化在多线程环境中被正确地加锁、同步，即如果多个线程同时去初始化一个类，那么只会有一个类去执行这个类的<code>&lt;clinit&gt;()</code>方法，其他线程都要阻塞等待，直至活动线程执行<code>&lt;clinit&gt;()</code>方法完毕。因此如果在一个类的<code>&lt;clinit&gt;()</code>方法中有耗时很长的操作，就可能造成多个进程阻塞。不过其他线程虽然会阻塞，但是执行<code>&lt;clinit&gt;()</code>方法的那条线程退出<code>&lt;clinit&gt;()</code>方法后，其他线程不会再次进入<code>&lt;clinit&gt;()</code>方法了，因为同一个类加载器下，一个类只会初始化一次。实际应用中这种阻塞往往是比较隐蔽的，要小心。</p>
+<p>Java虚拟机规范严格规定了有且只有5种场景必须立即对类进行初始化，这4种场景也称为对一个类进行主动引用：</p>
+<p>1、使用<code>new</code>关键字实例化对象、读取或者设置一个类的静态字段（被<code>final</code>修饰的静态字段除外）、调用一个类的静态方法的时候<br>2、使用<code>java.lang.reflect</code>包中的方法对类进行反射调用的时候<br>3、初始化一个类，发现其父类还没有初始化过的时候<br>4、虚拟机启动的时候，虚拟机会先初始化用户指定的包含<code>main()</code>方法的那个类</p>
+<p>除了上面4种场景外，所有引用类的方式都不会触发类的初始化，称为被动引用：</p>
+<p>1、子类引用父类静态字段，不会导致子类初始化。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">public class SuperClass &#123;</div><div class="line">    public static String value = &quot;value&quot;;</div><div class="line">    static &#123;</div><div class="line">        System.out.println(&quot;SuperClass init&quot;);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">public class SubClass extends SuperClass &#123;</div><div class="line">    static &#123;</div><div class="line">        System.out.println(&quot;SubClass init&quot;);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">public class TestMain &#123;</div><div class="line">    public static void main(String[] args) &#123;</div><div class="line">        System.out.println(SubClass.value);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>运行结果为：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">SuperClass init</div><div class="line">value</div></pre></td></tr></table></figure></p>
+<p>2、通过数组定义引用类，不会触发此类的初始化<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">public class TestMain &#123;</div><div class="line">    public static void main(String[] args) &#123;</div><div class="line">        SuperClass[] scs = new SuperClass[10];</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>运行之后没有任何输出</p>
+<p>3、引用静态常量时，常量在编译阶段会存入类的常量池中，本质上并没有直接引用到定义常量的类<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">public class Constant &#123;</div><div class="line">    public static final String CONSTANT = &quot;CONSTANT&quot;;</div><div class="line"></div><div class="line">    static &#123;</div><div class="line">        System.out.println(&quot;Constant init&quot;);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">public class TestMain &#123;</div><div class="line">    public static void main(String[] args) &#123;</div><div class="line">        System.out.println(Constant.CONSTANT);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>运行结果为：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">CONSTANT</div></pre></td></tr></table></figure></p>
+]]></content>
+    
+    <summary type="html">
+    
+      Java虚拟机：Java类加载机制
+    
+    </summary>
+    
+      <category term="java" scheme="http://jishusuishouji.github.io/categories/java/"/>
+    
+    
+      <category term="java" scheme="http://jishusuishouji.github.io/tags/java/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>如何配置Policy文件进行Java安全策略的设置</title>
+    <link href="http://jishusuishouji.github.io/2017/05/09/%E5%A6%82%E4%BD%95%E9%85%8D%E7%BD%AEPolicy%E6%96%87%E4%BB%B6%E8%BF%9B%E8%A1%8CJava%E5%AE%89%E5%85%A8%E7%AD%96%E7%95%A5%E7%9A%84%E8%AE%BE%E7%BD%AE.md/%E5%A6%82%E4%BD%95%E9%85%8D%E7%BD%AEPolicy%E6%96%87%E4%BB%B6%E8%BF%9B%E8%A1%8CJava%E5%AE%89%E5%85%A8%E7%AD%96%E7%95%A5%E7%9A%84%E8%AE%BE%E7%BD%AE/"/>
+    <id>http://jishusuishouji.github.io/2017/05/09/如何配置Policy文件进行Java安全策略的设置.md/如何配置Policy文件进行Java安全策略的设置/</id>
+    <published>2017-05-08T19:08:09.000Z</published>
+    <updated>2017-05-08T19:52:26.021Z</updated>
+    
+    <content type="html"><![CDATA[<p>Java语言具有完善的安全框架，从编程语言、编译器、解释程序到Java虚拟机，都能确保Java系统不被恶意的代码或敌对的编译器暗中破坏，它们能够保证Java代码按预定的规则运作。但是如果需要逾越这些限制时，比如读写文件，监听和读写Socket，退出Java系统，就必须使用数字签名或安全策略文件（<code>*.Policy</code>）。 </p>
+<p> 在企业内部网中，推荐使用安全策略文件来设置java程序权限。企业内部网中各台计算机的位置、用途和安全性明确，更适于使用安全策略文件来设置java的权限，软件的安装、设置、升级和迁移都非常的方便，并且还可以和数字签名配合使用，更重要的是可以细分每个java程序的权限，使用起来灵活方便。 </p>
+<h2 id="Java中安全策略的概念"><a href="#Java中安全策略的概念" class="headerlink" title="Java中安全策略的概念"></a>Java中安全策略的概念</h2><p> Java安全策略详细说明了不同的代码所拥有的不同资源的许可，由一个<code>Policy</code>对象来表达。比如为了让applet（或者运行在<code>SecurityManager</code>下的应用程序）能够执行受保护的行为，例如读写文件，applet（或Java应用程序）必须获得那项操作的许可,安全策略文件可以配置这些许可。<br>在程序中可以通过调用<code>getPolicy</code>方法得到当前安装的<code>Policy</code>对象，也可以通过调用<code>setPolicy</code>方法改变。<code>Policy</code>对象评估整个策略，返回一个适当的<code>Permissions</code>对象，详细说明那些代码可以访问那些资源。 </p>
+<p>策略文件可以储存在无格式的ASCII文件，或<code>Policy</code>类的二进制文件，或数据库中。本文仅讨论无格式的ASCII文件的形式。 </p>
+<h2 id="Policy文件的格式"><a href="#Policy文件的格式" class="headerlink" title="Policy文件的格式"></a><code>Policy</code>文件的格式</h2><p>\jdk1.8.0_111\jre\lib\security\java.policy<br>\jdk1.8.0_111\jre\lib\security\java.security</p>
+<h3 id="Policy文件的语法格式与说明"><a href="#Policy文件的语法格式与说明" class="headerlink" title="Policy文件的语法格式与说明"></a><code>Policy</code>文件的语法格式与说明</h3><p><code>Policy</code>文件实质上是一个记录列表，它可能含有一个“keystore”记录，以及含有零个或多个“<code>grant</code>”记录。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">keystore &quot;some_keystore_url&quot;, &quot;keystore_type&quot;;</div><div class="line"></div><div class="line">grant [SignedBy &quot;signer_names&quot;] [, CodeBase &quot;URL&quot;] &#123;</div><div class="line">    Permission permission_class_name [ &quot;target_name&quot; ] [, &quot;action&quot;] [, SignedBy &quot;signer_names&quot;];</div><div class="line">    Permission ...</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<h4 id="keystore记录"><a href="#keystore记录" class="headerlink" title="keystore记录"></a><code>keystore</code>记录</h4><p><code>keystore</code>是一个私有密钥（private keys）数据库和相应的数字签名，例如X.509证书。Policy文件中可能只有一条keystore记录（也可能不含有该记录），它可以出现在文件中<code>grant</code>记录以外的任何地方。Policy配置文件中指定的keystores用于寻找grant记录中指定的、签名者的公共密钥（public keys），如果任何grant记录指定签名者（signer_names），那么，keystore记录必须出现在policy配置文件中。 </p>
+<p>—- “some_keystore_url”是指keystore的URL位置，”keystore_type”是指keystore的类型。第二个选项是可选项，如果没有指定，该类型则假定由安全属性文件（java.security）中的”keystore.type”属性来确定。keystore类型定义了keystore信息的存储和数据格式，用于保护keystore中的私有密钥和keystore完整性的算法。Sun Microsystems支持的缺省类型为“JKS”。 </p>
+<h4 id="grant记录"><a href="#grant记录" class="headerlink" title="grant记录"></a><code>grant</code>记录</h4><p>在`Policy文件中的每一个grant记录含有一个CodeSource（一个指定的代码）及其permission(许可)。 </p>
+<p>Policy文件中的每一条grant记录遵循下面的格式，以保留字“grant”开头，表示一条新的记录的开始，“Permission”是另一个保留字，在记录中用来标记一个新的许可的开始。每一个grant记录授予一个指定的代码（CodeBase）一套许可（Permissions）。 </p>
+<p><code>permission_class_name</code>必须是一个合格并存在的类名，例如<code>java.io.FilePermission</code>，不能使用缩写（例如<code>FilePermission</code>）。<br>target_name用来指定目标类的位置，action用于指定目标类拥有的权限。<br>target_name可以直接指定类名（可以是绝对或相对路径），目录名，也可以是下面的通配符： </p>
+<p>directory/<em> 目录下的所有文件
+</em>当前目录的所有文件<br>directory/-目录下的所有文件，包括子目录</p>
+<ul>
+<li>当前目录下的所有文件，包括子目录<br>《ALL FILES》文件系统中的所有文件<br>对于java.io.FilePermission，action可以是：<br>read, write, delete和execute。<br>对于java.net.SocketPermission，action可以是：<br>listen，accept，connect，read，write。</li>
+</ul>
+<p>—- 1.3 Policy文件中的属性扩展（Property Expansion）<br>—- 属性扩展与shell中使用的变量扩展类似，它的格式为： </p>
+<p>“${some.property}”<br>实际使用的例子为：<br>permission java.io.FilePermission<br>“${user.home}”, “read”;<br>“${user.home}”的值为”d:\Project”，<br>因此，下面的语句和上面的语句是一样的：<br>permission java.io.FilePermission “<br>d:\Project “, “read”;</p>
+<p>三. 实例<br>—- 当初始化Policy时，首先装载系统Policy，然后再增加用户Policy，如果两者都不存在，则使用缺省的Policy，即原始的沙箱模型。<br>—- 系统Policy文件的缺省位置为： </p>
+<p>{java.home}/lib/security/java.policy (Solaris)<br>{java.home}\lib\security\java.policy (Windows)<br>用户Policy文件的缺省位置为：<br>{user.home}/.java.policy (Solaris)<br>{user.home}.java.policy (Windows)</p>
+<p>—- 其实，在实际使用中，我们可能不会象上面介绍的那么复杂，特别是在不使用数字签名时。这时，我们完全可以借鉴JDK 1.2提供给我们的现成的\jdk1.2\jre\lib\security\java.policy文件，根据我们的需要作相应的修改，本文就针对不使用数字签名情况详细说明安全策略文件的用法。<br>—- 下面，是一个完整的在Windows 95/98/NT下使用的.java.policy文件。在文件中，分别使用注释的形式说明了每个“permission”记录的用途。 </p>
+<p>// For LanServerTalk.java and LanClientTalk.java</p>
+<p>grant {<br>//对系统和用户目录“读”的权限<br>permission java.util.PropertyPermission<br>“user.dir”, “read”;<br>permission java.util.PropertyPermission<br>“user.home”, “read”;<br>permission java.util.PropertyPermission<br>“java.home”, “read”;<br>permission java.util.PropertyPermission<br>“java.class.path”, “read”;<br>permission java.util.PropertyPermission<br>“user.name”, “read”; </p>
+<p>//对线程和线程组的操作权限<br>permission java.lang.RuntimePermission<br>“modifyThread”;<br>permission java.lang.RuntimePermission<br>“modifyThreadGroup”;</p>
+<p>//操作Socket端口的各种权限<br>permission java.net.SocketPermission<br>“-“, “listen”;<br>permission java.net.SocketPermission<br>“-“, “accept”;<br>permission java.net.SocketPermission<br>“-“, “connect”;<br>permission java.net.SocketPermission “-“, “read”;<br>permission java.net.SocketPermission “-“, “write”;</p>
+<p>//读写文件的权限<br>permission java.io.FilePermission “-“, “read”;<br>permission java.io.FilePermission “-“, “write”;</p>
+<p>//退出系统的权限，例如System.exit(0)<br>permission java.lang.RuntimePermission “exitVM”;<br>};</p>
+<p>四. java.policy文件的使用<br>—- 对于windows 95/98/NT，使用.java.policy文件的方法主要有下面两种。<br>—- 1． 使用缺省目录 </p>
+<p>—- 我们可以简单地将编辑好的.java.policy文件拷贝到windows 95/98/NT的HOME目录，这时，所有的applet(或Java应用程序)可能都拥有某些相同的权限，使用起来简单，但不灵活（例如：对于java.io.FilePermission ，其目标类的target_name必须使用绝对路径），如果不是在企业内部网中使用，还可能存在一定安全隐患。 </p>
+<p>—- 2． 在命令行中指定 </p>
+<p>—- 在命令行，如果我们希望传递一个Policy文件给appletviewer，还可以使用”-J-Djava.security.policy”参数来指定policy的位置： </p>
+<p>appletviewer -J-Djava.security.<br>policy=pURL myApplet</p>
+<p>—- pURL为Policy文件的位置。下面，是一个实际的例子，以当前目录的.java.policy文件所指定的安全策略运行当前目录的LanServerTalk.html（文件中装载并运行LanServerTalk.java）：<br>appletviewer -J-Djava.security.policy<br>=.java.policy LanServerTalk.html </p>
+<p>—- 这种方法使用灵活，特别是作为一个软件包在企业内部网中发布时，安装、设置和迁移软件，基本无须修改Policy文件的内容，使用起来相当简单，而且，安全许可的范围控制较精细。</p>
+<hr>
+<p>缺省策略实现和策略文件语法<br>上次修改时间： 1998 年 10 月 30 日</p>
+<p>Java 应用程序环境的策略（对不同来源的代码指定权限）由 Policy 对象来表示。更明确地说，就是由 Policy 类（包含在 java.security 包中）的实现抽象方法的 Policy 子类来表示。</p>
+<p>Policy 对象所用策略信息的源位置由 Policy 实现决定。缺省 Policy 实现从静态策略配置文件获得自己的信息。本文档的其余部分叙述了缺省 Policy 实现及其所读取的策略文件中必须使用的语法。有关使用 Policy Tool 来创建策略文件（不必知道所需语法）的详细信息，请参阅《策略工具文档》 (for Solaris) (for Windows)。</p>
+<p>以下是本文档其余部分的概要：</p>
+<p>缺省 Policy 实现<br>缺省策略文件位置<br>更改 Policy 实现<br>策略文件语法<br>策略文件示例<br>策略文件中的属性扩展<br>相关文档</p>
+<p>缺省 Policy 实现<br>在缺省 Policy 实现中，可在一个或多个策略配置文件中指定策略。配置文件的作用是指定特定代码源的代码所能获得的权限。</p>
+<p>可利用简单的文本编辑器或 Policy Tool 实用程序来编写策略文件。</p>
+<p>缺省情况下，系统上只有单个全系统策略文件和唯一的（可选）用户策略文件。</p>
+<p>首次调用缺省 Policy 对象的 getPermissions 方法或在任何时候调用 Policy 对象 refresh 方法时，即对其进行初始化。初始化包括分析策略配置文件（请参阅策略文件语法）及组装 Policy 对象。</p>
+<p>缺省策略文件位置<br>如前所述，系统在缺省情况下具有单个全系统策略文件和唯一的用户策略文件。</p>
+<p>系统策略文件的缺省位置为：</p>
+<p>java.home/lib/security/java.policy  (Solaris)<br>java.home\lib\security\java.policy  (Windows)<br>注意： java.home 指的是名为“java.home”的系统属性的值，它指定 JDK 的安装目录。</p>
+<p>系统策略文件可用于授予全系统代码权限。与 JDK 一起安装的 java.policy 文件可向标准扩展 (Java standard extensions) 授予全部权限，允许任何用户在无特权要求的端口进行监听，同时允许任何代码读取某些对安全不敏感的“标准”属性（例如“os.name”和“file.separator”属性）。</p>
+<p>用户策略文件的缺省位置为：</p>
+<p>user.home/.java.policy  (Solaris)<br>user.home.java.policy  (Windows)<br>注意： user.home 指的是名为“user.home”的系统属性的值，它指定用户的主目录。在 Windows 系统中，假定用户名是 uName，“user.home”属性的缺省值为：</p>
+<p>C:\Winnt\Profiles\uName（多用户 Windows NT 系统中）<br>C:\Windows\Profiles\uName（多用户 Windows 95 系统中）<br>C:\Windows（单用户 Windows 95 系统中）<br>初始化 Policy 时，将首先加载系统策略，然后在 Policy 中添加用户策略。如果两种策略均不存在，则采用内置策略。该内置策略与原始的沙箱策略相同。</p>
+<p>策略文件的位置在安全属性文件中指定。安全属性文件的位置为：</p>
+<p>java.home/lib/security/java.security  (Solaris)<br>java.home\lib\security\java.security  (Windows)<br>如上所述，java.home 指示 JDK 的安装目录。策略文件的位置被指定为其名称具有以下形式的属性的值：</p>
+<p>policy.url.n<br>其中 n 为数字。应采用以下形式的语句行来指定每个属性值：</p>
+<p>policy.url.n=URL<br>其中，URL 为 URL 规范。</p>
+<p>例如，安全属性文件中将把缺省系统和用户策略文件定义为：</p>
+<p>policy.url.1=file:${java.home}/lib/security/java.policy<br>policy.url.2=file:${user.home}/.java.policy<br>有关利用特殊语法（例如利用 ${java.home} 来指定 java.home 属性值）来指定属性值的详细信息，请参阅属性扩展。</p>
+<p>实际上，用户可以指定多个 URL（包括“<a href="http://”形式的" target="_blank" rel="external">http://”形式的</a> URL）,从而加载所有指定的策略文件。也可注释掉或更改第二个 URL，从而禁止读取缺省用户策略文件。</p>
+<p>该算法自 policy.url.1 开始，然后不断递增直到查不到 URL 为止。因此，如果有了 policy.url.1 和 policy.url.3，就不会读取 policy.url.3。</p>
+<p>运行时指定其它策略文件</p>
+<p>在执行应用程序时也可以指定附加的或不同的策略文件，方法是用“-Djava.security.policy”命令行参数来指定（该命令行参数设置 java.security.policy 属性值）。例如，如果使用</p>
+<pre><code>java -Djava.security.manager -Djava.security.policy=someURL SomeApp
+</code></pre><p>这里 someURL 是指定策略文件位置的 URL，则除了加载安全属性文件中指定的所有策略文件外，还会加载本方法所指定的策略文件。</p>
+<p>注意：</p>
+<p>URL 可以是任何标准 URL，也可以只是当前目录下策略文件的文件名，如下例所示：<br>    java -Djava.security.manager -Djava.security.policy=mypolicy WriteFile<br>“-Djava.security.manager”参数可确保缺省安全管理器已被安装，这样就容易对应用程序进行策略检查。如果应用程序 SomeApp 安装有安全管理器，则不需要该参数。<br>如果使用</p>
+<pre><code>java -Djava.security.manager -Djava.security.policy==someURL SomeApp
+</code></pre><p>（请注意双等号），就会仅使用指定的策略文件，而安全属性文件中指出的策略文件将被忽略。</p>
+<p>如果要将策略文件传递给 appletviewer，就应使用参数“-J-Djava.security.policy”，如下所示：</p>
+<pre><code>appletviewer -J-Djava.security.policy=someURL myApplet
+</code></pre><p>请注意：如果将安全属性文件中的“policy.allowSystemProperty”属性设置为“false”，就会忽略“-Djava.security.policy”策略文件值（对于 java 和 appletviewer 命令）。缺省值为“true”。</p>
+<p>更改 Policy 实现<br>可以用其它 policy 类来代替缺省 Policy 实现类，前提是前者属于抽象 Policy 类的子类并可实现 getPermissions 方法（及其它必要的方法）。</p>
+<p>缺省 Policy 实现的更改可通过编辑安全属性文件来完成，其中安全属性文件指 JDK lib/security 目录中的 java.security 文件。</p>
+<p>下面给出一种可在 java.security 中设置的属性类型的形式：</p>
+<pre><code>policy.provider=PolicyClassName
+</code></pre><p>PolicyClassName 必须指定所需 Policy 实现类的完整名称。该属性的缺省安全属性文件项如下所示：</p>
+<pre><code>policy.provider=sun.security.provider.PolicyFile
+</code></pre><p>要想自定义安全属性文件项，可通过更改属性值来指定另一个类，如下例所示：</p>
+<p>   policy.provider=com.mycom.MyPolicy<br>策略文件语法<br>JDK 的策略配置文件可用于指定来自特定代码源的代码所能获得的权限（何种系统资源访问类型）。</p>
+<p>为了使 applet（或在安全管理器下运行的应用程序）能够执行受保护的动作（例如读写文件），必须向 applet（或应用程序）授予进行该动作的权限。在缺省 Policy 实现中，必须由策略配置文件中的 grant 项授予该权限。有关详细信息，请参阅以下内容及 “Java 安全体系结构规范”（唯一的例外是：代码对位于与它自身同一 (URL) 位置并且对那一位置子目录下的文件总是自动拥有读权限，而无需授予明确的权限）。</p>
+<p>策略配置文件主要包含授权项列表。其中可能包含“keystore”（密钥仓库）项及零个或多个“grant”（授权）项。</p>
+<p>Keystore 项</p>
+<p>keystore 是存放私钥及相关数字证书（例如验证对应的公钥的 X.509 证书链）的数据库。keytool 实用程序 (for Solaris) (for Windows) 用于创建和管理密钥仓库。策略配置文件中所指定的 keystore 用于查找在该文件的授权项中所指定的签名人公钥。如果某一授权项指定了签名人别名（请参阅以下内容），则在策略配置文件中必须含有 keystore 项。</p>
+<p>目前，在策略文件中只能有一个 keystore 项（第一项后的其它 keystore 项将被忽略），且该项可位于文件授权项以外的任何位置。其语法如下所示：</p>
+<pre><code>keystore &quot;some_keystore_url&quot;, &quot;keystore_type&quot;;
+</code></pre><p>其中“some_keystore_url”指定密钥仓库的 URL 位置，而“keystore_type”指定密钥仓库的类型。</p>
+<p>URL 是相对于策略文件位置而言。因此，如果在安全属性文件中按以下方式指定策略文件：</p>
+<pre><code>policy.url.1=http://foo.bar.com/fum/some.policy
+</code></pre><p>而且策略文件中含有以下项：</p>
+<pre><code>keystore &quot;.keystore&quot;;
+</code></pre><p>就会从下列位置加载密钥仓库：</p>
+<pre><code>http://foo.bar.com/fum/.keystore
+</code></pre><p>URL 也可以是绝对 URL。</p>
+<p>keystore type 定义密钥仓库信息的存储和数据格式，同时也定义用于保护密钥仓库中私钥及密钥仓库自身完整性的算法。Sun Microsystems 所支持的缺省类型是名为“JKS”的专用密钥仓库类型。因此，如果密钥仓库类型属于“JKS”，就无需在 keystore 项中加以指定。</p>
+<p>授权项</p>
+<p>通常认为执行代码来自于某“代码源”（由 CodeSource 类型的对象表示）。代码源不仅包含代码的源位置 (URL)，而且还包括对包含与签写代码的私钥相对应的公钥的证书之引用。代码源中的证书通过用户密钥仓库中的符号别名引用。</p>
+<p>每个授权项包括一个或多个“权限项”，前面为可选 codeBase 和 signedBy 名字/值对，用于指定要授予权限的代码。授权项的基本格式如下所示：</p>
+<p>  grant signedBy “signer_names”, codeBase “URL” {<br>    permission permission_class_name “target_name”, “action”,<br>        signedBy “signer_names”;<br>    ….<br>    permission permission_class_name “target_name”, “action”,<br>        signedBy “signer_names”;<br>  };</p>
+<p>以上所有非斜体的项必须按原样出现（尽管大小写无关紧要且部分为可选项，如下所示）。 斜体项代表变量值。</p>
+<p>授权项必须以 grant 开头。</p>
+<p>SignedBy 和 CodeBase 域</p>
+<p>signedBy 和 codeBase 名字/值对为可选域，其间的顺序无关紧要。</p>
+<p>signedBy 值表示存储在密钥仓库中的证书别名。该证书内的公钥用于验证代码上的数字签名；用户可以向由私钥（私钥对应于该别名所指定的 keystore 项中的公钥）签名的代码授予权限。</p>
+<p>signedBy 的值可以是由逗号分隔的多个别名。 例如“Adam,Eve,Charles”，其含义为“Adam，Eve 和 Charles 签名”；它们之间的关系是 AND（与）而非 OR（或）。更确切地说，“Adam 签名的代码”语句的含义是“JAR 文件中有含类文件的代码，这个 JAR 文件已用密钥仓库中别名为 Adam 的项中与公钥所对应的私钥签名”。</p>
+<p>signedBy 域可选，这是因为如果省略该域，则表示“任何签名人”。代码是否有签名或由谁签名都没有关系。</p>
+<p>codeBase 值表示的是代码源位置；用户可向来自该位置的代码授权。空 codeBase 项表示“任何代码”；代码来源于何处没有关系。</p>
+<p>注意： codeBase 值是 URL，因此应该始终用正斜杠（而不要用反斜杠）作为目录分隔符，即使代码源实际在 Windows 系统上。这样，如果 Windows 系统上代码的源位置实际上是 C:\somepath\api\，则 codeBase 策略项的外观将如下所示：</p>
+<pre><code>grant codeBase &quot;file:/C:/somepath/api/&quot; {
+  ...
+}
+</code></pre><p>codeBase</p>
+<p>值的准确含义要取决于最后的字符。后面跟着“/”的 codeBase 将匹配指定目录下的所有类文件（非 JAR 文件）。后面跟着“/*”的 codeBase 将匹配该目录下的所有文件（类文件和 JAR 文件）。后面跟着“/-”的 codeBase 将匹配该目录下的所有文件（类文件和 JAR 文件）及该目录下子目录中的所有文件。下表说明了各种不同的情况。<br>下载代码的 Codebase URL  策略中的 Codebase URL   是否匹配?<br>java.sun.com/people/gong/   java.sun.com/people/gong<br>是</p>
+<p>java.sun.com/people/gong/   java.sun.com/people/gong/<br>是</p>
+<p>java.sun.com/people/gong/   java.sun.com/people/gong/*<br>是</p>
+<p>java.sun.com/people/gong/   java.sun.com/people/gong/-<br>是</p>
+<p>java.sun.com/people/gong/appl.jar   java.sun.com/people/gong/<br>否</p>
+<p>java.sun.com/people/gong/appl.jar   java.sun.com/people/gong/-<br>是</p>
+<p>java.sun.com/people/gong/appl.jar   java.sun.com/people/gong/*<br>是</p>
+<p>java.sun.com/people/gong/appl.jar   java.sun.com/people/-<br>是</p>
+<p>java.sun.com/people/gong/appl.jar   java.sun.com/people/*<br>否</p>
+<p>java.sun.com/people/gong/   java.sun.com/people/-<br>是</p>
+<p>java.sun.com/people/gong/   java.sun.com/people/*<br>否</p>
+<p>权限项</p>
+<p>权限项必须以 permission 开头。上述模板中的字 permission_class_name 的实际值可以是特定的权限类型（例如 java.io.FilePermission 或 java.lang.RuntimePermission）。</p>
+<p>“action” 对于许多权限类型而言都是必需的，例如 java.io.FilePermission（指定允许何种类型的文件访问权限）。 对于诸如 java.lang.RuntimePermission 等权限类型则为可选项：既可以在 permission_class_name 之后的 “target_name” 值中指定权限，也可以不指定权限。</p>
+<p>权限项的 signedBy 名字/值对为可选项。如果有名字/值对，则表示为已签名权限。意即必须由给定的别名对权限类签名，方可授予权限。例如，假定有以下授权项：</p>
+<p>  grant {<br>    permission Foo “foobar”, signedBy “FooSoft”;<br>  }<br>如果将 Foo.class 权限放到 JAR 文件中，且该 JAR 文件已由与 “FooSoft” 别名所指定的证书中的公钥相对应的私钥签名，或在 Foo.class 是系统类（因为系统类不受策略限制）的情况下，即可授予 Foo 权限类型。</p>
+<p>权限项中出现的项目必须按指定顺序出现（permission，permission_class_name，”target_name”，”action” 和 signedBy “signer_names”）。分号表示项终止。</p>
+<p>大小写对于标识符（permission、signedBy、codeBase 等）来说并不重要，但对于 permission_class_name 或作为值传递过来的字符串而言就很重要了。</p>
+<p>有关 Windows 系统上文件路径规范的注意事项</p>
+<p>请注意：在指定 java.io.FilePermission 时，”target_name” 是文件路径。在 Windows 系统上，无论何时在字符串中（而不是在 codeBase URL 中）直接指定文件路径，路径中都需要两个反斜杠来代表一个实际的反斜杠，如下例所示：</p>
+<p>  grant {<br>      permission java.io.FilePermission “C:\users\cathy\foo.bat”, “read”;<br>  };<br>原因在于：字符串是由符号处理器 (java.io.StreamTokenizer) 来处理的。符号处理器允许将“\”用作转义字符串（例如，“\n”表示换行），因此需要用两个反斜杠来表示一个反斜杠。符号处理器处理完以上文件路径字符串后，将把双反斜杠转换成单个反斜杠，其最终结果为：</p>
+<pre><code>&quot;C:\users\cathy\foo.bat&quot;
+</code></pre><p>策略文件示例<br>策略配置文件中两项的示例如下所示：</p>
+<p>  // 如果代码由 “Duke” 签字，则向 /tmp 中的所有文件<br>  // 授予读/写访问权限：</p>
+<p>  grant signedBy “Duke” {<br>    permission java.io.FilePermission “/tmp/*”, “read,write”;<br>  };<br>// 授予所有用户以下权限：</p>
+<p>grant { permission java.util.PropertyPermission “java.vendor”; };</p>
+<p>另一个示例策略配置文件如下所示。</p>
+<p>  grant signedBy “sysadmin”, codeBase “file:/home/sysadmin/<em>“ {<br>    permission java.security.SecurityPermission “Security.insertProvider.</em>“;<br>    permission java.security.SecurityPermission “Security.removeProvider.<em>“;<br>    permission java.security.SecurityPermission “Security.setProperty.</em>“;<br>  };<br>本示例规定：只有满足以下条件的代码才能调用 Security 类中的方法以添加或删除提供者或者设置 Security 属性：</p>
+<p>代码将从位于本地文件系统上“/home/sysadmin/”目录下的签名 JAR 文件中加载。<br>可以用密钥仓库中别名“sysadmin”所引用的公钥来校验签名。<br>可以忽略代码源中两个组件的任何一个（或两者）。下面是忽略 codeBase 的示例：</p>
+<p>  grant signedBy “sysadmin” {<br>    permission java.security.SecurityPermission “Security.insertProvider.<em>“;<br>    permission java.security.SecurityPermission “Security.removeProvider.</em>“;<br>  };<br>如果该策略生效，则来自 JAR 文件（由 “sysadmin” 签名）的代码可以添加/删除提供者，而不管 JAR 文件来源于何处。</p>
+<p>下面是没有签名人的示例：</p>
+<p>  grant codeBase “file:/home/sysadmin/-“ {<br>    permission java.security.SecurityPermission “Security.insertProvider.<em>“;<br>    permission java.security.SecurityPermission “Security.removeProvider.</em>“;<br>  };<br>这里，来自本地文件系统“/home/sysadmin/”目录下任意位置的代码都可以添加/删除提供者。 该代码不必签名。</p>
+<p>下面是既不含 codeBase 也不含 signedBy 的示例：</p>
+<p>  grant {<br>    permission java.security.SecurityPermission “Security.insertProvider.<em>“;<br>    permission java.security.SecurityPermission “Security.removeProvider.</em>“;<br>  };<br>此处，由于两个代码源组件均被忽略，因此任何代码（不管来自于何处，是否已签名或由何人签名）都可添加/删除提供者。</p>
+<p>策略文件中的属性扩展<br>策略文件和安全属性文件中可以进行属性扩展。</p>
+<p>属性扩展类似于扩展 shell 中的变量。也就是说，当类似</p>
+<pre><code>${some.property}
+</code></pre><p>的字符串出现在策略文件或安全属性文件中时，它将被扩展为系统属性的值。 例如，</p>
+<pre><code>permission java.io.FilePermission &quot;${user.home}&quot;, &quot;read&quot;;
+</code></pre><p>将把 “${user.home}” 扩展为使用 “user.home” 系统属性的值。如果该属性的值是 “/home/cathy”，则以上示例等价于：</p>
+<pre><code>permission java.io.FilePermission &quot;/home/cathy&quot;, &quot;read&quot;;
+</code></pre><p>为了能在与平台无关的策略文件中使用，也可采用特殊记号 “${/}”。该记号是 “${file.separator}” 的简化表示。这种方式允许使用下列字符串：</p>
+<pre><code>permission java.io.FilePermission &quot;${user.home}${/}*&quot;, &quot;read&quot;;
+</code></pre><p>如果 “user.home” 属性的值是 /home/cathy，而且是在 Solaris 系统上，则以上字符串将转换为：</p>
+<pre><code>permission java.io.FilePermission &quot;/home/cathy/*&quot;, &quot;read&quot;;
+</code></pre><p>如果 “user.home” 值是 C:\users\cathy，而且是在 Windows 系统上，则以上字符串将转换为：</p>
+<pre><code>permission java.io.FilePermission &quot;C:\users\cathy\*&quot;, &quot;read&quot;;
+</code></pre><p>同样，作为一种特例，如果扩展 codebase 中的属性，例如</p>
+<pre><code>grant codeBase &quot;file:${java.home}/lib/ext/&quot;
+</code></pre><p>则任何文件分隔符都将自动转换为“/”。这样，在 Windows 系统上，以上字符串将转换为：</p>
+<pre><code>grant codeBase &quot;file:C:/jdk1.2/lib/ext/&quot;
+</code></pre><p>即使 “java.home” 被设置为 C:\jdk1.2。因此，用户就不必也不应该在 codeBase 字符串中使用 ${/}。</p>
+<p>策略文件中允许使用双引号字符串的地方都可进行属性扩展。其中包括 “signer_names”、”URL”、”target_name” 和 “action” 域。</p>
+<p>是否允许属性扩展由安全属性文件中的“policy.expandProperties”属性控制。如果该属性为真（缺省值），则允许扩展。</p>
+<p>请注意：不能使用嵌套属性；嵌套属性将无效。 例如，</p>
+<pre><code>&quot;${user.${foo}}&quot;
+</code></pre><p>是无效的，即使将“foo”属性设置为“home”。原因在于属性解析程序不能识别嵌套属性；解析程序只是简单地搜索第一个“${”，然后继续搜索直到找到第一个“}”为止，同时试图将搜索结果（这里是 “${user.$foo}”）解释为属性。如果没有这种属性，则解析程序就会发生解释失败。</p>
+<p>也请注意：如果在 grant 项、permission 项或 keystore 项中无法扩展某个属性，则该项将被忽略。例如，如果在没有定义系统属性“foo”的情况下使用语句：</p>
+<pre><code>grant codeBase &quot;${foo}&quot; {
+  permission ...;
+  permission ...;
+};
+</code></pre><p>则该 grant 项中的所有权限都将被忽略。如果使用语句：</p>
+<pre><code>grant {
+  permission Foo &quot;${foo}&quot;;
+  permission Bar;
+};
+</code></pre><p>则将仅忽略“permission Foo…”项。最后，如果使用语句：</p>
+<pre><code>keystore &quot;${foo}&quot;;
+</code></pre><p>则将忽略 keystore 项。</p>
+<p>Windows 系统、文件路径和属性的扩展</p>
+<p>如上所述，在 Windows 系统上，当直接在字符串中（而不是在 codeBase URL 中）指定文件路径时，用户需要用两个反斜杠来代表文件路径中一个实际的反斜杠，如下例所示：</p>
+<pre><code>grant {
+    permission java.io.FilePermission &quot;C:\\users\\cathy\\foo.bat&quot;, &quot;read&quot;;
+};
+</code></pre><p>原因在于：字符串是由符号处理器 (java.io.StreamTokenizer) 来处理的。符号处理器允许将“\”用作转义字符串（例如，“\n”表示换行），因此需要用两个反斜杠来表示一个反斜杠。符号处理器处理完以上文件路径字符串后，将把双反斜杠转换成单个反斜杠，其最终结果为：</p>
+<pre><code>&quot;C:\users\cathy\foo.bat&quot;
+</code></pre><p>符号处理器处理完字符串后，即进行字符串中的属性扩展。因此，如果使用字符串：</p>
+<pre><code>&quot;${user.home}\\foo.bat&quot;
+</code></pre><p>则符号处理器首先处理字符串，即将双反斜杠转换成单个反斜杠，其结果为：</p>
+<pre><code>&quot;${user.home}\foo.bat&quot;
+</code></pre><p>随即扩展 ${user.home} 属性，其最终结果为：</p>
+<pre><code>&quot;C:\users\cathy\foo.bat&quot;
+</code></pre><p>以上假定 “user.home” 的值是 C:\users\cathy。当然，为实现与平台无关，最好在开始指定字符串时不要显式带上斜杠，即可以用 ${/} 属性来代替，如下例所示：</p>
+<pre><code>&quot;${user.home}${/}foo.bat&quot;
+</code></pre>]]></content>
+    
+    <summary type="html">
+    
+      如何配置Policy文件进行Java安全策略的设置
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>java安全管理器SecurityManager</title>
+    <link href="http://jishusuishouji.github.io/2017/05/09/java%E5%AE%89%E5%85%A8%E7%AE%A1%E7%90%86%E5%99%A8SecurityManager.md/java%E5%AE%89%E5%85%A8%E7%AE%A1%E7%90%86%E5%99%A8SecurityManager/"/>
+    <id>http://jishusuishouji.github.io/2017/05/09/java安全管理器SecurityManager.md/java安全管理器SecurityManager/</id>
+    <published>2017-05-08T16:33:39.000Z</published>
+    <updated>2017-05-08T19:53:02.928Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="问题的提出"><a href="#问题的提出" class="headerlink" title="问题的提出"></a>问题的提出</h2><h3 id="阅读源码中关于SecurityManager的代码"><a href="#阅读源码中关于SecurityManager的代码" class="headerlink" title="阅读源码中关于SecurityManager的代码"></a>阅读源码中关于<code>SecurityManager</code>的代码</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">SecurityManager security = System.getSecurityManager();</div><div class="line">if (security != null) &#123;</div><div class="line">    security.checkWrite(name);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="在本机运行正常，在服务器运行报错权限错误："><a href="#在本机运行正常，在服务器运行报错权限错误：" class="headerlink" title="在本机运行正常，在服务器运行报错权限错误："></a>在本机运行正常，在服务器运行报错权限错误：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">Exception in thread &quot;main&quot; java.security.AccessControlException: access denied (java.lang.RuntimePermission createSecurityManager)</div><div class="line">    at java.security.AccessControlContext.checkPermission(AccessControlContext.java:374)</div><div class="line">    at java.security.AccessController.checkPermission(AccessController.java:549)</div><div class="line">    at java.lang.SecurityManager.checkPermission(SecurityManager.java:532)</div><div class="line">    at java.lang.SecurityManager.&lt;init&gt;(SecurityManager.java:282)</div><div class="line">    ...</div></pre></td></tr></table></figure>
+<p>为了彻底明白这些情况，需要研究一下<code>SecurityManager</code>。</p>
+<h2 id="SecurityManager应用场景"><a href="#SecurityManager应用场景" class="headerlink" title="SecurityManager应用场景"></a><code>SecurityManager</code>应用场景</h2><p>当运行未知的Java程序(可能有恶意代码（删除系统文件、重启系统等）)时，为了防止恶意代码对系统产生影响，需要对运行的代码的权限进行控制，这时就需要启用Java安全管理器。</p>
+<h2 id="管理器配置文件"><a href="#管理器配置文件" class="headerlink" title="管理器配置文件"></a>管理器配置文件</h2><h3 id="默认配置文件"><a href="#默认配置文件" class="headerlink" title="默认配置文件"></a>默认配置文件</h3><p>默认的安全管理器配置文件位于<code>$JAVA_HOME/jre/lib/security/java.policy</code>，当未指定配置文件时，将会使用该默认配置。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">// Standard extensions get all permissions by default</div><div class="line"></div><div class="line">grant codeBase &quot;file:$&#123;&#123;java.ext.dirs&#125;&#125;/*&quot; &#123;</div><div class="line">        permission java.security.AllPermission;</div><div class="line">&#125;;</div><div class="line"></div><div class="line">// default permissions granted to all domains</div><div class="line"></div><div class="line">grant &#123;</div><div class="line">        // Allows any thread to stop itself using the java.lang.Thread.stop()</div><div class="line">        // method that takes no argument.</div><div class="line">        // Note that this permission is granted by default only to remain</div><div class="line">        // backwards compatible.</div><div class="line">        // It is strongly recommended that you either remove this permission</div><div class="line">        // from this policy file or further restrict it to code sources</div><div class="line">        // that you specify, because Thread.stop() is potentially unsafe.</div><div class="line">        // See the API specification of java.lang.Thread.stop() for more</div><div class="line">        // information.</div><div class="line">        permission java.lang.RuntimePermission &quot;stopThread&quot;;</div><div class="line"></div><div class="line">        // allows anyone to listen on dynamic ports</div><div class="line">        permission java.net.SocketPermission &quot;localhost:0&quot;, &quot;listen&quot;;</div><div class="line"></div><div class="line">        // &quot;standard&quot; properies that can be read by anyone</div><div class="line"></div><div class="line">        permission java.util.PropertyPermission &quot;java.version&quot;, &quot;read&quot;;</div><div class="line">        permission java.util.PropertyPermission &quot;java.vendor&quot;, &quot;read&quot;;</div><div class="line">        permission java.util.PropertyPermission &quot;java.vendor.url&quot;, &quot;read&quot;;</div><div class="line">        permission java.util.PropertyPermission &quot;java.class.version&quot;, &quot;read&quot;;</div><div class="line">        permission java.util.PropertyPermission &quot;os.name&quot;, &quot;read&quot;;</div><div class="line">        permission java.util.PropertyPermission &quot;os.version&quot;, &quot;read&quot;;</div><div class="line">        permission java.util.PropertyPermission &quot;os.arch&quot;, &quot;read&quot;;</div><div class="line">        permission java.util.PropertyPermission &quot;file.separator&quot;, &quot;read&quot;;</div><div class="line">        permission java.util.PropertyPermission &quot;path.separator&quot;, &quot;read&quot;;</div><div class="line">        permission java.util.PropertyPermission &quot;line.separator&quot;, &quot;read&quot;;</div><div class="line"></div><div class="line">        permission java.util.PropertyPermission &quot;java.specification.version&quot;, &quot;read&quot;;</div><div class="line">        permission java.util.PropertyPermission &quot;java.specification.vendor&quot;, &quot;read&quot;;</div><div class="line">        permission java.util.PropertyPermission &quot;java.specification.name&quot;, &quot;read&quot;;</div><div class="line"></div><div class="line">        permission java.util.PropertyPermission &quot;java.vm.specification.version&quot;, &quot;read&quot;;</div><div class="line">        permission java.util.PropertyPermission &quot;java.vm.specification.vendor&quot;, &quot;read&quot;;</div><div class="line">        permission java.util.PropertyPermission &quot;java.vm.specification.name&quot;, &quot;read&quot;;</div><div class="line">        permission java.util.PropertyPermission &quot;java.vm.version&quot;, &quot;read&quot;;</div><div class="line">        permission java.util.PropertyPermission &quot;java.vm.vendor&quot;, &quot;read&quot;;</div><div class="line">        permission java.util.PropertyPermission &quot;java.vm.name&quot;, &quot;read&quot;;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<h2 id="启用安全管理器"><a href="#启用安全管理器" class="headerlink" title="启用安全管理器"></a>启用安全管理器</h2><p>　　<br>有两种方式，建议采用参数启用方式。</p>
+<h3 id="参数启用方式"><a href="#参数启用方式" class="headerlink" title="参数启用方式"></a>参数启用方式</h3><p>运行程序的时候附加参数启用安全管理器：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">-Djava.security.manager</div></pre></td></tr></table></figure></p>
+<p>指定配置文件的位置：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">-Djava.security.manager -Djava.security.policy=&quot;E:/java.policy&quot;</div></pre></td></tr></table></figure></p>
+<h3 id="编码方式启用"><a href="#编码方式启用" class="headerlink" title="编码方式启用"></a>编码方式启用</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">System.setSecurityManager(new SecurityManager());</div></pre></td></tr></table></figure>
+<p>参数启用本质上也是通过编码启用，不过参数启用灵活（<code>sun.misc.Launcher</code>）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">String str = System.getProperty(&quot;java.security.manager&quot;);</div><div class="line">if (str != null)</div><div class="line">&#123;</div><div class="line">  SecurityManager localSecurityManager = null;</div><div class="line">  if ((&quot;&quot;.equals(str)) || (&quot;default&quot;.equals(str))) &#123;</div><div class="line">    localSecurityManager = new SecurityManager();</div><div class="line">  &#125; else &#123;</div><div class="line">    try</div><div class="line">    &#123;</div><div class="line">      localSecurityManager = (SecurityManager)this.loader.loadClass(str).newInstance();</div><div class="line">    &#125;</div><div class="line">    catch (IllegalAccessException localIllegalAccessException) &#123;&#125;catch (InstantiationException localInstantiationException) &#123;&#125;catch (ClassNotFoundException localClassNotFoundException) &#123;&#125;catch (ClassCastException localClassCastException) &#123;&#125;</div><div class="line">  &#125;</div><div class="line">  if (localSecurityManager != null) &#123;</div><div class="line">    System.setSecurityManager(localSecurityManager);</div><div class="line">  &#125; else &#123;</div><div class="line">    throw new InternalError(&quot;Could not create SecurityManager: &quot; + str);</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>会创建一个默认的<code>SecurityManager</code></p>
+<h2 id="配置文件解析"><a href="#配置文件解析" class="headerlink" title="配置文件解析"></a>配置文件解析</h2><h3 id="配置基本原则"><a href="#配置基本原则" class="headerlink" title="配置基本原则"></a>配置基本原则</h3><p>在启用安全管理器的时候，配置遵循以下基本原则：</p>
+<ul>
+<li>没有配置的权限表示没有</li>
+<li>只能配置有什么权限，不能配置禁止做什么</li>
+<li>同一种权限可多次配置，取并集。</li>
+<li>统一资源的多种权限可用逗号分割。</li>
+</ul>
+<h3 id="默认配置文件解释"><a href="#默认配置文件解释" class="headerlink" title="默认配置文件解释"></a>默认配置文件解释</h3><h4 id="第一部分授权："><a href="#第一部分授权：" class="headerlink" title="第一部分授权："></a>第一部分授权：</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">grant codeBase &quot;file:$&#123;&#123;java.ext.dirs&#125;&#125;/*&quot; &#123;</div><div class="line">    permission java.security.AllPermission;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>授权位于”<code>file:$/</code>*”下的class和jar包所有权限。</p>
+<h4 id="第二部分授权："><a href="#第二部分授权：" class="headerlink" title="第二部分授权："></a>第二部分授权：</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">grant &#123; </div><div class="line">    permission java.lang.RuntimePermission &quot;stopThread&quot;;</div><div class="line">    ……   </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这是细粒度的授权，对某些资源进行授权。<code>RuntimePermission</code>的可授权操作(<code>stopThread</code>仅仅是其中的一个)如下(可查看javadoc)：</p>
+<table>
+<thead>
+<tr>
+<th>权限目标名称</th>
+<th style="text-align:center">权限所允许的操作</th>
+<th style="text-align:right">允许此权限所带来的风险</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>createClassLoader</code></td>
+<td style="text-align:center">创建类加载器</td>
+<td style="text-align:right">授予该权限极其危险。能够实例化自己的类加载器的恶意应用程序可能会在系统中装载自己的恶意类。这些新加载的类可能被类加载器置于任意保护域中，从而自动将该域的权限授予这些类。</td>
+</tr>
+<tr>
+<td><code>getClassLoader</code></td>
+<td style="text-align:center">类加载器的获取（即调用类的类加载器）</td>
+<td style="text-align:right">这将授予攻击者得到具体类的加载器的权限。这很危险，由于攻击者能够访问类的类加载器，所以攻击者能够加载其他可用于该类加载器的类。通常攻击者不具备这些类的访问权限。</td>
+</tr>
+<tr>
+<td><code>setContextClassLoader</code></td>
+<td style="text-align:center">线程使用的上下文类加载器的设置</td>
+<td style="text-align:right">在需要查找可能不存在于系统类加载器中的资源时，系统代码和扩展部分会使用上下文类加载器。授予 <code>setContextClassLoader</code> 权限将允许代码改变特定线程（包括系统线程）使用的上下文类加载器。</td>
+</tr>
+<tr>
+<td><code>enableContextClassLoaderOverride</code></td>
+<td style="text-align:center">线程上下文类加载器方法的子类实现</td>
+<td style="text-align:right">在需要查找可能不存在于系统类加载器中的资源时，系统代码和扩展部分会使用上下文类加载器。授予<code>enableContextClassLoaderOverride</code>权限将允许线程的子类重写某些方法，这些方法用于得到或设置特定线程的上下文类加载器。</td>
+</tr>
+<tr>
+<td><code>setSecurityManager</code></td>
+<td style="text-align:center">设置安全管理器（可能会替换现有的）</td>
+<td style="text-align:right">安全管理器是允许应用程序实现安全策略的类。授予<code>setSecurityManager</code>权限将通过安装一个不同的、可能限制更少的安全管理器，来允许代码改变所用的安全管理器，因此可跳过原有安全管理器所强制执行的某些检查。</td>
+</tr>
+<tr>
+<td><code>createSecurityManager</code></td>
+<td style="text-align:center">创建新的安全管理器</td>
+<td style="text-align:right">授予代码对受保护的、敏感方法的访问权，可能会泄露有关其他类或执行堆栈的信息。</td>
+</tr>
+<tr>
+<td><code>getenv.{variable name}</code></td>
+<td style="text-align:center">读取指定环境变量的值</td>
+<td style="text-align:right">此权限允许代码读取特定环境变量的值或确定它是否存在。如果该变量含有机密数据，则这项授权是很危险的。</td>
+</tr>
+<tr>
+<td><code>exitVM.{exit status}</code></td>
+<td style="text-align:center">暂停带有指定退出状态的Java虚拟机</td>
+<td style="text-align:right">此权限允许攻击者通过自动强制暂停虚拟机来发起一次拒绝服务攻击。注意：自动为那些从应用程序类路径加载的全部代码授予 “<code>exitVM.*</code>“权限，从而使这些应用程序能够自行中止。此外，”<code>exitVM</code>“权限等于”exitVM.*”。</td>
+</tr>
+<tr>
+<td><code>shutdownHooks</code></td>
+<td style="text-align:center">虚拟机关闭钩子 (hook) 的注册与取消</td>
+<td style="text-align:right">此权限允许攻击者注册一个妨碍虚拟机正常关闭的恶意关闭钩子 (hook)。</td>
+</tr>
+<tr>
+<td><code>setFactory</code></td>
+<td style="text-align:center">设置由<code>ServerSocket</code>或<code>Socket</code>使用的套接字工厂，或<code>URL</code>使用的流处理程序工厂</td>
+<td style="text-align:right">此权限允许代码设置套接字、服务器套接字、流处理程序或 RMI套接字工厂的实际实现。攻击者可能设置错误的实现，从而破坏数据流。</td>
+</tr>
+<tr>
+<td><code>setIO</code></td>
+<td style="text-align:center"><code>System.out</code>、<code>System.in</code>和<code>System.err</code>的设置</td>
+<td style="text-align:right">此权限允许改变标准系统流的值。攻击者可以改变<code>System.in</code>来监视和窃取用户输入，或将<code>System.err</code>设置为”<code>null</code>“ <code>OutputStream</code>，从而隐藏发送到<code>System.err</code>的所有错误信息。</td>
+</tr>
+<tr>
+<td><code>modifyThread</code></td>
+<td style="text-align:center">修改线程，例如通过调用线程的<code>interrupt</code>、<code>stop</code>、<code>suspend</code>、<code>resume</code>、<code>setDaemon</code>、<code>setPriority</code>、<code>setName</code>和<code>setUncaughtExceptionHandler</code>方法</td>
+<td style="text-align:right">此权限允许攻击者修改系统中任意线程的行为。</td>
+</tr>
+<tr>
+<td><code>stopThread</code></td>
+<td style="text-align:center">通过调用线程的<code>stop</code>方法停止线程</td>
+<td style="text-align:right">如果系统已授予代码访问该线程的权限，则此权限允许代码停止系统中的任何线程。此权限会造成一定的危险，因为该代码可能通过中止现有的线程来破坏系统。</td>
+</tr>
+<tr>
+<td><code>modifyThreadGroup</code></td>
+<td style="text-align:center">修改线程组，例如通过调用<code>ThreadGroup</code>的<code>destroy</code>、<code>getParent</code>、<code>resume</code>、<code>setDaemon</code>、<code>setMaxPriority</code>、<code>stop</code>和<code>suspend</code>方法</td>
+<td style="text-align:right">此权限允许攻击者创建线程组并设置它们的运行优先级。</td>
+</tr>
+<tr>
+<td><code>getProtectionDomain</code></td>
+<td style="text-align:center">获取类的<code>ProtectionDomain</code></td>
+<td style="text-align:right">此权限允许代码获得特定代码源的安全策略信息。虽然获得安全策略信息并不足以危及系统安全，但这确实会给攻击者提供了能够更好地定位攻击目标的其他信息，例如本地文件名称等。</td>
+</tr>
+<tr>
+<td><code>getFileSystemAttributes</code></td>
+<td style="text-align:center">获取文件系统属性</td>
+<td style="text-align:right">此权限允许代码获得文件系统信息（如调用者可用的磁盘使用量或磁盘空间）。这存在潜在危险，因为它泄露了关于系统硬件配置的信息以及一些关于调用者写入文件特权的信息。</td>
+</tr>
+<tr>
+<td><code>readFileDescriptor</code></td>
+<td style="text-align:center">读取文件描述符</td>
+<td style="text-align:right">此权限允许代码读取与文件描述符读取相关的特定文件。如果该文件包含机密数据，则此操作非常危险。</td>
+</tr>
+<tr>
+<td><code>writeFileDescriptor</code></td>
+<td style="text-align:center">写入文件描述符</td>
+<td style="text-align:right">此权限允许代码写入与描述符相关的特定文件。此权限很危险，因为它可能允许恶意代码传播病毒，或者至少也会填满整个磁盘。</td>
+</tr>
+<tr>
+<td><code>loadLibrary.{库名}</code></td>
+<td style="text-align:center">动态链接指定的库</td>
+<td style="text-align:right">允许applet具有加载本机代码库的权限是危险的，因为Java安全架构并未设计成可以防止恶意行为，并且也无法在本机代码的级别上防止恶意行为。</td>
+</tr>
+<tr>
+<td><code>accessClassInPackage.{包名}</code></td>
+<td style="text-align:center">当类加载器调用<code>SecurityManager</code>的<code>checkPackageAccess</code>方法时，通过类加载器的<code>loadClass</code>方法访问指定的包</td>
+<td style="text-align:right">此权限允许代码访问它们通常无法访问的那些包中的类。恶意代码可能利用这些类帮助它们实现破坏系统安全的企图。</td>
+</tr>
+<tr>
+<td><code>defineClassInPackage.{包名}</code></td>
+<td style="text-align:center">当类加载器调用<code>SecurityManager</code>的<code>checkPackageDefinition</code>方法时，通过类加载器的<code>defineClass</code> 方法定义指定的包中的类。</td>
+<td style="text-align:right">此权限允许代码在特定包中定义类。这样做很危险，因为具有此权限的恶意代码可能在受信任的包中定义恶意类，比如<code>java.security</code>或<code>java.lang</code>。</td>
+</tr>
+<tr>
+<td><code>accessDeclaredMembers</code></td>
+<td style="text-align:center">访问类的已声明成员</td>
+<td style="text-align:right">此权限允许代码查询类的公共、受保护、默认（包）访问和私有的字段和或方法。尽管代码可以访问私有和受保护字段和方法名称，但它不能访问私有/受保护字段数据并且不能调用任何私有方法。此外，恶意代码可能使用该信息来更好地定位攻击目标。而且，它可以调用类中的任意公共方法和/或访问公共字段。如果代码不能用这些方法和字段将对象强制转换为类/接口，那么它通常无法调用这些方法和/或访问该字段，而这可能很危险。</td>
+</tr>
+<tr>
+<td><code>queuePrintJob</code></td>
+<td style="text-align:center">打印作业请求的开始</td>
+<td style="text-align:right">这可能向打印机输出敏感信息，或者只是浪费纸张。</td>
+</tr>
+<tr>
+<td><code>getStackTrace</code></td>
+<td style="text-align:center">获取另一个线程的堆栈追踪信息。</td>
+<td style="text-align:right">此权限允许获取另一个线程的堆栈追踪信息。此操作可能允许执行恶意代码监视线程并发现应用程序中的弱点。</td>
+</tr>
+<tr>
+<td><code>setDefaultUncaughtExceptionHandler</code></td>
+<td style="text-align:center">在线程由于未捕获的异常而突然终止时，设置将要使用的默认处理程序</td>
+<td style="text-align:right">此权限允许攻击者注册恶意的未捕获异常处理程序，可能会妨碍线程的终止</td>
+</tr>
+<tr>
+<td><code>Preferences</code></td>
+<td style="text-align:center">表示得到<code>java.util.prefs.Preferences</code>的访问权所需的权限。<code>java.util.prefs.Preferences</code>实现了用户或系统的根，这反过来又允许获取或更新<code>Preferences</code> 持久内部存储中的操作。</td>
+<td style="text-align:right">如果运行此代码的用户具有足够的读/写内部存储的OS特权，则此权限就允许用户读/写优先级内部存储。实际的内部存储可能位于传统的文件系统目录中或注册表中，这取决于平台 OS。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="可配置项详解"><a href="#可配置项详解" class="headerlink" title="可配置项详解"></a>可配置项详解</h3><p>当批量配置的时候，有三种模式：</p>
+<p><code>directory/</code> 表示<code>directory</code>目录下的所有<code>.class</code>文件，不包括<code>.jar</code>文件<br><code>directory/*</code> 表示<code>directory</code>目录下的所有的<code>.class</code>及<code>.jar</code>文件<br><code>directory/-`` 表示directory目录下的所有的</code>.class<code>及</code>.jar`文件，包括子目录</p>
+<p>可以通过<code>${}</code>来引用系统属性，如：</p>
+<p><code>&quot;file:$/*&quot;</code></p>
+<h2 id="问题解决"><a href="#问题解决" class="headerlink" title="问题解决"></a>问题解决</h2><p>　　</p>
+<h3 id="取消安全管理器"><a href="#取消安全管理器" class="headerlink" title="取消安全管理器"></a>取消安全管理器</h3><p>　　</p>
+<h3 id="增加相应权限"><a href="#增加相应权限" class="headerlink" title="增加相应权限"></a>增加相应权限</h3><p>如果没有某项权限则报错信息会提示是请求什么权限：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Exception in thread &quot;main&quot; java.security.AccessControlException: access denied (java.io.FilePermission c:\test.txt write)</div></pre></td></tr></table></figure>
+<p>对<code>c:\test.txt</code>没有写权限。</p>
+<p>最简单的事开放所有权限（不推荐）：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">grant &#123; </div><div class="line">    permission java.security.AllPermission;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+]]></content>
+    
+    <summary type="html">
+    
+      java安全管理器SecurityManager
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
     <title>编写java的安全管理器</title>
     <link href="http://jishusuishouji.github.io/2017/05/09/java%E7%9A%84%E5%AE%89%E5%85%A8%E6%9C%BA%E5%88%B6.md/java%E7%9A%84%E5%AE%89%E5%85%A8%E6%9C%BA%E5%88%B6/"/>
     <id>http://jishusuishouji.github.io/2017/05/09/java的安全机制.md/java的安全机制/</id>
     <published>2017-05-08T16:04:27.000Z</published>
-    <updated>2017-05-08T16:32:50.276Z</updated>
+    <updated>2017-05-08T19:52:17.964Z</updated>
     
     <content type="html"><![CDATA[<p>安全管理器<code>SecurityManager</code>核心方法<code>checkPerssiom</code>,而该方法又调用<code>AccessController</code>的<code>checkPerssiom</code>方法，访问控制器<code>AccessController</code>的栈检查机制会遍历整个<code>PerssiomCollection</code>来判断具体拥有什么权限,一旦发现栈中一个权限不允许会抛出异常，否则简单的返回。</p>
 <h2 id="编写java的安全管理器"><a href="#编写java的安全管理器" class="headerlink" title="编写java的安全管理器"></a>编写java的安全管理器</h2><h3 id="定义一个类继承自SecurityManger并重写checkRead方法"><a href="#定义一个类继承自SecurityManger并重写checkRead方法" class="headerlink" title="定义一个类继承自SecurityManger并重写checkRead方法"></a>定义一个类继承自<code>SecurityManger</code>并重写<code>checkRead</code>方法</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">package com.test.security.manager;</div><div class="line"></div><div class="line">public class MySecurityManager extends SecurityManager &#123;</div><div class="line"></div><div class="line">    @Override</div><div class="line">    public void checkRead(String fileFullPath) &#123;</div><div class="line">        // super.checkRead(fileFullPath);</div><div class="line">        if (fileFullPath.endsWith(&quot;test&quot;)) &#123;</div><div class="line">            throw new SecurityException(&quot;你没有读取的本文件的权限&quot;);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
@@ -708,400 +1187,6 @@ stats admin if TRUE
       <category term="相对路径" scheme="http://jishusuishouji.github.io/tags/%E7%9B%B8%E5%AF%B9%E8%B7%AF%E5%BE%84/"/>
     
       <category term="绝对路径" scheme="http://jishusuishouji.github.io/tags/%E7%BB%9D%E5%AF%B9%E8%B7%AF%E5%BE%84/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>设计模式六大原则</title>
-    <link href="http://jishusuishouji.github.io/2017/04/06/shejiyuanze/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%85%AD%E5%A4%A7%E5%8E%9F%E5%88%99/"/>
-    <id>http://jishusuishouji.github.io/2017/04/06/shejiyuanze/设计模式六大原则/</id>
-    <published>2017-04-05T23:43:16.000Z</published>
-    <updated>2017-04-06T23:28:59.846Z</updated>
-    
-    <content type="html"><![CDATA[<p>开闭原则<br>单一职责原则<br>迪米特原则<br>面向对象的： 接口隔离原则<br>             依赖倒转原则<br>             里氏替换原则</p>
-<h2 id="单一职责原则"><a href="#单一职责原则" class="headerlink" title="单一职责原则"></a>单一职责原则</h2><p>定义：<strong>不要存在多于一个导致类变更的原因</strong>。</p>
-<p>问题由来：类<code>T</code>负责两个不同的职责：职责<code>P1</code>，职责<code>P2</code>。当由于职责<code>P1</code>需求发生改变而需要修改类<code>T</code>时，有可能会导致原本运行正常的职责<code>P2</code>功能发生故障。</p>
-<p>解决方案：遵循单一职责原则。分别建立两个类<code>T1</code>、<code>T2</code>，使<code>T1</code>完成职责<code>P1</code>功能，<code>T2</code>完成职责<code>P2</code>功能。这样，当修改类<code>T1</code>时，不会使职责P2发生故障风险；同理，当修改<code>T2</code>时，也不会使职责P1发生故障风险。</p>
-<p>遵循单一职责原则可以避免因为修改了一个功能导致其他功能发生异常。</p>
-<h3 id="职责扩散"><a href="#职责扩散" class="headerlink" title="职责扩散"></a>职责扩散</h3><p>职责扩散：因为某种原因，职责P被分化为粒度更细的职责P1和P2。<br>比如：类<code>T</code>只负责一个职责P，这样设计是符合单一职责原则的。后来由于需求变更了，需要将职责P细分为粒度更细的职责P1，P2，这时如果要使程序遵循单一职责原则，需要将类<code>T</code>分解为两个类<code>T1</code>和<code>T2</code>，分别负责P1、P2两个职责。但是在程序已经写好的情况下，这样做简直太费时间了。所以，简单的修改类<code>T</code>，用它来负责两个职责是一个比较不错的选择，虽然这样做有悖于单一职责原则。（这样做的风险在于职责扩散的不确定性，因为我们不会想到这个职责P，在未来可能会扩散为P1，P2，P3，P4……Pn。所以记住，在职责扩散到我们无法控制的程度之前，立刻对代码进行重构。）</p>
-<h3 id="职责扩散例子说明，用一个类描述动物呼吸这个场景："><a href="#职责扩散例子说明，用一个类描述动物呼吸这个场景：" class="headerlink" title="职责扩散例子说明，用一个类描述动物呼吸这个场景："></a>职责扩散例子说明，用一个类描述动物呼吸这个场景：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">class Animal&#123;</div><div class="line">    public void breathe(String animal)&#123;</div><div class="line">        System.out.println(animal+&quot;呼吸空气&quot;);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">public class Client&#123;</div><div class="line">    public static void main(String[] args)&#123;</div><div class="line">        Animal animal = new Animal();</div><div class="line">        animal.breathe(&quot;牛&quot;);</div><div class="line">        animal.breathe(&quot;羊&quot;);</div><div class="line">        animal.breathe(&quot;猪&quot;);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>运行结果：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">牛呼吸空气</div><div class="line">羊呼吸空气</div><div class="line">猪呼吸空气</div></pre></td></tr></table></figure>
-<p>程序上线后，发现问题了，并不是所有的动物都呼吸空气的，比如鱼就是呼吸水的。修改时如果遵循单一职责原则，需要将<code>Animal</code>类细分为陆生动物类<code>Terrestrial</code>，水生动物<code>Aquatic</code>，代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">class Terrestrial&#123;</div><div class="line">    public void breathe(String animal)&#123;</div><div class="line">        System.out.println(animal+&quot;呼吸空气&quot;);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">class Aquatic&#123;</div><div class="line">    public void breathe(String animal)&#123;</div><div class="line">        System.out.println(animal+&quot;呼吸水&quot;);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">public class Client&#123;</div><div class="line">    public static void main(String[] args)&#123;</div><div class="line">        Terrestrial terrestrial = new Terrestrial();</div><div class="line">        terrestrial.breathe(&quot;牛&quot;);</div><div class="line">        terrestrial.breathe(&quot;羊&quot;);</div><div class="line">        terrestrial.breathe(&quot;猪&quot;);</div><div class="line">        </div><div class="line">        Aquatic aquatic = new Aquatic();</div><div class="line">        aquatic.breathe(&quot;鱼&quot;);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>运行结果：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">牛呼吸空气</div><div class="line">羊呼吸空气</div><div class="line">猪呼吸空气</div><div class="line">鱼呼吸水</div></pre></td></tr></table></figure></p>
-<p>我们会发现如果这样修改花销是很大的，除了将原来的类分解之外，还需要修改客户端。而直接修改类<code>Animal</code>来达成目的虽然违背了单一职责原则，但花销却小得多，代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">class Animal&#123;</div><div class="line">    public void breathe(String animal)&#123;</div><div class="line">        if(&quot;鱼&quot;.equals(animal))&#123;</div><div class="line">            System.out.println(animal+&quot;呼吸水&quot;);</div><div class="line">        &#125;else&#123;</div><div class="line">            System.out.println(animal+&quot;呼吸空气&quot;);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">public class Client&#123;</div><div class="line">    public static void main(String[] args)&#123;</div><div class="line">        Animal animal = new Animal();</div><div class="line">        animal.breathe(&quot;牛&quot;);</div><div class="line">        animal.breathe(&quot;羊&quot;);</div><div class="line">        animal.breathe(&quot;猪&quot;);</div><div class="line">        animal.breathe(&quot;鱼&quot;);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>可以看到，这种修改方式要简单得多。但是却存在着隐患：有一天需要将鱼分为呼吸淡水的鱼和呼吸海水的鱼，则又需要修改<code>Animal</code>类的<code>breathe</code>方法，而对原有代码的修改会对调用“猪”“牛”“羊”等相关功能带来风险，也许某一天你会发现程序运行的结果变为“牛呼吸水”了。(不要认为这是不可能的，这是绝对可能的，修改代码本来就应该认为是极其危险的，你可以扩展但是最好不要修改，修改了就一定要好好测试！)这种修改方式直接在代码级别上违背了单一职责原则，虽然修改起来最简单，但隐患却是最大的。还有一种修改方式：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">class Animal&#123;</div><div class="line">    public void breathe(String animal)&#123;</div><div class="line">        System.out.println(animal+&quot;呼吸空气&quot;);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public void breathe2(String animal)&#123;</div><div class="line">        System.out.println(animal+&quot;呼吸水&quot;);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">public class Client&#123;</div><div class="line">    public static void main(String[] args)&#123;</div><div class="line">        Animal animal = new Animal();</div><div class="line">        animal.breathe(&quot;牛&quot;);</div><div class="line">        animal.breathe(&quot;羊&quot;);</div><div class="line">        animal.breathe(&quot;猪&quot;);</div><div class="line">        animal.breathe2(&quot;鱼&quot;);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>可以看到，这种修改方式没有改动原来的方法，而是在类中新加了一个方法，这样虽然也违背了单一职责原则，但在方法级别上却是符合单一职责原则的，因为它并没有动原方法的代码。这三种方式各有优缺点，那么在实际编程中，采用哪一种呢？这需要根据实际情况来确定。原则是：只有逻辑足够简单，才可以在代码级别上违反单一职责原则；只有类中方法数量足够少，才可以在方法级别上违反单一职责原则；</p>
-<p>例如本文所举的这个例子，它太简单了，它只有一个方法，所以，无论是在代码级别上违反单一职责原则，还是在方法级别上违反，都不会造成太大的影响。实际应用中的类要复杂得多，一旦发生职责扩散而需要修改类时，除非这个类本身非常简单，否则还是遵循单一职责原则的好。</p>
-<h3 id="遵循单一职责原的优点有："><a href="#遵循单一职责原的优点有：" class="headerlink" title="遵循单一职责原的优点有："></a>遵循单一职责原的优点有：</h3><ul>
-<li>可以降低类的复杂度，一个类只负责一项职责，其逻辑肯定要比负责多项职责简单得多；</li>
-<li>提高类的可读性，提高系统的可维护性；</li>
-<li>降低变更引起的风险，变更是必然的，如果单一职责原则遵守得好，当修改一个功能时，可以显著降低对其他功能的影响。</li>
-</ul>
-<p>需要说明的一点是单一职责原则不只是面向对象编程思想所特有的，只要是模块化的程序设计，都适用单一职责原则。</p>
-<h2 id="里氏替换原则"><a href="#里氏替换原则" class="headerlink" title="里氏替换原则"></a>里氏替换原则</h2><p>在1988年麻省理工学院的一位姓里的女士（Barbara Liskov）提出来的。</p>
-<p>定义1：如果对每一个类型为<code>T1</code>的对象<code>o1</code>，都有类型为<code>T2</code>的对象<code>o2</code>,使得在程序中所有的对象<code>o1</code>都代换成<code>o2</code>时，程序P的行为没有发生变化，那么类型<code>T2</code>是类型<code>T1</code>的子类型。</p>
-<p>定义2：所有引用基类的地方必须能透明地使用其子类的对象。</p>
-<p>问题由来：有一功能P1，由类<code>A</code>完成。现需要将功能P1进行扩展，扩展后的功能为P，其中P由原有功能P1与新功能P2组成。新功能P由类<code>A</code>的子类<code>B</code>来完成，则子类<code>B</code>在完成新功能P2的同时，有可能会导致原有功能P1发生故障。</p>
-<p>解决方案：当使用继承时，遵循里氏替换原则。类<code>B</code>继承类<code>A</code>时，除添加新的方法完成新增功能P2外，尽量不要重写父类<code>A</code>的方法，也尽量不要重载父类<code>A</code>的方法。</p>
-<p>继承包含这样一层含义：父类中凡是已经实现好的方法（相对于抽象方法而言），实际上是在设定一系列的规范和契约，虽然它不强制要求所有的子类必须遵从这些契约，但是如果子类对这些非抽象方法任意修改，就会对整个继承体系造成破坏。而里氏替换原则就是表达了这一层含义。</p>
-<p>继承作为面向对象三大特性之一，在给程序设计带来巨大便利的同时，也带来了弊端。比如使用继承会给程序带来侵入性，程序的可移植性降低，增加了对象间的耦合性，如果一个类被其他的类所继承，则当这个类需要修改时，必须考虑到所有的子类，并且父类修改后，所有涉及到子类的功能都有可能会产生故障。</p>
-<h3 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h3><p>一个两数相减的功能由类A来负责。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">class A&#123;</div><div class="line">    public int func1(int a, int b)&#123;</div><div class="line">        return a-b;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">public class Client&#123;</div><div class="line">    public static void main(String[] args)&#123;</div><div class="line">        A a = new A();</div><div class="line">        System.out.println(&quot;100-50=&quot;+a.func1(100, 50));</div><div class="line">        System.out.println(&quot;100-80=&quot;+a.func1(100, 80));</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>运行结果：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">100-50=50</div><div class="line"></div><div class="line">100-80=20</div></pre></td></tr></table></figure></p>
-<p>后来，需要增加一个新的功能：完成两数相加，然后再与100求和，由类<code>B</code>来负责。即类<code>B</code>需要完成两个功能：</p>
-<ul>
-<li>两数相减。</li>
-<li>两数相加，然后再加100。</li>
-</ul>
-<p>由于类<code>A</code>已经实现了第一个功能，所以类<code>B</code>继承类<code>A</code>后，只需要再完成第二个功能就可以了，代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">class B extends A&#123;</div><div class="line">    public int func1(int a, int b)&#123;</div><div class="line">        return a+b;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    public int func2(int a, int b)&#123;</div><div class="line">        return func1(a,b)+100;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">public class Client&#123;</div><div class="line">    public static void main(String[] args)&#123;</div><div class="line">        B b = new B();</div><div class="line">        System.out.println(&quot;100-50=&quot;+b.func1(100, 50));</div><div class="line">        System.out.println(&quot;100-80=&quot;+b.func1(100, 80));</div><div class="line">        System.out.println(&quot;100+20+100=&quot;+b.func2(100, 20));</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>类<code>B</code>完成后，运行结果：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">100-50=150</div><div class="line">100-80=180</div><div class="line">100+20+100=220</div></pre></td></tr></table></figure></p>
-<p>我们发现原本运行正常的相减功能发生了错误。原因就是类<code>B</code>在给方法起名时无意中重写了父类的方法，造成所有运行相减功能的代码全部调用了类<code>B</code>重写后的方法，造成原本运行正常的功能出现了错误。在本例中，引用基类<code>A</code>完成的功能，换成子类<code>B</code>之后，发生了异常。在实际编程中，我们常常会通过重写父类的方法来完成新的功能，这样写起来虽然简单，但是整个继承体系的可复用性会比较差，特别是运用多态比较频繁时，程序运行出错的几率非常大。如果非要重写父类的方法，比较通用的做法是：原来的父类和子类都继承一个更通俗的基类，原有的继承关系去掉，采用依赖、聚合，组合等关系代替。</p>
-<p>里氏替换原则通俗的来讲就是：子类可以扩展父类的功能，但不能改变父类原有的功能。它包含以下4层含义：</p>
-<ul>
-<li>子类可以实现父类的抽象方法，但不能覆盖父类的非抽象方法。</li>
-<li>子类中可以增加自己特有的方法。</li>
-<li>当子类的方法重载父类的方法时，方法的前置条件（即方法的形参）要比父类方法的输入参数更宽松。</li>
-<li>当子类的方法实现父类的抽象方法时，方法的后置条件（即方法的返回值）要比父类更严格。</li>
-<li>看上去很不可思议，因为我们会发现在自己编程中常常会违反里氏替换原则，程序照样跑的好好的。所以大家都会产生这样的疑问，假如我非要不遵循里氏替换原则会有什么后果？</li>
-</ul>
-<p>后果就是：你写的代码出问题的几率将会大大增加。</p>
-<h2 id="依赖倒置原则"><a href="#依赖倒置原则" class="headerlink" title="依赖倒置原则"></a>依赖倒置原则</h2><p>定义：<br>高层模块不应该依赖低层模块，二者都应该依赖其抽象；<br>抽象不应该依赖细节；细节应该依赖抽象。</p>
-<p>问题由来：类<code>A</code>直接依赖类<code>B</code>，假如要将类<code>A</code>改为依赖类<code>C</code>，则必须通过修改类<code>A</code>的代码来达成。这种场景下，类<code>A</code>一般是高层模块，负责复杂的业务逻辑；类<code>B</code>和类<code>C</code>是低层模块，负责基本的原子操作；假如修改类<code>A</code>，会给程序带来不必要的风险。</p>
-<p>解决方案：将类<code>A</code>修改为依赖接口<code>I</code>，类<code>B</code>和类<code>C</code>各自实现接口<code>I</code>，类<code>A</code>通过接口<code>I</code>间接与类<code>B</code>或者类<code>C</code>发生联系，则会大大降低修改类<code>A</code>的几率。</p>
-<p>依赖倒置原则基于这样一个事实：<strong>相对于细节的多变性，抽象的东西要稳定得多。</strong>以抽象为基础搭建起来的架构比以细节为基础搭建起来的架构要稳定得多。在java中，抽象指的是接口或者抽象类，细节就是具体的实现类，使用接口或者抽象类的目的是制定好规范和契约，而不去涉及任何具体的操作，把细节的任务交给他们的实现类去完成。</p>
-<p>依赖倒置原则的核心思想是面向接口编程。<br>Spring Ioc的好处在小项目是体会不到的，当你的项目大了，你就能体会到了。比如有一个项目有30多个maven子模块，在某个子模块中你根本就不知道服务层注入的到底是那个对象，你只知道那些接口，这样接口的实现可以随意变动，另一个人不会影响到你。</p>
-<p>场景是这样的，母亲给孩子讲故事，只要给她一本书，她就可以照着书给孩子讲故事了。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">class Book&#123;</div><div class="line">    public String getContent()&#123;</div><div class="line">        return &quot;很久很久以前有一个阿拉伯的故事……&quot;;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">class Mother&#123;</div><div class="line">    public void narrate(Book book)&#123;</div><div class="line">        System.out.println(&quot;妈妈开始讲故事&quot;);</div><div class="line">        System.out.println(book.getContent());</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">public class Client&#123;</div><div class="line">    public static void main(String[] args)&#123;</div><div class="line">        Mother mother = new Mother();</div><div class="line">        mother.narrate(new Book());</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>运行结果：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">妈妈开始讲故事</div><div class="line">很久很久以前有一个阿拉伯的故事……</div></pre></td></tr></table></figure></p>
-<p>运行良好，假如有一天，需求变成这样：不是给书而是给一份报纸，让这位母亲讲一下报纸上的故事，报纸的代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">class Newspaper&#123;</div><div class="line">    public String getContent()&#123;</div><div class="line">        return &quot;林书豪38+7领导尼克斯击败湖人……&quot;;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>这位母亲却办不到，因为她居然不会读报纸上的故事，这太荒唐了，只是将书换成报纸，居然必须要修改<code>Mother</code>才能读。假如以后需求换成杂志呢？换成网页呢？还要不断地修改<code>Mother</code>，这显然不是好的设计。原因就是<code>Mother</code>与<code>Book</code>之间的耦合性太高了，必须降低他们之间的耦合度才行。</p>
-<p>我们引入一个抽象的接口<code>IReader</code>。读物，只要是带字的都属于读物：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">interface IReader&#123;</div><div class="line">    public String getContent();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p><code>Mother</code>类与接口<code>IReader</code>发生依赖关系，而<code>Book</code>和<code>Newspaper</code>都属于读物的范畴，他们各自都去实现<code>IReader</code>接口，这样就符合依赖倒置原则了，代码修改为：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">class Newspaper implements IReader &#123;</div><div class="line">    public String getContent()&#123;</div><div class="line">        return &quot;林书豪17+9助尼克斯击败老鹰……&quot;;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">class Book implements IReader&#123;</div><div class="line">    public String getContent()&#123;</div><div class="line">        return &quot;很久很久以前有一个阿拉伯的故事……&quot;;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">class Mother&#123;</div><div class="line">    public void narrate(IReader reader)&#123;</div><div class="line">        System.out.println(&quot;妈妈开始讲故事&quot;);</div><div class="line">        System.out.println(reader.getContent());</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">public class Client&#123;</div><div class="line">    public static void main(String[] args)&#123;</div><div class="line">        Mother mother = new Mother();</div><div class="line">        mother.narrate(new Book());</div><div class="line">        mother.narrate(new Newspaper());</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>运行结果：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">妈妈开始讲故事</div><div class="line">很久很久以前有一个阿拉伯的故事……</div><div class="line">妈妈开始讲故事</div><div class="line">林书豪17+9助尼克斯击败老鹰……</div></pre></td></tr></table></figure></p>
-<p>这样修改后，无论以后怎样扩展<code>Client</code>类，都不需要再修改<code>Mother</code>类了。这只是一个简单的例子，实际情况中，代表高层模块的<code>Mother</code>类将负责完成主要的业务逻辑，一旦需要对它进行修改，引入错误的风险极大。所以遵循依赖倒置原则可以降低类之间的耦合性，提高系统的稳定性，降低修改程序造成的风险。</p>
-<p>采用依赖倒置原则给多人并行开发带来了极大的便利，比如上例中，原本<code>Mother</code>类与<code>Book</code>类直接耦合时，<code>Mother</code>类必须等<code>Book</code>类编码完成后才可以进行编码，因为<code>Mother</code>类依赖于<code>Book</code>类。修改后的程序则可以同时开工，互不影响，因为<code>Mother</code>与<code>Book</code>类一点关系也没有。参与协作开发的人越多、项目越庞大，采用依赖导致原则的意义就越重大。现在很流行的TDD开发模式就是依赖倒置原则最成功的应用。</p>
-<p>传递依赖关系有三种方式，以上的例子中使用的方法是<strong>接口传递</strong>，另外还有两种传递方式：<strong>构造方法传递</strong>和<strong>setter方法传递</strong>，相信用过Spring框架的，对依赖的传递方式一定不会陌生。</p>
-<p>在实际编程中，我们一般需要做到如下3点：</p>
-<ul>
-<li>低层模块尽量都要有抽象类或接口，或者两者都有。</li>
-<li>变量的声明类型尽量是抽象类或接口。</li>
-<li>使用继承时遵循里氏替换原则。</li>
-</ul>
-<p>依赖倒置原则的核心就是要我们面向接口编程，理解了面向接口编程，也就理解了依赖倒置。</p>
-<h2 id="接口隔离原则"><a href="#接口隔离原则" class="headerlink" title="接口隔离原则"></a>接口隔离原则</h2><p>定义：<br>客户端不应该依赖它不需要的接口；<br>一个类对另一个类的依赖应该建立在最小的接口上。</p>
-<p>问题由来：类<code>A</code>通过接口<code>I</code>依赖类<code>B</code>，类<code>C</code>通过接口<code>I</code>依赖类<code>D</code>，如果接口<code>I</code>对于类<code>A</code>和类<code>C</code>来说不是最小接口，则类<code>B</code>和类<code>D</code>必须去实现他们不需要的方法。</p>
-<p>解决方案：将臃肿的接口<code>I</code>拆分为独立的几个接口，类<code>A</code>和类<code>C</code>分别与它们需要的接口建立依赖关系。也就是采用接口隔离原则。</p>
-<p>举例来说明接口隔离原则：<br><img src="/img/未遵循接口隔离原则的设计.jpg" alt="未遵循接口隔离原则的设计"></p>
-<p>这个图的意思是：类<code>A</code>依赖接口<code>I</code>中的方法1、方法2、方法3，类<code>B</code>是对类<code>A</code>依赖的实现。类<code>C</code>依赖接口<code>I</code>中的方法1、方法4、方法5，类<code>D</code>是对类<code>C</code>依赖的实现。对于类<code>B</code>和类<code>D</code>来说，虽然它们都存在着用不到的方法（也就是图中红色字体标记的方法），但由于实现了接口<code>I</code>，所以也必须要实现这些用不到的方法。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">interface I &#123;</div><div class="line">    public void method1();</div><div class="line">    public void method2();</div><div class="line">    public void method3();</div><div class="line">    public void method4();</div><div class="line">    public void method5();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">class A&#123;</div><div class="line">    public void depend1(I i)&#123;</div><div class="line">        i.method1();</div><div class="line">    &#125;</div><div class="line">    public void depend2(I i)&#123;</div><div class="line">        i.method2();</div><div class="line">    &#125;</div><div class="line">    public void depend3(I i)&#123;</div><div class="line">        i.method3();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">class B implements I&#123;</div><div class="line">    public void method1() &#123;</div><div class="line">        System.out.println(&quot;类B实现接口I的方法1&quot;);</div><div class="line">    &#125;</div><div class="line">    public void method2() &#123;</div><div class="line">        System.out.println(&quot;类B实现接口I的方法2&quot;);</div><div class="line">    &#125;</div><div class="line">    public void method3() &#123;</div><div class="line">        System.out.println(&quot;类B实现接口I的方法3&quot;);</div><div class="line">    &#125;</div><div class="line">    //对于类B来说，method4和method5不是必需的，但是由于接口A中有这两个方法，</div><div class="line">    //所以在实现过程中即使这两个方法的方法体为空，也要将这两个没有作用的方法进行实现。</div><div class="line">    public void method4() &#123;&#125;</div><div class="line">    public void method5() &#123;&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">class C&#123;</div><div class="line">    public void depend1(I i)&#123;</div><div class="line">        i.method1();</div><div class="line">    &#125;</div><div class="line">    public void depend2(I i)&#123;</div><div class="line">        i.method4();</div><div class="line">    &#125;</div><div class="line">    public void depend3(I i)&#123;</div><div class="line">        i.method5();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">class D implements I&#123;</div><div class="line">    public void method1() &#123;</div><div class="line">        System.out.println(&quot;类D实现接口I的方法1&quot;);</div><div class="line">    &#125;</div><div class="line">    //对于类D来说，method2和method3不是必需的，但是由于接口A中有这两个方法，</div><div class="line">    //所以在实现过程中即使这两个方法的方法体为空，也要将这两个没有作用的方法进行实现。</div><div class="line">    public void method2() &#123;&#125;</div><div class="line">    public void method3() &#123;&#125;</div><div class="line"></div><div class="line">    public void method4() &#123;</div><div class="line">        System.out.println(&quot;类D实现接口I的方法4&quot;);</div><div class="line">    &#125;</div><div class="line">    public void method5() &#123;</div><div class="line">        System.out.println(&quot;类D实现接口I的方法5&quot;);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">public class Client&#123;</div><div class="line">    public static void main(String[] args)&#123;</div><div class="line">        A a = new A();</div><div class="line">        a.depend1(new B());</div><div class="line">        a.depend2(new B());</div><div class="line">        a.depend3(new B());</div><div class="line">        </div><div class="line">        C c = new C();</div><div class="line">        c.depend1(new D());</div><div class="line">        c.depend2(new D());</div><div class="line">        c.depend3(new D());</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>可以看到，如果接口过于臃肿，只要接口中出现的方法，不管对依赖于它的类有没有用处，实现类中都必须去实现这些方法，这显然不是好的设计。如果将这个设计修改为符合接口隔离原则，就必须对接口<code>I</code>进行拆分。在这里我们将原有的接口<code>I</code>拆分为三个接口，拆分后的设计如图2所示：</p>
-<p><img src="/img/图2 遵循接口隔离原则的设计.jpg" alt="图2 遵循接口隔离原则的设计"></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"> interface I1 &#123;</div><div class="line">    public void method1();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">interface I2 &#123;</div><div class="line">    public void method2();</div><div class="line">    public void method3();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">interface I3 &#123;</div><div class="line">    public void method4();</div><div class="line">    public void method5();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">class A&#123;</div><div class="line">    public void depend1(I1 i)&#123;</div><div class="line">        i.method1();</div><div class="line">    &#125;</div><div class="line">    public void depend2(I2 i)&#123;</div><div class="line">        i.method2();</div><div class="line">    &#125;</div><div class="line">    public void depend3(I2 i)&#123;</div><div class="line">        i.method3();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">class B implements I1, I2&#123;</div><div class="line">    public void method1() &#123;</div><div class="line">        System.out.println(&quot;类B实现接口I1的方法1&quot;);</div><div class="line">    &#125;</div><div class="line">    public void method2() &#123;</div><div class="line">        System.out.println(&quot;类B实现接口I2的方法2&quot;);</div><div class="line">    &#125;</div><div class="line">    public void method3() &#123;</div><div class="line">        System.out.println(&quot;类B实现接口I2的方法3&quot;);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">class C&#123;</div><div class="line">    public void depend1(I1 i)&#123;</div><div class="line">        i.method1();</div><div class="line">    &#125;</div><div class="line">    public void depend2(I3 i)&#123;</div><div class="line">        i.method4();</div><div class="line">    &#125;</div><div class="line">    public void depend3(I3 i)&#123;</div><div class="line">        i.method5();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">class D implements I1, I3&#123;</div><div class="line">    public void method1() &#123;</div><div class="line">        System.out.println(&quot;类D实现接口I1的方法1&quot;);</div><div class="line">    &#125;</div><div class="line">    public void method4() &#123;</div><div class="line">        System.out.println(&quot;类D实现接口I3的方法4&quot;);</div><div class="line">    &#125;</div><div class="line">    public void method5() &#123;</div><div class="line">        System.out.println(&quot;类D实现接口I3的方法5&quot;);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>接口隔离原则的含义是：建立单一接口，不要建立庞大臃肿的接口，尽量细化接口，接口中的方法尽量少。也就是说，我们要为各个类建立专用的接口，而不要试图去建立一个很庞大的接口供所有依赖它的类去调用。本文例子中，将一个庞大的接口变更为3个专用的接口所采用的就是接口隔离原则。在程序设计中，依赖几个专用的接口要比依赖一个综合的接口更灵活。接口是设计时对外部设定的“契约”，通过分散定义多个接口，可以预防外来变更的扩散，提高系统的灵活性和可维护性。</p>
-<p>说到这里，很多人会觉的接口隔离原则跟之前的单一职责原则很相似，其实不然。其一，单一职责原则原注重的是职责；而接口隔离原则注重对接口依赖的隔离。其二，单一职责原则主要是约束类，其次才是接口和方法，它针对的是程序中的实现和细节；而接口隔离原则主要约束接口接口，主要针对抽象，针对程序整体框架的构建。</p>
-<p>采用接口隔离原则对接口进行约束时，要注意以下几点：</p>
-<ul>
-<li>接口尽量小，但是要有限度。对接口进行细化可以提高程序设计灵活性是不挣的事实，但是如果过小，则会造成接口数量过多，使设计复杂化。所以一定要适度。</li>
-<li>为依赖接口的类定制服务，只暴露给调用的类它需要的方法，它不需要的方法则隐藏起来。只有专注地为一个模块提供定制服务，才能建立最小的依赖关系。</li>
-<li>提高内聚，减少对外交互。使接口用最少的方法去完成最多的事情。</li>
-<li>运用接口隔离原则，一定要适度，接口设计的过大或过小都不好。设计接口的时候，只有多花些时间去思考和筹划，才能准确地实践这一原则。</li>
-</ul>
-<h2 id="迪米特法则-最少知道原则"><a href="#迪米特法则-最少知道原则" class="headerlink" title="迪米特法则(最少知道原则)"></a>迪米特法则(最少知道原则)</h2><p>定义：一个对象应该对其他对象保持最少的了解。</p>
-<p>问题由来：类与类之间的关系越密切，耦合度越大，当一个类发生改变时，对另一个类的影响也越大。</p>
-<p>解决方案：尽量降低类与类之间的耦合。</p>
-<p>低耦合，高内聚。无论是面向过程编程还是面向对象编程，只有使各个模块之间的耦合尽量得低，才能提高代码的复用率。低耦合的优点不言而喻，但是怎么样编程才能做到低耦合呢？那正是迪米特法则要去完成的。</p>
-<p>一个类对自己依赖的类知道得越少越好。也就是说，对于被依赖的类来说，无论逻辑多么复杂，都尽量地将逻辑封装在类的内部，对外除了提供的<code>public</code>方法，不对外泄漏任何信息。迪米特法则还有一个更简单的定义：只与直接的朋友通信。首先来解释一下什么是直接的朋友：每个对象都会与其他对象有耦合关系，只要两个对象之间有耦合关系，我们就说这两个对象之间是朋友关系。耦合的方式很多，依赖、关联、组合、聚合等。其中，我们称出现成员变量、方法参数、方法返回值中的类为直接的朋友，而出现在局部变量中的类则不是直接的朋友。也就是说，<strong>陌生的类最好不要作为局部变量的形式出现在类的内部</strong>。</p>
-<p>举一个例子：有一个集团公司，下属单位有分公司和直属部门，现在要求打印出所有下属单位的员工ID。先来看一下违反迪米特法则的设计。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"> //总公司员工</div><div class="line">class Employee&#123;</div><div class="line">    private String id;</div><div class="line">    public void setId(String id)&#123;</div><div class="line">        this.id = id;</div><div class="line">    &#125;</div><div class="line">    public String getId()&#123;</div><div class="line">        return id;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">//分公司员工</div><div class="line">class SubEmployee&#123;</div><div class="line">    private String id;</div><div class="line">    public void setId(String id)&#123;</div><div class="line">        this.id = id;</div><div class="line">    &#125;</div><div class="line">    public String getId()&#123;</div><div class="line">        return id;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">class SubCompanyManager&#123;</div><div class="line">    public List&lt;SubEmployee&gt; getAllEmployee()&#123;</div><div class="line">        List&lt;SubEmployee&gt; list = new ArrayList&lt;SubEmployee&gt;();</div><div class="line">        for(int i=0; i&lt;100; i++)&#123;</div><div class="line">            SubEmployee emp = new SubEmployee();</div><div class="line">            //为分公司人员按顺序分配一个ID</div><div class="line">            emp.setId(&quot;分公司&quot;+i);</div><div class="line">            list.add(emp);</div><div class="line">        &#125;</div><div class="line">        return list;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">class CompanyManager&#123;</div><div class="line"></div><div class="line">    public List&lt;Employee&gt; getAllEmployee()&#123;</div><div class="line">        List&lt;Employee&gt; list = new ArrayList&lt;Employee&gt;();</div><div class="line">        for(int i=0; i&lt;30; i++)&#123;</div><div class="line">            Employee emp = new Employee();</div><div class="line">            //为总公司人员按顺序分配一个ID</div><div class="line">            emp.setId(&quot;总公司&quot;+i);</div><div class="line">            list.add(emp);</div><div class="line">        &#125;</div><div class="line">        return list;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    public void printAllEmployee(SubCompanyManager sub)&#123;</div><div class="line">        List&lt;SubEmployee&gt; list1 = sub.getAllEmployee();</div><div class="line">        for(SubEmployee e:list1)&#123;</div><div class="line">            System.out.println(e.getId());</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        List&lt;Employee&gt; list2 = this.getAllEmployee();</div><div class="line">        for(Employee e:list2)&#123;</div><div class="line">            System.out.println(e.getId());</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">public class Client&#123;</div><div class="line">    public static void main(String[] args)&#123;</div><div class="line">        CompanyManager e = new CompanyManager();</div><div class="line">        e.printAllEmployee(new SubCompanyManager());</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>现在这个设计的主要问题出在<code>CompanyManager</code>中，根据迪米特法则，只与直接的朋友发生通信，而<code>SubEmployee</code>类并不是<code>CompanyManager</code>类的直接朋友（以局部变量出现的耦合不属于直接朋友），从逻辑上讲总公司只与他的分公司耦合就行了，与分公司的员工并没有任何联系，这样设计显然是增加了不必要的耦合。按照迪米特法则，应该避免类中出现这样非直接朋友关系的耦合。修改后的代码如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">class SubCompanyManager&#123;</div><div class="line">    public List&lt;SubEmployee&gt; getAllEmployee()&#123;</div><div class="line">        List&lt;SubEmployee&gt; list = new ArrayList&lt;SubEmployee&gt;();</div><div class="line">        for(int i=0; i&lt;100; i++)&#123;</div><div class="line">            SubEmployee emp = new SubEmployee();</div><div class="line">            //为分公司人员按顺序分配一个ID</div><div class="line">            emp.setId(&quot;分公司&quot;+i);</div><div class="line">            list.add(emp);</div><div class="line">        &#125;</div><div class="line">        return list;</div><div class="line">    &#125;</div><div class="line">    public void printEmployee()&#123;</div><div class="line">        List&lt;SubEmployee&gt; list = this.getAllEmployee();</div><div class="line">        for(SubEmployee e:list)&#123;</div><div class="line">            System.out.println(e.getId());</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">class CompanyManager&#123;</div><div class="line">    public List&lt;Employee&gt; getAllEmployee()&#123;</div><div class="line">        List&lt;Employee&gt; list = new ArrayList&lt;Employee&gt;();</div><div class="line">        for(int i=0; i&lt;30; i++)&#123;</div><div class="line">            Employee emp = new Employee();</div><div class="line">            //为总公司人员按顺序分配一个ID</div><div class="line">            emp.setId(&quot;总公司&quot;+i);</div><div class="line">            list.add(emp);</div><div class="line">        &#125;</div><div class="line">        return list;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    public void printAllEmployee(SubCompanyManager sub)&#123;</div><div class="line">        sub.printEmployee();</div><div class="line">        List&lt;Employee&gt; list2 = this.getAllEmployee();</div><div class="line">        for(Employee e:list2)&#123;</div><div class="line">            System.out.println(e.getId());</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>修改后，为分公司增加了打印人员ID的方法，总公司直接调用来打印，从而避免了与分公司的员工发生耦合。</p>
-<p>迪米特法则的初衷是降低类之间的耦合，由于每个类都减少了不必要的依赖，因此的确可以降低耦合关系。但是凡事都有度，虽然可以避免与非直接的类通信，但是要通信，必然会通过一个“中介”来发生联系，例如本例中，总公司就是通过分公司这个“中介”来与分公司的员工发生联系的。过分地使用迪米特原则，会产生大量这样的中介和传递类，导致系统复杂度变大。所以在采用迪米特法则时要反复权衡，既做到结构清晰，又要高内聚低耦合。</p>
-<h2 id="开闭原则"><a href="#开闭原则" class="headerlink" title="开闭原则"></a>开闭原则</h2><p>定义：一个软件实体如类、模块和函数应该对扩展开放，对修改关闭。</p>
-<p>问题由来：在软件的生命周期内，因为变化、升级和维护等原因需要对软件原有代码进行修改时，可能会给旧代码中引入错误，也可能会使我们不得不对整个功能进行重构，并且需要原有代码经过重新测试。</p>
-<p>解决方案：当软件需要变化时，尽量通过扩展软件实体的行为来实现变化，而不是通过修改已有的代码来实现变化。</p>
-<p>开闭原则是面向对象设计中最基础的设计原则，它指导我们如何建立稳定灵活的系统。开闭原则可能是设计模式六项原则中定义最模糊的一个了，它只告诉我们对扩展开放，对修改关闭，可是到底如何才能做到对扩展开放，对修改关闭，并没有明确地告诉我们。以前，如果有人告诉我“你进行设计的时候一定要遵守开闭原则”，我会觉得他什么都没说，但貌似又什么都说了。因为开闭原则真得太虚了。</p>
-<p>在仔细思考以及仔细阅读很多设计模式的文章后，终于对开闭原则有了一点认识。其实，我们遵循设计模式前面5大原则，以及使用23种设计模式的目的就是遵循开闭原则。也就是说，只要我们对前面5项原则遵守得好了，设计出的软件自然是符合开闭原则的，这个开闭原则更像是前面五项原则遵守程度的“平均得分”，前面5项原则遵守得好，平均分自然就高，说明软件设计开闭原则遵守得好；如果前面5项原则遵守得不好，则说明开闭原则遵守得不好。</p>
-<p>其实笔者认为，开闭原则无非就是想表达这样一层意思：用抽象构建框架，用实现扩展细节。因为抽象灵活性好，适应性广，只要抽象得合理，可以基本保持软件架构的稳定。而软件中易变的细节，我们用从抽象派生的实现类来进行扩展，当软件需要发生变化时，我们只需要根据需求重新派生一个实现类来扩展就可以了。当然前提是我们的抽象要合理，要对需求的变更有前瞻性和预见性才行。</p>
-<p>说到这里，再回想一下前面说的5项原则，恰恰是告诉我们用抽象构建框架，用实现扩展细节的注意事项而已：单一职责原则告诉我们实现类要职责单一；里氏替换原则告诉我们不要破坏继承体系；依赖倒置原则告诉我们要面向接口编程；接口隔离原则告诉我们在设计接口的时候要精简单一；迪米特法则告诉我们要降低耦合。而开闭原则是总纲，它告诉我们要对扩展开放，对修改关闭。</p>
-<p>最后说明一下如何去遵守这六个原则。对这六个原则的遵守并不是是和否的问题，而是多和少的问题，也就是说，我们一般不会说有没有遵守，而是说遵守程度的多少。任何事都是过犹不及，设计模式的六个设计原则也是一样，制定这六个原则的目的并不是要我们刻板地遵守他们，而需要根据实际情况灵活运用。对他们的遵守程度只要在一个合理的范围内，就算是良好的设计。</p>
-<p><img src="/img/如何去遵守这六个原则.jpg" alt="如何去遵守这六个原则"></p>
-<p>图中的每一条维度各代表一项原则，我们依据对这项原则的遵守程度在维度上画一个点，则如果对这项原则遵守得合理的话，这个点应该落在红色的同心圆内部；如果遵守得差，点将会在小圆内部；如果过度遵守，点将会落在大圆外部。一个良好的设计体现在图中，应该是六个顶点都在同心圆中的六边形。<br><img src="/img/一个良好的设计体现在图中，应该是六个顶点都在同心圆中的六边形。.jpg" alt="一个良好的设计体现在图中，应该是六个顶点都在同心圆中的六边形。"></p>
-<p>在上图中，设计1、设计2属于良好的设计，他们对六项原则的遵守程度都在合理的范围内；设计3、设计4设计虽然有些不足，但也基本可以接受；设计5则严重不足，对各项原则都没有很好的遵守；而设计6则遵守过渡了，设计5和设计6都是迫切需要重构的设计。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      设计模式六大原则
-    
-    </summary>
-    
-      <category term="设计原则" scheme="http://jishusuishouji.github.io/categories/%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99/"/>
-    
-    
-      <category term="设计原则" scheme="http://jishusuishouji.github.io/tags/%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Java 类的加载机制</title>
-    <link href="http://jishusuishouji.github.io/2017/04/06/java/Java_%E7%B1%BB%E7%9A%84%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/"/>
-    <id>http://jishusuishouji.github.io/2017/04/06/java/Java_类的加载机制/</id>
-    <published>2017-04-05T23:05:01.000Z</published>
-    <updated>2017-04-05T23:38:16.831Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="类的加载"><a href="#类的加载" class="headerlink" title="类的加载"></a>类的加载</h2><p>类的加载:将类的<code>.class</code>文件的二进制数据读入到内存中，将其放在方法区内，然后在堆区创建一个<code>java.lang.Class</code>对象，用来封装类在方法区内的数据结构。类的加载的最终产品是位于堆区中的<code>Class</code>对象，<code>Class</code>对象封装了类在方法区内的数据结构，并且向Java程序员提供了访问方法区内的数据结构的接口。</p>
-<p>类加载器并不需要等到某个类被“首次主动使用”时再加载它，JVM规范允许类加载器在预料某个类将要被使用时就预先加载它，如果在预先加载的过程中遇到了<code>.class</code>文件缺失或存在错误，类加载器在程序首次主动使用该类时才报告错误（<code>LinkageError</code>错误）,否则如果这个类一直没有被程序主动使用，那么类加载器就不会报告错误</p>
-<h2 id="加载-class文件的方式"><a href="#加载-class文件的方式" class="headerlink" title="加载.class文件的方式"></a>加载.class文件的方式</h2><p>– 从本地系统中直接加载<br>– 通过网络下载<code>.class</code>文件<br>– 从zip，jar等归档文件中加载<code>.class</code>文件<br>– 从专有数据库中提取<code>.class</code>文件<br>– 将Java源文件动态编译为<code>.class</code>文件</p>
-<h2 id="类的生命周期"><a href="#类的生命周期" class="headerlink" title="类的生命周期"></a>类的生命周期</h2><p>类加载的过程包括了加载、验证、准备、解析、初始化五个阶段。在这五个阶段中，加载、验证、准备和初始化这四个阶段发生的顺序是确定的，而解析阶段则不一定，它在某些情况下可以在初始化阶段之后开始，这是为了支持Java语言的运行时绑定（也成为动态绑定或晚期绑定）。另外注意这里的几个阶段是按顺序开始，而不是按顺序进行或完成，因为这些阶段通常都是互相交叉地混合进行的，通常在一个阶段执行的过程中调用或激活另一个阶段。</p>
-<h3 id="加载：查找并加载类的二进制数据"><a href="#加载：查找并加载类的二进制数据" class="headerlink" title="加载：查找并加载类的二进制数据"></a>加载：查找并加载类的二进制数据</h3><p>加载是类加载过程的第一个阶段，在加载阶段，虚拟机需要完成以下三件事情：<br>1、通过一个类的全限定名来获取其定义的二进制字节流。<br>2、将这个字节流所代表的静态存储结构转化为方法区的运行时数据结构。<br>3、在Java堆中生成一个代表这个类的<code>java.lang.Class</code>对象，作为对方法区中这些数据的访问入口。</p>
-<p>相对于类加载的其他阶段而言，加载阶段（准确地说，是加载阶段获取类的二进制字节流的动作）是可控性最强的阶段，因为开发人员既可以使用系统提供的类加载器来完成加载，也可以自定义自己的类加载器来完成加载。</p>
-<p>加载阶段完成后，虚拟机外部的二进制字节流就按照虚拟机所需的格式存储在方法区之中，而且在Java堆中也创建一个<code>java.lang.Class</code>类的对象，这样便可以通过该对象访问方法区中的这些数据。</p>
-<h3 id="连接"><a href="#连接" class="headerlink" title="连接"></a>连接</h3><h4 id="验证：确保被加载的类的正确性"><a href="#验证：确保被加载的类的正确性" class="headerlink" title="验证：确保被加载的类的正确性"></a>验证：确保被加载的类的正确性</h4><p>验证是连接阶段的第一步，这一阶段的目的是为了确保Class文件的字节流中包含的信息符合当前虚拟机的要求，并且不会危害虚拟机自身的安全。验证阶段大致会完成4个阶段的检验动作：</p>
-<ol>
-<li>文件格式验证：验证字节流是否符合Class文件格式的规范；例如：是否以<code>0xCAFEBABE</code>开头、主次版本号是否在当前虚拟机的处理范围之内、常量池中的常量是否有不被支持的类型。</li>
-<li>元数据验证：对字节码描述的信息进行语义分析（注意：对比<code>javac</code>编译阶段的语义分析），以保证其描述的信息符合Java语言规范的要求；例如：这个类是否有除了<code>java.lang.Object</code>之外的父类。</li>
-<li>字节码验证：通过数据流和控制流分析，确定程序语义是合法的、符合逻辑的。</li>
-<li>符号引用验证：确保解析动作能正确执行。</li>
-</ol>
-<p>验证阶段是非常重要的，但不是必须的，它对程序运行期没有影响，如果所引用的类经过反复验证，那么可以考虑采用<code>-Xverifynone</code>参数来关闭大部分的类验证措施，以缩短虚拟机类加载的时间。</p>
-<h4 id="准备：为类的静态变量分配内存，并将其初始化为默认值"><a href="#准备：为类的静态变量分配内存，并将其初始化为默认值" class="headerlink" title="准备：为类的静态变量分配内存，并将其初始化为默认值"></a>准备：为类的静态变量分配内存，并将其初始化为默认值</h4><p>准备阶段是正式为类变量分配内存并设置类变量初始值的阶段，这些内存都将在方法区中分配。对于该阶段有以下几点需要注意：<br>1、这时候进行内存分配的仅包括类变量（<code>static</code>），而不包括实例变量，实例变量会在对象实例化时随着对象一块分配在Java堆中。<br>2、这里所设置的初始值通常情况下是数据类型默认的零值（如<code>0</code>、<code>0L</code>、<code>null</code>、<code>false</code>等），而不是被在Java代码中被显式地赋予的值。</p>
-<p>假设一个类变量的定义为：<code>public static int value = 3</code>；<br>那么变量<code>value</code>在准备阶段过后的初始值为<code>0</code>，而不是<code>3</code>，因为这时候尚未开始执行任何Java方法，而把<code>value</code>赋值为3的<code>put static</code>指令是在程序编译后，存放于类构造器<code>&lt;clinit&gt;()</code>方法之中的，所以把<code>value</code>赋值为3的动作将在初始化阶段才会执行。</p>
-<p>这里还需要注意如下几点：</p>
-<p>· 对基本数据类型来说，对于类变量（<code>static</code>）和全局变量，如果不显式地对其赋值而直接使用，则系统会为其赋予默认的零值，而对于局部变量来说，在使用前必须显式地为其赋值，否则编译时不通过。<br>· 对于同时被<code>static</code>和<code>final</code>修饰的常量，必须在声明的时候就为其显式地赋值，否则编译时不通过；而只被<code>final</code>修饰的常量则既可以在声明时显式地为其赋值，也可以在类初始化时显式地为其赋值，总之，在使用前必须为其显式地赋值，系统不会为其赋予默认零值。<br>· 对于引用数据类型reference来说，如数组引用、对象引用等，如果没有对其进行显式地赋值而直接使用，系统都会为其赋予默认的零值，即<code>null</code>。<br>· 如果在数组初始化时没有对数组中的各元素赋值，那么其中的元素将根据对应的数据类型而被赋予默认的零值。<br>3、如果类字段的字段属性表中存在<code>ConstantValue</code>属性，即同时被<code>final</code>和<code>static</code>修饰，那么在准备阶段变量value就会被初始化为ConstValue属性所指定的值。</p>
-<p>假设上面的类变量value被定义为： <code>public static final int value = 3</code>；</p>
-<p>编译时Javac将会为value生成ConstantValue属性，在准备阶段虚拟机就会根据ConstantValue的设置将value赋值为3。我们可以理解为<code>static final</code>常量在编译期就将其结果放入了调用它的类的常量池中</p>
-<h4 id="解析：把类中的符号引用转换为直接引用"><a href="#解析：把类中的符号引用转换为直接引用" class="headerlink" title="解析：把类中的符号引用转换为直接引用"></a>解析：把类中的符号引用转换为直接引用</h4><p>解析阶段是虚拟机将常量池内的符号引用替换为直接引用的过程，解析动作主要针对类或接口、字段、类方法、接口方法、方法类型、方法句柄和调用点限定符7类符号引用进行。符号引用就是一组符号来描述目标，可以是任何字面量。</p>
-<p>直接引用就是直接指向目标的指针、相对偏移量或一个间接定位到目标的句柄。</p>
-<h3 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h3><p>初始化，为类的静态变量赋予正确的初始值，JVM负责对类进行初始化，主要对类变量进行初始化。在Java中对类变量进行初始值设定有两种方式：</p>
-<p>①声明类变量是指定初始值</p>
-<p>②使用静态代码块为类变量指定初始值</p>
-<h4 id="JVM初始化步骤"><a href="#JVM初始化步骤" class="headerlink" title="JVM初始化步骤"></a>JVM初始化步骤</h4><p>1、假如这个类还没有被加载和连接，则程序先加载并连接该类<br>2、假如该类的直接父类还没有被初始化，则先初始化其直接父类<br>3、假如类中有初始化语句，则系统依次执行这些初始化语句</p>
-<p>类初始化时机：只有当对类的主动使用的时候才会导致类的初始化，类的主动使用包括以下六种：<br>– 创建类的实例，也就是new的方式<br>– 访问某个类或接口的静态变量，或者对该静态变量赋值<br>– 调用类的静态方法<br>– 反射（如Class.forName(“com.shengsiyuan.Test”)）<br>– 初始化某个类的子类，则其父类也会被初始化<br>– Java虚拟机启动时被标明为启动类的类（Java Test），直接使用java.exe命令来运行某个主类</p>
-<h3 id="结束生命周期"><a href="#结束生命周期" class="headerlink" title="结束生命周期"></a>结束生命周期</h3><p>•在如下几种情况下，Java虚拟机将结束生命周期</p>
-<p>– 执行了System.exit()方法<br>– 程序正常执行结束<br>– 程序在执行过程中遇到了异常或错误而异常终止<br>– 由于操作系统出现错误而导致Java虚拟机进程终止</p>
-<h2 id="类加载器"><a href="#类加载器" class="headerlink" title="类加载器"></a>类加载器</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">public class ClassLoaderTest &#123;</div><div class="line">     public static void main(String[] args) &#123;</div><div class="line">        ClassLoader loader = Thread.currentThread().getContextClassLoader();</div><div class="line">        System.out.println(loader);</div><div class="line">        System.out.println(loader.getParent());</div><div class="line">        System.out.println(loader.getParent().getParent());</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>运行后，输出结果：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">sun.misc.Launcher$AppClassLoader@64fef26a</div><div class="line">sun.misc.Launcher$ExtClassLoader@1ddd40f3</div><div class="line">null</div></pre></td></tr></table></figure></p>
-<p>从上面的结果可以看出，并没有获取到<code>ExtClassLoader</code>的父<code>Loader</code>，原因是Bootstrap Loader（引导类加载器）是用C语言实现的，找不到一个确定的返回父Loader的方式，于是就返回null。</p>
-<p>这几种类加载器的层次关系如下图所示：<br><img src="/img/类加载器的层次关系.jpg" alt="类加载器的层次关系"><br>注意：这里父类加载器并不是通过继承关系来实现的，而是采用组合实现的。<br>站在Java虚拟机的角度来讲，只存在两种不同的类加载器：启动类加载器：它使用C++实现（这里仅限于Hotspot，也就是JDK1.5之后默认的虚拟机，有很多其他的虚拟机是用Java语言实现的），是虚拟机自身的一部分；所有其他的类加载器：这些类加载器都由Java语言实现，独立于虚拟机之外，并且全部继承自抽象类<code>java.lang.ClassLoader</code>，这些类加载器需要由启动类加载器加载到内存中之后才能去加载其他的类。</p>
-<p>站在Java开发人员的角度来看，类加载器可以大致划分为以下三类：</p>
-<ul>
-<li><p>启动类加载器：Bootstrap ClassLoader，负责加载存放在<code>JDK\jre\lib</code>(JDK代表JDK的安装目录，下同)下，或被<code>-Xbootclasspath</code>参数指定的路径中的，并且能被虚拟机识别的类库（如rt.jar，所有的java.*开头的类均被Bootstrap ClassLoader加载）。启动类加载器是无法被Java程序直接引用的。</p>
-</li>
-<li><p>扩展类加载器：Extension ClassLoader，该加载器由<code>sun.misc.Launcher$ExtClassLoader</code>实现，它负责加载<code>DK\jre\lib\ext</code>目录中，或者由<code>java.ext.dirs</code>系统变量指定的路径中的所有类库（如javax.*开头的类），开发者可以直接使用扩展类加载器。</p>
-</li>
-<li><p>应用程序类加载器：Application ClassLoader，该类加载器由<code>sun.misc.Launcher$AppClassLoader</code>来实现，它负责加载用户类路径（ClassPath）所指定的类，开发者可以直接使用该类加载器，如果应用程序中没有自定义过自己的类加载器，一般情况下这个就是程序中默认的类加载器。</p>
-</li>
-</ul>
-<p>应用程序都是由这三种类加载器互相配合进行加载的，如果有必要，我们还可以加入自定义的类加载器。因为JVM自带的ClassLoader只是懂得从本地文件系统加载标准的java class文件，因此如果编写了自己的ClassLoader，便可以做到如下几点：</p>
-<p>1）在执行非置信代码之前，自动验证数字签名。<br>2）动态地创建符合用户特定需要的定制化构建类。<br>3）从特定的场所取得java class，例如数据库中和网络中。</p>
-<h2 id="JVM类加载机制"><a href="#JVM类加载机制" class="headerlink" title="JVM类加载机制"></a>JVM类加载机制</h2><p>•全盘负责，当一个类加载器负责加载某个Class时，该Class所依赖的和引用的其他Class也将由该类加载器负责载入，除非显示使用另外一个类加载器来载入<br>•父类委托，先让父类加载器试图加载该类，只有在父类加载器无法加载该类时才尝试从自己的类路径中加载该类<br>•缓存机制，缓存机制将会保证所有加载过的Class都会被缓存，当程序中需要使用某个Class时，类加载器先从缓存区寻找该Class，只有缓存区不存在，系统才会读取该类对应的二进制数据，并将其转换成Class对象，存入缓存区。这就是为什么修改了Class后，必须重启JVM，程序的修改才会生效</p>
-<h2 id="4、类的加载"><a href="#4、类的加载" class="headerlink" title="4、类的加载"></a>4、类的加载</h2><p>类加载有三种方式：</p>
-<p>1、命令行启动应用时候由JVM初始化加载<br>2、通过<code>Class.forName()</code>方法动态加载<br>3、通过<code>ClassLoader.loadClass()</code>方法动态加载</p>
-<p>例子：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">public class loaderTest &#123; </div><div class="line">        public static void main(String[] args) throws ClassNotFoundException &#123; </div><div class="line">                ClassLoader loader = HelloWorld.class.getClassLoader(); </div><div class="line">                System.out.println(loader); </div><div class="line">                //使用ClassLoader.loadClass()来加载类，不会执行初始化块 </div><div class="line">                loader.loadClass(&quot;Test2&quot;); </div><div class="line">                //使用Class.forName()来加载类，默认会执行初始化块 </div><div class="line">                Class.forName(&quot;Test2&quot;); </div><div class="line">                //使用Class.forName()来加载类，并指定ClassLoader，初始化时不执行静态块 </div><div class="line">                Class.forName(&quot;Test2&quot;, false, loader); </div><div class="line">        &#125; </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>demo类</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">public class Test2 &#123; </div><div class="line">        static &#123; </div><div class="line">                System.out.println(&quot;静态初始化块执行了！&quot;); </div><div class="line">        &#125; </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>分别切换加载方式，会有不同的输出结果。</p>
-<h3 id="Class-forName-和ClassLoader-loadClass-区别"><a href="#Class-forName-和ClassLoader-loadClass-区别" class="headerlink" title="Class.forName()和ClassLoader.loadClass()区别"></a>Class.forName()和ClassLoader.loadClass()区别</h3><p><code>Class.forName()</code>：将类的<code>.class</code>文件加载到jvm中之外，还会对类进行解释，执行类中的static块；<br><code>ClassLoader.loadClass()</code>：只干一件事情，就是将<code>.class</code>文件加载到jvm中，不会执行static中的内容,只有在new Instance才会去执行static块。</p>
-<p>注：<br><code>Class.forName(name, initialize, loader)</code>带参函数也可控制是否加载static块。并且只有调用了new Instance()方法采用调用构造函数，创建类的对象 。</p>
-<h2 id="双亲委派模型"><a href="#双亲委派模型" class="headerlink" title="双亲委派模型"></a>双亲委派模型</h2><p>双亲委派模型的工作流程是：如果一个类加载器收到了类加载的请求，它首先不会自己去尝试加载这个类，而是把请求委托给父加载器去完成，依次向上，因此，所有的类加载请求最终都应该被传递到顶层的启动类加载器中，只有当父加载器在它的搜索范围中没有找到所需的类时，即无法完成该加载，子加载器才会尝试自己去加载该类。</p>
-<p>双亲委派机制:<br>1、当AppClassLoader加载一个class时，它首先不会自己去尝试加载这个类，而是把类加载请求委派给父类加载器ExtClassLoader去完成。<br>2、当ExtClassLoader加载一个class时，它首先也不会自己去尝试加载这个类，而是把类加载请求委派给BootStrapClassLoader去完成。<br>3、如果BootStrapClassLoader加载失败（例如在$JAVA_HOME/jre/lib里未查找到该class），会使用ExtClassLoader来尝试加载；<br>4、若ExtClassLoader也加载失败，则会使用AppClassLoader来加载，如果AppClassLoader也加载失败，则会报出异常ClassNotFoundException。</p>
-<p>ClassLoader源码分析：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line">public Class&lt;?&gt; loadClass(String name)throws ClassNotFoundException &#123;</div><div class="line">            return loadClass(name, false);</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    protected synchronized Class&lt;?&gt; loadClass(String name, boolean resolve)throws ClassNotFoundException &#123;</div><div class="line">            // 首先判断该类型是否已经被加载</div><div class="line">            Class c = findLoadedClass(name);</div><div class="line">            if (c == null) &#123;</div><div class="line">                //如果没有被加载，就委托给父类加载或者委派给启动类加载器加载</div><div class="line">                try &#123;</div><div class="line">                    if (parent != null) &#123;</div><div class="line">                         //如果存在父类加载器，就委派给父类加载器加载</div><div class="line">                        c = parent.loadClass(name, false);</div><div class="line">                    &#125; else &#123;</div><div class="line">                    //如果不存在父类加载器，就检查是否是由启动类加载器加载的类，通过调用本地方法native Class findBootstrapClass(String name)</div><div class="line">                        c = findBootstrapClass0(name);</div><div class="line">                    &#125;</div><div class="line">                &#125; catch (ClassNotFoundException e) &#123;</div><div class="line">                 // 如果父类加载器和启动类加载器都不能完成加载任务，才调用自身的加载功能</div><div class="line">                    c = findClass(name);</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">            if (resolve) &#123;</div><div class="line">                resolveClass(c);</div><div class="line">            &#125;</div><div class="line">            return c;</div><div class="line">        &#125;</div></pre></td></tr></table></figure></p>
-<p>双亲委派模型意义：</p>
-<p>-系统类防止内存中出现多份同样的字节码<br>-保证Java程序安全稳定运行</p>
-<h2 id="6、自定义类加载器"><a href="#6、自定义类加载器" class="headerlink" title="6、自定义类加载器"></a>6、自定义类加载器</h2><p>应用是通过网络来传输Java类的字节码，为保证安全性，这些字节码经过了加密处理，这时系统类加载器就无法对其进行加载，这样则需要自定义类加载器来实现。自定义类加载器一般都是继承自<code>ClassLoader</code>类，从上面对loadClass方法来分析来看，我们只需要重写<code>findClass</code> 方法即可。下面我们通过一个示例来演示自定义类加载器的流程：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div></pre></td><td class="code"><pre><div class="line">import java.io.*;</div><div class="line"> </div><div class="line">public class MyClassLoader extends ClassLoader &#123;</div><div class="line"> </div><div class="line">    private String root;</div><div class="line"> </div><div class="line">    protected Class&lt;?&gt; findClass(String name) throws ClassNotFoundException &#123;</div><div class="line">        byte[] classData = loadClassData(name);</div><div class="line">        if (classData == null) &#123;</div><div class="line">            throw new ClassNotFoundException();</div><div class="line">        &#125; else &#123;</div><div class="line">            return defineClass(name, classData, 0, classData.length);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    private byte[] loadClassData(String className) &#123;</div><div class="line">        String fileName = root + File.separatorChar</div><div class="line">                + className.replace(&apos;.&apos;, File.separatorChar) + &quot;.class&quot;;</div><div class="line">        try &#123;</div><div class="line">            InputStream ins = new FileInputStream(fileName);</div><div class="line">            ByteArrayOutputStream baos = new ByteArrayOutputStream();</div><div class="line">            int bufferSize = 1024;</div><div class="line">            byte[] buffer = new byte[bufferSize];</div><div class="line">            int length = 0;</div><div class="line">            while ((length = ins.read(buffer)) != -1) &#123;</div><div class="line">                baos.write(buffer, 0, length);</div><div class="line">            &#125;</div><div class="line">            return baos.toByteArray();</div><div class="line">        &#125; catch (IOException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125;</div><div class="line">        return null;</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    public String getRoot() &#123;</div><div class="line">        return root;</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    public void setRoot(String root) &#123;</div><div class="line">        this.root = root;</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    public static void main(String[] args)  &#123;</div><div class="line"> </div><div class="line">        MyClassLoader classLoader = new MyClassLoader();</div><div class="line">        classLoader.setRoot(&quot;E:\\temp&quot;);</div><div class="line"> </div><div class="line">        Class&lt;?&gt; testClass = null;</div><div class="line">        try &#123;</div><div class="line">            testClass = classLoader.loadClass(&quot;com.neo.classloader.Test2&quot;);</div><div class="line">            Object object = testClass.newInstance();</div><div class="line">            System.out.println(object.getClass().getClassLoader());</div><div class="line">        &#125; catch (ClassNotFoundException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125; catch (InstantiationException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125; catch (IllegalAccessException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>自定义类加载器的核心在于对字节码文件的获取，如果是加密的字节码则需要在该类中对文件进行解密。由于这里只是演示，我并未对class文件进行加密，因此没有解密的过程。这里有几点需要注意：</p>
-<p>1、这里传递的文件名需要是类的全限定性名称，即com.paddx.test.classloading.Test格式的，因为 defineClass 方法是按这种格式进行处理的。</p>
-<p>2、最好不要重写loadClass方法，因为这样容易破坏双亲委托模式。</p>
-<p>3、这类Test 类本身可以被 AppClassLoader 类加载，因此我们不能把 com/paddx/test/classloading/Test.class 放在类路径下。否则，由于双亲委托机制的存在，会直接导致该类由AppClassLoader 加载，而不会通过我们自定义类加载器来加载。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      Java 类的加载机制
-    
-    </summary>
-    
-      <category term="jav" scheme="http://jishusuishouji.github.io/categories/jav/"/>
-    
-    
-      <category term="java" scheme="http://jishusuishouji.github.io/tags/java/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>启动ActiveMQ的Broker</title>
-    <link href="http://jishusuishouji.github.io/2017/04/06/activemq/%E5%90%AF%E5%8A%A8ActiveMQ%E7%9A%84Broker/"/>
-    <id>http://jishusuishouji.github.io/2017/04/06/activemq/启动ActiveMQ的Broker/</id>
-    <published>2017-04-05T22:57:20.000Z</published>
-    <updated>2017-04-05T23:56:22.471Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="1、直接运行安装目录的bin-activemq-bat"><a href="#1、直接运行安装目录的bin-activemq-bat" class="headerlink" title="1、直接运行安装目录的bin\activemq.bat"></a>1、直接运行安装目录的<code>bin\activemq.bat</code></h2><h2 id="2、可以通过在应用程序中以编码的方式启动broker，例如："><a href="#2、可以通过在应用程序中以编码的方式启动broker，例如：" class="headerlink" title="2、可以通过在应用程序中以编码的方式启动broker，例如："></a>2、可以通过在应用程序中以编码的方式启动broker，例如：</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">BrokerService broker =new BrokerService();  </div><div class="line">broker.setBrokerName(&quot;testName&quot;);//如果启动多个Broker时，必须为Broker设置一个名称  </div><div class="line">broker.addConnector(&quot;tcp://localhost:61616&quot;);  </div><div class="line">broker.start();</div></pre></td></tr></table></figure>
-<h2 id="3、可以通过BrokerFactory来创建broker，例如："><a href="#3、可以通过BrokerFactory来创建broker，例如：" class="headerlink" title="3、可以通过BrokerFactory来创建broker，例如："></a>3、可以通过<code>BrokerFactory</code>来创建<code>broker</code>，例如：</h2><pre><code>BrokerService broker =BrokerFactory.createBroker(new URI(&quot;broker:tcp://localhost:61616&quot;));  
-broker.start();  
-</code></pre><h2 id="4、测代码"><a href="#4、测代码" class="headerlink" title="4、测代码"></a>4、测代码</h2><pre><code>import java.net.URI;  
-import org.apache.activemq.broker.BrokerFactory;  
-import org.apache.activemq.broker.BrokerService;  
-
-/** 
- * 启动ActiveMQ的代理Broker 
- */  
-public class RunningBroker {  
-    public static void main(String[] args){  
-        try {  
-            codeByRunning() ;  //启动Broker  
-        } catch (Exception e) {  
-            e.printStackTrace();  
-        }  
-    }  
-
-    /** 
-     * 应用程序中以编码的方式启动 
-     */  
-    public static void codeByRunning() throws Exception{  
-        BrokerService broker =new BrokerService();  
-        broker.setBrokerName(&quot;testName&quot;);//如果启动多个Broker时，必须为Broker设置一个名称  
-        broker.addConnector(&quot;tcp://localhost:61616&quot;);  
-        broker.start();  
-    }  
-
-    /** 
-     * 以BrokerFactory的方式启动 
-     */  
-    public static void factoryByRunning()throws Exception{  
-        BrokerService broker =BrokerFactory.createBroker(new URI(&quot;broker:tcp://localhost:61616&quot;));  
-        broker.start();  
-    }  
-}
-</code></pre>]]></content>
-    
-    <summary type="html">
-    
-      启动ActiveMQ的Broker
-    
-    </summary>
-    
-      <category term="java" scheme="http://jishusuishouji.github.io/categories/java/"/>
-    
-      <category term="JMS" scheme="http://jishusuishouji.github.io/categories/java/JMS/"/>
-    
-      <category term="ActiveMQ" scheme="http://jishusuishouji.github.io/categories/java/JMS/ActiveMQ/"/>
-    
-    
-      <category term="java" scheme="http://jishusuishouji.github.io/tags/java/"/>
-    
-      <category term="JMS" scheme="http://jishusuishouji.github.io/tags/JMS/"/>
-    
-      <category term="ActiveMQ" scheme="http://jishusuishouji.github.io/tags/ActiveMQ/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>ActiveMQ实现负载均衡+高可用部署方案</title>
-    <link href="http://jishusuishouji.github.io/2017/04/06/activemq/ActiveMQ%E5%AE%9E%E7%8E%B0%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1_%E9%AB%98%E5%8F%AF%E7%94%A8%E9%83%A8%E7%BD%B2%E6%96%B9%E6%A1%88/"/>
-    <id>http://jishusuishouji.github.io/2017/04/06/activemq/ActiveMQ实现负载均衡_高可用部署方案/</id>
-    <published>2017-04-05T22:29:04.000Z</published>
-    <updated>2017-04-05T22:55:23.477Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="一、架构和技术介绍"><a href="#一、架构和技术介绍" class="headerlink" title="一、架构和技术介绍"></a>一、架构和技术介绍</h2><h3 id="1、简介"><a href="#1、简介" class="headerlink" title="1、简介"></a>1、简介</h3><p>ActiveMQ完全支持JMS1.1和J2EE 1.4规范的JMS Provider实现。</p>
-<h3 id="2、activemq的特性"><a href="#2、activemq的特性" class="headerlink" title="2、activemq的特性"></a>2、activemq的特性</h3><ol>
-<li>多种语言和协议编写客户端。语言: Java, C, C++, C#, Ruby, Perl, Python,PHP。应用协议: OpenWire,Stomp REST,WS Notification,XMPP,AMQP</li>
-<li>完全支持JMS1.1和J2EE 1.4规范 (持久化,XA消息,事务)</li>
-<li>对Spring的支持,ActiveMQ可以很容易内嵌到使用Spring的系统里面去,而且也支持Spring2.0的特性</li>
-<li>通过了常见J2EE服务器(如 Geronimo,JBoss 4, GlassFish,WebLogic)的测试,其中通过JCA 1.5 resourceadaptors的配置,可以让ActiveMQ可以自动地部署到任何兼容J2EE1.4商业服务器上</li>
-<li>支持多种传送协议:in-VM,TCP,SSL,NIO,UDP,JGroups,JXTA</li>
-<li>支持通过JDBC和journal提供高速的消息持久化</li>
-<li>从设计上保证了高性能的集群,客户端-服务器,点对点</li>
-<li>支持Ajax</li>
-<li>支持与Axis的整合</li>
-<li>可以很容易得调用内嵌JMS provider,进行测试</li>
-</ol>
-<h3 id="3、下载和安装ActiveMQ"><a href="#3、下载和安装ActiveMQ" class="headerlink" title="3、下载和安装ActiveMQ"></a>3、下载和安装ActiveMQ</h3><h4 id="1、下载"><a href="#1、下载" class="headerlink" title="1、下载"></a>1、下载</h4><h4 id="2、安装"><a href="#2、安装" class="headerlink" title="2、安装"></a>2、安装</h4><p>如果是在windows系统中运行，可以直接解压apache-activemq-5.9.0-bin.zip，并运行bin目录下的activemq.bat文件，此时使用的是默认的服务端口：61616和默认的console端口：8161。</p>
-<p>如果是在linux或unix下运行，在bin目录下执行命令：<code>./activemq setup</code></p>
-<h4 id="3、修改ActiveMQ的服务端口和console端口"><a href="#3、修改ActiveMQ的服务端口和console端口" class="headerlink" title="3、修改ActiveMQ的服务端口和console端口"></a>3、修改ActiveMQ的服务端口和console端口</h4><p>A、修改服务端口：打开<code>conf/activemq.xml</code>文件<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"> &lt;transportConnectors&gt;</div><div class="line">    &lt;transportConnector name=&quot;openwire&quot; uri=&quot;tcp://10.42.220.72:61618&quot;discoveryUri=&quot;multicast://default&quot;/&gt;</div><div class="line">&lt;/transportConnectors&gt;</div></pre></td></tr></table></figure></p>
-<p>B、修改console的地址和端口:打开<code>conf/jetty.xml</code>文件<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">   &lt;bean id=&quot;jettyPort&quot;class=&quot;org.apache.activemq.web.WebConsolePort&quot;init-method=&quot;start&quot;&gt;</div><div class="line">      &lt;property name=&quot;port&quot; value=&quot;8162&quot;/&gt;</div><div class="line">&lt;/bean&gt;</div></pre></td></tr></table></figure></p>
-<h4 id="4、通过客户端代码试用ActiveMQ"><a href="#4、通过客户端代码试用ActiveMQ" class="headerlink" title="4、通过客户端代码试用ActiveMQ"></a>4、通过客户端代码试用ActiveMQ</h4><p>需要提前将activemq解压包中的lib目录下的相关包引入到工程中，再进行如下编码：</p>
-<h5 id="1、发送端的代码："><a href="#1、发送端的代码：" class="headerlink" title="1、发送端的代码："></a>1、发送端的代码：</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div></pre></td><td class="code"><pre><div class="line">importjavax.jms.Connection;</div><div class="line">importjavax.jms.ConnectionFactory;</div><div class="line">importjavax.jms.DeliveryMode;</div><div class="line">importjavax.jms.Destination;</div><div class="line">importjavax.jms.MessageProducer;</div><div class="line">importjavax.jms.Session;</div><div class="line">importjavax.jms.TextMessage;</div><div class="line">importorg.apache.activemq.ActiveMQConnection;</div><div class="line">importorg.apache.activemq.ActiveMQConnectionFactory;</div><div class="line"></div><div class="line">publicclass Sender &#123;</div><div class="line">    private static finalint SEND_NUMBER = 5;</div><div class="line"></div><div class="line">    publicstaticvoid main(String[] args) &#123;</div><div class="line">        // ConnectionFactory：连接工厂，JMS用它创建连接</div><div class="line">        ConnectionFactory connectionFactory;</div><div class="line">        // Connection：JMS客户端到JMS Provider的连接</div><div class="line">        Connection connection = null;</div><div class="line">        // Session：一个发送或接收消息的线程</div><div class="line">        Session session;</div><div class="line">        // Destination：消息的目的地;消息发送给谁.</div><div class="line">        Destination destination;</div><div class="line">        // MessageProducer：消息发送者</div><div class="line">        MessageProducer producer;</div><div class="line">        TextMessage message;</div><div class="line">    </div><div class="line">        //构造ConnectionFactory实例对象，此处采用ActiveMq的实现jar</div><div class="line">        connectionFactory = new ActiveMQConnectionFactory(</div><div class="line">                ActiveMQConnection.DEFAULT_USER,</div><div class="line">                ActiveMQConnection.DEFAULT_PASSWORD,</div><div class="line">                &quot;failover:(tcp://10.42.220.72:61617,tcp://10.42.220.72:61618)&quot;);</div><div class="line">        try &#123;</div><div class="line">            //构造从工厂得到连接对象</div><div class="line">            connection =connectionFactory.createConnection();</div><div class="line">            //启动</div><div class="line">            connection.start();</div><div class="line">            //获取操作连接</div><div class="line">            session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);</div><div class="line">            //获取session</div><div class="line">            destination = session.createQueue(&quot;FirstQueue&quot;);</div><div class="line">            //得到消息生成者【发送者】</div><div class="line">            producer =session.createProducer(destination);</div><div class="line">            //设置不持久化，此处学习，实际根据项目决定</div><div class="line">            producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);</div><div class="line">            //构造消息，此处写死，项目就是参数，或者方法获取</div><div class="line">            sendMessage(session, producer);</div><div class="line">            session.commit();</div><div class="line">        &#125; catch (Exception e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125; finally &#123;</div><div class="line">            try &#123;</div><div class="line">                if (null != connection)</div><div class="line">                    connection.close();</div><div class="line">            &#125; catch (Throwable ignore) &#123;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">    publicstaticvoid sendMessage(Session session,MessageProducer producer)</div><div class="line">            throws Exception &#123;</div><div class="line">        for (int i = 1; i &lt;=SEND_NUMBER; i++) &#123;</div><div class="line">            TextMessage message = session</div><div class="line">                    .createTextMessage(&quot;ActiveMq发送的消息&quot; + i);</div><div class="line">            //发送消息到目的地方</div><div class="line">            System.out.println(&quot;发送消息：&quot; + &quot;ActiveMq 发送的消息&quot; + i);</div><div class="line">            producer.send(message);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h4 id="2、接收端代码："><a href="#2、接收端代码：" class="headerlink" title="2、接收端代码："></a>2、接收端代码：</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div></pre></td><td class="code"><pre><div class="line">importjavax.jms.Connection;</div><div class="line">importjavax.jms.ConnectionFactory;</div><div class="line">importjavax.jms.Destination;</div><div class="line">importjavax.jms.MessageConsumer;</div><div class="line">importjavax.jms.Session;</div><div class="line">importjavax.jms.TextMessage;</div><div class="line">importorg.apache.activemq.ActiveMQConnection;</div><div class="line">importorg.apache.activemq.ActiveMQConnectionFactory;</div><div class="line"> </div><div class="line"></div><div class="line">publicclass Receive &#123;</div><div class="line">    publicstaticvoid main(String[] args) &#123;</div><div class="line">        // ConnectionFactory：连接工厂，JMS用它创建连接</div><div class="line">        ConnectionFactory connectionFactory;</div><div class="line">        // Connection：JMS客户端到JMS Provider的连接</div><div class="line">        Connection connection = null;</div><div class="line">        // Session：一个发送或接收消息的线程</div><div class="line">        Session session;</div><div class="line">        // Destination：消息的目的地;消息发送给谁.</div><div class="line">        Destination destination;</div><div class="line">        //消费者，消息接收者</div><div class="line">        MessageConsumer consumer;</div><div class="line">        connectionFactory = new ActiveMQConnectionFactory(</div><div class="line">                ActiveMQConnection.DEFAULT_USER,</div><div class="line">                ActiveMQConnection.DEFAULT_PASSWORD,</div><div class="line">                &quot;failover:(tcp://10.42.220.72:61617,tcp://10.42.220.72:61618)&quot;);</div><div class="line"></div><div class="line">        try &#123;</div><div class="line">            //构造从工厂得到连接对象</div><div class="line">            connection =connectionFactory.createConnection();</div><div class="line">            //启动</div><div class="line">            connection.start();</div><div class="line">            //获取操作连接</div><div class="line">            session = connection.createSession(false,</div><div class="line">                    Session.AUTO_ACKNOWLEDGE);</div><div class="line">            //获取session</div><div class="line">            destination = session.createQueue(&quot;FirstQueue&quot;);</div><div class="line">            consumer =session.createConsumer(destination);</div><div class="line">            while (true) &#123;</div><div class="line">                //设置接收者接收消息的时间，为了便于测试，这里谁定为100s</div><div class="line">                TextMessage message =(TextMessage) consumer.receive(100000);</div><div class="line">                if (null != message) &#123;</div><div class="line">                    System.out.println(&quot;收到消息&quot; + message.getText());</div><div class="line">                &#125; else &#123;</div><div class="line">                    break;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125; catch (Exception e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125; finally &#123;</div><div class="line">            try &#123;</div><div class="line">                if (null != connection)</div><div class="line">                    connection.close();</div><div class="line">            &#125; catch (Throwable ignore) &#123;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h5 id="3、通过监控查看消息堆栈的记录："><a href="#3、通过监控查看消息堆栈的记录：" class="headerlink" title="3、通过监控查看消息堆栈的记录："></a>3、通过监控查看消息堆栈的记录：</h5><p>登陆<code>http://localhost:8162/admin/queues.jsp</code>，默认的用户名和密码：<code>admin/admin</code></p>
-<h2 id="二、ActiveMQ的多种部署方式"><a href="#二、ActiveMQ的多种部署方式" class="headerlink" title="二、ActiveMQ的多种部署方式"></a>二、ActiveMQ的多种部署方式</h2><p>单点的ActiveMQ作为企业应用无法满足高可用和集群的需求，所以ActiveMQ提供了master-slave、broker cluster等多种部署方式，但通过分析多种部署方式之后我认为需要将两种部署方式相结合才能满足我们公司分布式和高可用的需求，所以后面就重点将解如何将两种部署方式相结合。</p>
-<h3 id="1、Master-Slave部署方式"><a href="#1、Master-Slave部署方式" class="headerlink" title="1、Master-Slave部署方式"></a>1、Master-Slave部署方式</h3><h4 id="1）shared-filesystem-Master-Slave部署方式"><a href="#1）shared-filesystem-Master-Slave部署方式" class="headerlink" title="1）shared filesystem Master-Slave部署方式"></a>1）shared filesystem Master-Slave部署方式</h4><p>主要是通过共享存储目录来实现master和slave的热备，所有的ActiveMQ应用都在不断地获取共享目录的控制权，哪个应用抢到了控制权，它就成为master。</p>
-<p>多个共享存储目录的应用，谁先启动，谁就可以最早取得共享目录的控制权成为master，其他的应用就只能作为slave。<br><img src="/img/ActiveMQ Master-Slave部署方式.png" alt="ActiveMQ Master-Slave部署方式"></p>
-<h4 id="2）shared-database-Master-Slave方式"><a href="#2）shared-database-Master-Slave方式" class="headerlink" title="2）shared database Master-Slave方式"></a>2）shared database Master-Slave方式</h4><p>与shared filesystem方式类似，只是共享的存储介质由文件系统改成了数据库而已。</p>
-<h4 id="3）Replicated-LevelDB-Store方式"><a href="#3）Replicated-LevelDB-Store方式" class="headerlink" title="3）Replicated LevelDB Store方式"></a>3）Replicated LevelDB Store方式</h4><p>这种主备方式是ActiveMQ5.9以后才新增的特性，使用ZooKeeper协调选择一个node作为master。被选择的master broker node开启并接受客户端连接。<br>其他node转入slave模式，连接master并同步他们的存储状态。slave不接受客户端连接。所有的存储操作都将被复制到连接至Master的slaves。</p>
-<p>如果master死了，得到了最新更新的slave被允许成为master。fialed node能够重新加入到网络中并连接master进入slave mode。所有需要同步的disk的消息操作都将等待存储状态被复制到其他法定节点的操作完成才能完成。所以，如果你配置了replicas=3，那么法定大小是(3/2)+1=2. Master将会存储并更新然后等待 (2-1)=1个slave存储和更新完成，才汇报success。至于为什么是2-1，熟悉Zookeeper的应该知道，有一个node要作为观擦者存在。</p>
-<p>当一个新的master被选中，你需要至少保障一个法定node在线以能够找到拥有最新状态的node。这个node将会成为新的master。因此，推荐运行至少3个replica nodes，以防止一个node失败了，服务中断。</p>
-<p><img src="/img/Replicated LevelDB Store方式.png" alt="Replicated LevelDB Store方式"></p>
-<h3 id="2、Broker-Cluster部署方式"><a href="#2、Broker-Cluster部署方式" class="headerlink" title="2、Broker-Cluster部署方式"></a>2、Broker-Cluster部署方式</h3><p>前面的Master-Slave的方式虽然能解决多服务热备的高可用问题，但无法解决负载均衡和分布式的问题。Broker-Cluster的部署方式就可以解决负载均衡的问题。</p>
-<p>Broker-Cluster部署方式中，各个broker通过网络互相连接，并共享queue。当broker-A上面指定的queue-A中接收到一个message处于pending状态，而此时没有consumer连接broker-A时。如果cluster中的broker-B上面有一个consumer在消费queue-A的消息，那么broker-B会先通过内部网络获取到broker-A上面的message，并通知自己的consumer来消费。</p>
-<h4 id="1）static-Broker-Cluster部署"><a href="#1）static-Broker-Cluster部署" class="headerlink" title="1）static Broker-Cluster部署"></a>1）static Broker-Cluster部署</h4><p>在<code>activemq.xml</code>文件中静态指定Broker需要建立桥连接的其他Broker：</p>
-<h5 id="1、首先在Broker-A节点中添加networkConnector节点："><a href="#1、首先在Broker-A节点中添加networkConnector节点：" class="headerlink" title="1、首先在Broker-A节点中添加networkConnector节点："></a>1、首先在Broker-A节点中添加networkConnector节点：</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&lt;networkConnectors&gt; </div><div class="line">    &lt;networkConnector   uri=&quot;static:(tcp:// 0.0.0.0:61617)&quot;duplex=&quot;false&quot;/&gt;</div><div class="line">&lt;/networkConnectors&gt;</div></pre></td></tr></table></figure>
-<h5 id="2、修改Broker-A节点中的服务提供端口为61616："><a href="#2、修改Broker-A节点中的服务提供端口为61616：" class="headerlink" title="2、修改Broker-A节点中的服务提供端口为61616："></a>2、修改Broker-A节点中的服务提供端口为61616：</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&lt;transportConnectors&gt;</div><div class="line">     &lt;transportConnectorname=&quot;openwire&quot;uri=&quot;tcp://0.0.0.0:61616?maximumConnections=1000&amp;amp;wireFormat.maxFrameSize=104857600&quot;/&gt;</div><div class="line">&lt;/transportConnectors&gt;</div></pre></td></tr></table></figure>
-<p>#####3、  在Broker-B节点中添加networkConnector节点：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&lt;networkConnectors&gt; </div><div class="line">    &lt;networkConnector   uri=&quot;static:(tcp:// 0.0.0.0:61616)&quot;duplex=&quot;false&quot;/&gt;</div><div class="line">&lt;/networkConnectors&gt;</div></pre></td></tr></table></figure></p>
-<h5 id="4、修改Broker-A节点中的服务提供端口为61617："><a href="#4、修改Broker-A节点中的服务提供端口为61617：" class="headerlink" title="4、修改Broker-A节点中的服务提供端口为61617："></a>4、修改Broker-A节点中的服务提供端口为61617：</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&lt;transportConnectors&gt;</div><div class="line">     &lt;transportConnectorname=&quot;openwire&quot;uri=&quot;tcp://0.0.0.0:61617?maximumConnections=1000&amp;amp;wireFormat.maxFrameSize=104857600&quot;/&gt;</div><div class="line">&lt;/transportConnectors&gt;</div></pre></td></tr></table></figure>
-<h5 id="5、分别启动Broker-A和Broker-B。"><a href="#5、分别启动Broker-A和Broker-B。" class="headerlink" title="5、分别启动Broker-A和Broker-B。"></a>5、分别启动Broker-A和Broker-B。</h5><h4 id="2）Dynamic-Broker-Cluster部署"><a href="#2）Dynamic-Broker-Cluster部署" class="headerlink" title="2）Dynamic Broker-Cluster部署"></a>2）Dynamic Broker-Cluster部署</h4><p>在<code>activemq.xml</code>文件中不直接指定Broker需要建立桥连接的其他Broker，由activemq在启动后动态查找：</p>
-<h5 id="1、首先在Broker-A节点中添加networkConnector节点：-1"><a href="#1、首先在Broker-A节点中添加networkConnector节点：-1" class="headerlink" title="1、首先在Broker-A节点中添加networkConnector节点："></a>1、首先在Broker-A节点中添加networkConnector节点：</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">&lt;networkConnectors&gt; </div><div class="line">    &lt;networkConnectoruri=&quot;multicast://default&quot;</div><div class="line">           dynamicOnly=&quot;true&quot;</div><div class="line">           networkTTL=&quot;3&quot;</div><div class="line">           prefetchSize=&quot;1&quot;</div><div class="line">           decreaseNetworkConsumerPriority=&quot;true&quot; /&gt;</div><div class="line">&lt;/networkConnectors&gt;</div></pre></td></tr></table></figure>
-<h5 id="2、修改Broker-A节点中的服务提供端口为61616：-1"><a href="#2、修改Broker-A节点中的服务提供端口为61616：-1" class="headerlink" title="2、修改Broker-A节点中的服务提供端口为61616："></a>2、修改Broker-A节点中的服务提供端口为61616：</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&lt;transportConnectors&gt;</div><div class="line">     &lt;transportConnectorname=&quot;openwire&quot;uri=&quot;tcp://0.0.0.0:61616? &quot; discoveryUri=&quot;multicast://default&quot;/&gt;</div><div class="line">&lt;/transportConnectors&gt;</div></pre></td></tr></table></figure>
-<h5 id="3、在Broker-B节点中添加networkConnector节点："><a href="#3、在Broker-B节点中添加networkConnector节点：" class="headerlink" title="3、在Broker-B节点中添加networkConnector节点："></a>3、在Broker-B节点中添加networkConnector节点：</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">&lt;networkConnectors&gt; </div><div class="line">                &lt;networkConnectoruri=&quot;multicast://default&quot;</div><div class="line">           dynamicOnly=&quot;true&quot;</div><div class="line">           networkTTL=&quot;3&quot;</div><div class="line">           prefetchSize=&quot;1&quot;</div><div class="line">           decreaseNetworkConsumerPriority=&quot;true&quot; /&gt;</div><div class="line">&lt;/networkConnectors&gt;</div></pre></td></tr></table></figure>
-<h5 id="4、修改Broker-B节点中的服务提供端口为61617："><a href="#4、修改Broker-B节点中的服务提供端口为61617：" class="headerlink" title="4、修改Broker-B节点中的服务提供端口为61617："></a>4、修改Broker-B节点中的服务提供端口为61617：</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&lt;transportConnectors&gt;</div><div class="line">     &lt;transportConnectorname=&quot;openwire&quot;uri=&quot;tcp://0.0.0.0:61617&quot; discoveryUri=&quot;multicast://default&quot;/&gt;</div><div class="line">&lt;/transportConnectors&gt;</div></pre></td></tr></table></figure>
-<h5 id="5、启动Broker-A和Broker-B"><a href="#5、启动Broker-A和Broker-B" class="headerlink" title="5、启动Broker-A和Broker-B"></a>5、启动Broker-A和Broker-B</h5><h3 id="2、Master-Slave与Broker-Cluster相结合的部署方式"><a href="#2、Master-Slave与Broker-Cluster相结合的部署方式" class="headerlink" title="2、Master-Slave与Broker-Cluster相结合的部署方式"></a>2、Master-Slave与Broker-Cluster相结合的部署方式</h3><p>可以看到Master-Slave的部署方式虽然解决了高可用的问题，但不支持负载均衡，Broker-Cluster解决了负载均衡，但当其中一个Broker突然宕掉的话，那么存在于该Broker上处于Pending状态的message将会丢失，无法达到高可用的目的。</p>
-<p><img src="/img/activemqMaster-Slave与Broker-Cluster相结合的部署方式.png" alt="activemqMaster-Slave与Broker-Cluster相结合的部署方式"></p>
-<h4 id="1、部署的配置修改"><a href="#1、部署的配置修改" class="headerlink" title="1、部署的配置修改"></a>1、部署的配置修改</h4><p>这里以Broker-A + Broker-B建立cluster，Broker-C作为Broker-B的slave为例：</p>
-<h5 id="1）首先在Broker-A节点中添加networkConnector节点："><a href="#1）首先在Broker-A节点中添加networkConnector节点：" class="headerlink" title="1）首先在Broker-A节点中添加networkConnector节点："></a>1）首先在Broker-A节点中添加networkConnector节点：</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&lt;networkConnectors&gt; </div><div class="line">    &lt;networkConnector   uri=&quot;masterslave:(tcp://0.0.0.0:61617,tcp:// 0.0.0.0:61618)&quot; duplex=&quot;false&quot;/&gt;</div><div class="line">&lt;/networkConnectors&gt;</div></pre></td></tr></table></figure>
-<h5 id="2）修改Broker-A节点中的服务提供端口为61616："><a href="#2）修改Broker-A节点中的服务提供端口为61616：" class="headerlink" title="2）修改Broker-A节点中的服务提供端口为61616："></a>2）修改Broker-A节点中的服务提供端口为61616：</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&lt;transportConnectors&gt;</div><div class="line">     &lt;transportConnectorname=&quot;openwire&quot;uri=&quot;tcp://0.0.0.0:61616?maximumConnections=1000&amp;amp;wireFormat.maxFrameSize=104857600&quot;/&gt;</div><div class="line">&lt;/transportConnectors&gt;</div></pre></td></tr></table></figure>
-<h5 id="3）在Broker-B节点中添加networkConnector节点："><a href="#3）在Broker-B节点中添加networkConnector节点：" class="headerlink" title="3）在Broker-B节点中添加networkConnector节点："></a>3）在Broker-B节点中添加networkConnector节点：</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&lt;networkConnectors&gt; </div><div class="line">    &lt;networkConnector   uri=&quot;static:(tcp:// 0.0.0.0:61616)&quot;duplex=&quot;false&quot;/&gt;</div><div class="line">&lt;/networkConnectors&gt;</div></pre></td></tr></table></figure>
-<h4 id="4）修改Broker-B节点中的服务提供端口为61617："><a href="#4）修改Broker-B节点中的服务提供端口为61617：" class="headerlink" title="4）修改Broker-B节点中的服务提供端口为61617："></a>4）修改Broker-B节点中的服务提供端口为61617：</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">&lt;transportConnectors&gt;</div><div class="line"></div><div class="line">         &lt;transportConnectorname=&quot;openwire&quot;uri=&quot;tcp://0.0.0.0:61617?maximumConnections=1000&amp;amp;wireFormat.maxFrameSize=104857600&quot;/&gt;</div><div class="line"></div><div class="line">&lt;/transportConnectors&gt;</div></pre></td></tr></table></figure>
-<p>5）修改Broker-B节点中的持久化方式：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&lt;persistenceAdapter&gt;</div><div class="line">     &lt;kahaDB directory=&quot;/localhost/kahadb&quot;/&gt;</div><div class="line">  &lt;/persistenceAdapter&gt;</div></pre></td></tr></table></figure></p>
-<p>6）在Broker-C节点中添加networkConnector节点：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&lt;networkConnectors&gt; </div><div class="line">    &lt;networkConnector   uri=&quot;static:(tcp:// 0.0.0.0:61616)&quot;duplex=&quot;false&quot;/&gt;</div><div class="line">&lt;/networkConnectors&gt;</div></pre></td></tr></table></figure></p>
-<p>7）修改Broker-C节点中的服务提供端口为61618：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&lt;transportConnectors&gt;</div><div class="line">    &lt;transportConnectorname=&quot;openwire&quot;uri=&quot;tcp://0.0.0.0:61618?maximumConnections=1000&amp;amp;wireFormat.maxFrameSize=104857600&quot;/&gt;</div><div class="line">&lt;/transportConnectors&gt;</div></pre></td></tr></table></figure></p>
-<p>8）修改Broker-C节点中的持久化方式：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&lt;persistenceAdapter&gt;</div><div class="line">     &lt;kahaDB directory=&quot;/localhost/kahadb&quot;/&gt;</div><div class="line"> &lt;/persistenceAdapter&gt;</div></pre></td></tr></table></figure></p>
-<p>9）分别启动broker-A、broker-B、broker-C，因为是broker-B先启动，所以“/localhost/kahadb”目录被lock住，broker-C将一直处于挂起状态，当人为停掉broker-B之后，broker-C将获取目录“/localhost/kahadb”的控制权，重新与broker-A组成cluster提供服务。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      ActiveMQ实现负载均衡+高可用部署方案
-    
-    </summary>
-    
-      <category term="java" scheme="http://jishusuishouji.github.io/categories/java/"/>
-    
-      <category term="JMS" scheme="http://jishusuishouji.github.io/categories/java/JMS/"/>
-    
-      <category term="ActiveMQ" scheme="http://jishusuishouji.github.io/categories/java/JMS/ActiveMQ/"/>
-    
-    
-      <category term="java" scheme="http://jishusuishouji.github.io/tags/java/"/>
-    
-      <category term="ActiveMQ" scheme="http://jishusuishouji.github.io/tags/ActiveMQ/"/>
     
   </entry>
   

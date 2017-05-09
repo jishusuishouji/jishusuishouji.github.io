@@ -1,0 +1,906 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="技术随手记" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="java安全管理器SecurityManager">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java安全管理器SecurityManager">
+<meta property="og:url" content="http://jishusuishouji.github.io/2017/05/09/java安全管理器SecurityManager.md/java安全管理器SecurityManager/index.html">
+<meta property="og:site_name" content="技术随手记">
+<meta property="og:description" content="java安全管理器SecurityManager">
+<meta property="og:updated_time" content="2017-05-08T19:53:02.928Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="java安全管理器SecurityManager">
+<meta name="twitter:description" content="java安全管理器SecurityManager">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://jishusuishouji.github.io/2017/05/09/java安全管理器SecurityManager.md/java安全管理器SecurityManager/"/>
+
+
+
+
+
+  <title> java安全管理器SecurityManager | 技术随手记 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">技术随手记</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://jishusuishouji.github.io/2017/05/09/java安全管理器SecurityManager.md/java安全管理器SecurityManager/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="技术随手记">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="技术随手记">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+            
+            
+              
+                java安全管理器SecurityManager
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-05-09T00:33:39+08:00">
+                2017-05-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+            <!--noindex-->
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/05/09/java安全管理器SecurityManager.md/java安全管理器SecurityManager/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count hc-comment-count" data-xid="2017/05/09/java安全管理器SecurityManager.md/java安全管理器SecurityManager/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+              <!--/noindex-->
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  java安全管理器SecurityManager
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="问题的提出"><a href="#问题的提出" class="headerlink" title="问题的提出"></a>问题的提出</h2><h3 id="阅读源码中关于SecurityManager的代码"><a href="#阅读源码中关于SecurityManager的代码" class="headerlink" title="阅读源码中关于SecurityManager的代码"></a>阅读源码中关于<code>SecurityManager</code>的代码</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">SecurityManager security = System.getSecurityManager();</div><div class="line">if (security != null) &#123;</div><div class="line">    security.checkWrite(name);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="在本机运行正常，在服务器运行报错权限错误："><a href="#在本机运行正常，在服务器运行报错权限错误：" class="headerlink" title="在本机运行正常，在服务器运行报错权限错误："></a>在本机运行正常，在服务器运行报错权限错误：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">Exception in thread &quot;main&quot; java.security.AccessControlException: access denied (java.lang.RuntimePermission createSecurityManager)</div><div class="line">    at java.security.AccessControlContext.checkPermission(AccessControlContext.java:374)</div><div class="line">    at java.security.AccessController.checkPermission(AccessController.java:549)</div><div class="line">    at java.lang.SecurityManager.checkPermission(SecurityManager.java:532)</div><div class="line">    at java.lang.SecurityManager.&lt;init&gt;(SecurityManager.java:282)</div><div class="line">    ...</div></pre></td></tr></table></figure>
+<p>为了彻底明白这些情况，需要研究一下<code>SecurityManager</code>。</p>
+<h2 id="SecurityManager应用场景"><a href="#SecurityManager应用场景" class="headerlink" title="SecurityManager应用场景"></a><code>SecurityManager</code>应用场景</h2><p>当运行未知的Java程序(可能有恶意代码（删除系统文件、重启系统等）)时，为了防止恶意代码对系统产生影响，需要对运行的代码的权限进行控制，这时就需要启用Java安全管理器。</p>
+<h2 id="管理器配置文件"><a href="#管理器配置文件" class="headerlink" title="管理器配置文件"></a>管理器配置文件</h2><h3 id="默认配置文件"><a href="#默认配置文件" class="headerlink" title="默认配置文件"></a>默认配置文件</h3><p>默认的安全管理器配置文件位于<code>$JAVA_HOME/jre/lib/security/java.policy</code>，当未指定配置文件时，将会使用该默认配置。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">// Standard extensions get all permissions by default</div><div class="line"></div><div class="line">grant codeBase &quot;file:$&#123;&#123;java.ext.dirs&#125;&#125;/*&quot; &#123;</div><div class="line">        permission java.security.AllPermission;</div><div class="line">&#125;;</div><div class="line"></div><div class="line">// default permissions granted to all domains</div><div class="line"></div><div class="line">grant &#123;</div><div class="line">        // Allows any thread to stop itself using the java.lang.Thread.stop()</div><div class="line">        // method that takes no argument.</div><div class="line">        // Note that this permission is granted by default only to remain</div><div class="line">        // backwards compatible.</div><div class="line">        // It is strongly recommended that you either remove this permission</div><div class="line">        // from this policy file or further restrict it to code sources</div><div class="line">        // that you specify, because Thread.stop() is potentially unsafe.</div><div class="line">        // See the API specification of java.lang.Thread.stop() for more</div><div class="line">        // information.</div><div class="line">        permission java.lang.RuntimePermission &quot;stopThread&quot;;</div><div class="line"></div><div class="line">        // allows anyone to listen on dynamic ports</div><div class="line">        permission java.net.SocketPermission &quot;localhost:0&quot;, &quot;listen&quot;;</div><div class="line"></div><div class="line">        // &quot;standard&quot; properies that can be read by anyone</div><div class="line"></div><div class="line">        permission java.util.PropertyPermission &quot;java.version&quot;, &quot;read&quot;;</div><div class="line">        permission java.util.PropertyPermission &quot;java.vendor&quot;, &quot;read&quot;;</div><div class="line">        permission java.util.PropertyPermission &quot;java.vendor.url&quot;, &quot;read&quot;;</div><div class="line">        permission java.util.PropertyPermission &quot;java.class.version&quot;, &quot;read&quot;;</div><div class="line">        permission java.util.PropertyPermission &quot;os.name&quot;, &quot;read&quot;;</div><div class="line">        permission java.util.PropertyPermission &quot;os.version&quot;, &quot;read&quot;;</div><div class="line">        permission java.util.PropertyPermission &quot;os.arch&quot;, &quot;read&quot;;</div><div class="line">        permission java.util.PropertyPermission &quot;file.separator&quot;, &quot;read&quot;;</div><div class="line">        permission java.util.PropertyPermission &quot;path.separator&quot;, &quot;read&quot;;</div><div class="line">        permission java.util.PropertyPermission &quot;line.separator&quot;, &quot;read&quot;;</div><div class="line"></div><div class="line">        permission java.util.PropertyPermission &quot;java.specification.version&quot;, &quot;read&quot;;</div><div class="line">        permission java.util.PropertyPermission &quot;java.specification.vendor&quot;, &quot;read&quot;;</div><div class="line">        permission java.util.PropertyPermission &quot;java.specification.name&quot;, &quot;read&quot;;</div><div class="line"></div><div class="line">        permission java.util.PropertyPermission &quot;java.vm.specification.version&quot;, &quot;read&quot;;</div><div class="line">        permission java.util.PropertyPermission &quot;java.vm.specification.vendor&quot;, &quot;read&quot;;</div><div class="line">        permission java.util.PropertyPermission &quot;java.vm.specification.name&quot;, &quot;read&quot;;</div><div class="line">        permission java.util.PropertyPermission &quot;java.vm.version&quot;, &quot;read&quot;;</div><div class="line">        permission java.util.PropertyPermission &quot;java.vm.vendor&quot;, &quot;read&quot;;</div><div class="line">        permission java.util.PropertyPermission &quot;java.vm.name&quot;, &quot;read&quot;;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<h2 id="启用安全管理器"><a href="#启用安全管理器" class="headerlink" title="启用安全管理器"></a>启用安全管理器</h2><p>　　<br>有两种方式，建议采用参数启用方式。</p>
+<h3 id="参数启用方式"><a href="#参数启用方式" class="headerlink" title="参数启用方式"></a>参数启用方式</h3><p>运行程序的时候附加参数启用安全管理器：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">-Djava.security.manager</div></pre></td></tr></table></figure></p>
+<p>指定配置文件的位置：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">-Djava.security.manager -Djava.security.policy=&quot;E:/java.policy&quot;</div></pre></td></tr></table></figure></p>
+<h3 id="编码方式启用"><a href="#编码方式启用" class="headerlink" title="编码方式启用"></a>编码方式启用</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">System.setSecurityManager(new SecurityManager());</div></pre></td></tr></table></figure>
+<p>参数启用本质上也是通过编码启用，不过参数启用灵活（<code>sun.misc.Launcher</code>）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">String str = System.getProperty(&quot;java.security.manager&quot;);</div><div class="line">if (str != null)</div><div class="line">&#123;</div><div class="line">  SecurityManager localSecurityManager = null;</div><div class="line">  if ((&quot;&quot;.equals(str)) || (&quot;default&quot;.equals(str))) &#123;</div><div class="line">    localSecurityManager = new SecurityManager();</div><div class="line">  &#125; else &#123;</div><div class="line">    try</div><div class="line">    &#123;</div><div class="line">      localSecurityManager = (SecurityManager)this.loader.loadClass(str).newInstance();</div><div class="line">    &#125;</div><div class="line">    catch (IllegalAccessException localIllegalAccessException) &#123;&#125;catch (InstantiationException localInstantiationException) &#123;&#125;catch (ClassNotFoundException localClassNotFoundException) &#123;&#125;catch (ClassCastException localClassCastException) &#123;&#125;</div><div class="line">  &#125;</div><div class="line">  if (localSecurityManager != null) &#123;</div><div class="line">    System.setSecurityManager(localSecurityManager);</div><div class="line">  &#125; else &#123;</div><div class="line">    throw new InternalError(&quot;Could not create SecurityManager: &quot; + str);</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>会创建一个默认的<code>SecurityManager</code></p>
+<h2 id="配置文件解析"><a href="#配置文件解析" class="headerlink" title="配置文件解析"></a>配置文件解析</h2><h3 id="配置基本原则"><a href="#配置基本原则" class="headerlink" title="配置基本原则"></a>配置基本原则</h3><p>在启用安全管理器的时候，配置遵循以下基本原则：</p>
+<ul>
+<li>没有配置的权限表示没有</li>
+<li>只能配置有什么权限，不能配置禁止做什么</li>
+<li>同一种权限可多次配置，取并集。</li>
+<li>统一资源的多种权限可用逗号分割。</li>
+</ul>
+<h3 id="默认配置文件解释"><a href="#默认配置文件解释" class="headerlink" title="默认配置文件解释"></a>默认配置文件解释</h3><h4 id="第一部分授权："><a href="#第一部分授权：" class="headerlink" title="第一部分授权："></a>第一部分授权：</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">grant codeBase &quot;file:$&#123;&#123;java.ext.dirs&#125;&#125;/*&quot; &#123;</div><div class="line">    permission java.security.AllPermission;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>授权位于”<code>file:$/</code>*”下的class和jar包所有权限。</p>
+<h4 id="第二部分授权："><a href="#第二部分授权：" class="headerlink" title="第二部分授权："></a>第二部分授权：</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">grant &#123; </div><div class="line">    permission java.lang.RuntimePermission &quot;stopThread&quot;;</div><div class="line">    ……   </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这是细粒度的授权，对某些资源进行授权。<code>RuntimePermission</code>的可授权操作(<code>stopThread</code>仅仅是其中的一个)如下(可查看javadoc)：</p>
+<table>
+<thead>
+<tr>
+<th>权限目标名称</th>
+<th style="text-align:center">权限所允许的操作</th>
+<th style="text-align:right">允许此权限所带来的风险</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>createClassLoader</code></td>
+<td style="text-align:center">创建类加载器</td>
+<td style="text-align:right">授予该权限极其危险。能够实例化自己的类加载器的恶意应用程序可能会在系统中装载自己的恶意类。这些新加载的类可能被类加载器置于任意保护域中，从而自动将该域的权限授予这些类。</td>
+</tr>
+<tr>
+<td><code>getClassLoader</code></td>
+<td style="text-align:center">类加载器的获取（即调用类的类加载器）</td>
+<td style="text-align:right">这将授予攻击者得到具体类的加载器的权限。这很危险，由于攻击者能够访问类的类加载器，所以攻击者能够加载其他可用于该类加载器的类。通常攻击者不具备这些类的访问权限。</td>
+</tr>
+<tr>
+<td><code>setContextClassLoader</code></td>
+<td style="text-align:center">线程使用的上下文类加载器的设置</td>
+<td style="text-align:right">在需要查找可能不存在于系统类加载器中的资源时，系统代码和扩展部分会使用上下文类加载器。授予 <code>setContextClassLoader</code> 权限将允许代码改变特定线程（包括系统线程）使用的上下文类加载器。</td>
+</tr>
+<tr>
+<td><code>enableContextClassLoaderOverride</code></td>
+<td style="text-align:center">线程上下文类加载器方法的子类实现</td>
+<td style="text-align:right">在需要查找可能不存在于系统类加载器中的资源时，系统代码和扩展部分会使用上下文类加载器。授予<code>enableContextClassLoaderOverride</code>权限将允许线程的子类重写某些方法，这些方法用于得到或设置特定线程的上下文类加载器。</td>
+</tr>
+<tr>
+<td><code>setSecurityManager</code></td>
+<td style="text-align:center">设置安全管理器（可能会替换现有的）</td>
+<td style="text-align:right">安全管理器是允许应用程序实现安全策略的类。授予<code>setSecurityManager</code>权限将通过安装一个不同的、可能限制更少的安全管理器，来允许代码改变所用的安全管理器，因此可跳过原有安全管理器所强制执行的某些检查。</td>
+</tr>
+<tr>
+<td><code>createSecurityManager</code></td>
+<td style="text-align:center">创建新的安全管理器</td>
+<td style="text-align:right">授予代码对受保护的、敏感方法的访问权，可能会泄露有关其他类或执行堆栈的信息。</td>
+</tr>
+<tr>
+<td><code>getenv.{variable name}</code></td>
+<td style="text-align:center">读取指定环境变量的值</td>
+<td style="text-align:right">此权限允许代码读取特定环境变量的值或确定它是否存在。如果该变量含有机密数据，则这项授权是很危险的。</td>
+</tr>
+<tr>
+<td><code>exitVM.{exit status}</code></td>
+<td style="text-align:center">暂停带有指定退出状态的Java虚拟机</td>
+<td style="text-align:right">此权限允许攻击者通过自动强制暂停虚拟机来发起一次拒绝服务攻击。注意：自动为那些从应用程序类路径加载的全部代码授予 “<code>exitVM.*</code>“权限，从而使这些应用程序能够自行中止。此外，”<code>exitVM</code>“权限等于”exitVM.*”。</td>
+</tr>
+<tr>
+<td><code>shutdownHooks</code></td>
+<td style="text-align:center">虚拟机关闭钩子 (hook) 的注册与取消</td>
+<td style="text-align:right">此权限允许攻击者注册一个妨碍虚拟机正常关闭的恶意关闭钩子 (hook)。</td>
+</tr>
+<tr>
+<td><code>setFactory</code></td>
+<td style="text-align:center">设置由<code>ServerSocket</code>或<code>Socket</code>使用的套接字工厂，或<code>URL</code>使用的流处理程序工厂</td>
+<td style="text-align:right">此权限允许代码设置套接字、服务器套接字、流处理程序或 RMI套接字工厂的实际实现。攻击者可能设置错误的实现，从而破坏数据流。</td>
+</tr>
+<tr>
+<td><code>setIO</code></td>
+<td style="text-align:center"><code>System.out</code>、<code>System.in</code>和<code>System.err</code>的设置</td>
+<td style="text-align:right">此权限允许改变标准系统流的值。攻击者可以改变<code>System.in</code>来监视和窃取用户输入，或将<code>System.err</code>设置为”<code>null</code>“ <code>OutputStream</code>，从而隐藏发送到<code>System.err</code>的所有错误信息。</td>
+</tr>
+<tr>
+<td><code>modifyThread</code></td>
+<td style="text-align:center">修改线程，例如通过调用线程的<code>interrupt</code>、<code>stop</code>、<code>suspend</code>、<code>resume</code>、<code>setDaemon</code>、<code>setPriority</code>、<code>setName</code>和<code>setUncaughtExceptionHandler</code>方法</td>
+<td style="text-align:right">此权限允许攻击者修改系统中任意线程的行为。</td>
+</tr>
+<tr>
+<td><code>stopThread</code></td>
+<td style="text-align:center">通过调用线程的<code>stop</code>方法停止线程</td>
+<td style="text-align:right">如果系统已授予代码访问该线程的权限，则此权限允许代码停止系统中的任何线程。此权限会造成一定的危险，因为该代码可能通过中止现有的线程来破坏系统。</td>
+</tr>
+<tr>
+<td><code>modifyThreadGroup</code></td>
+<td style="text-align:center">修改线程组，例如通过调用<code>ThreadGroup</code>的<code>destroy</code>、<code>getParent</code>、<code>resume</code>、<code>setDaemon</code>、<code>setMaxPriority</code>、<code>stop</code>和<code>suspend</code>方法</td>
+<td style="text-align:right">此权限允许攻击者创建线程组并设置它们的运行优先级。</td>
+</tr>
+<tr>
+<td><code>getProtectionDomain</code></td>
+<td style="text-align:center">获取类的<code>ProtectionDomain</code></td>
+<td style="text-align:right">此权限允许代码获得特定代码源的安全策略信息。虽然获得安全策略信息并不足以危及系统安全，但这确实会给攻击者提供了能够更好地定位攻击目标的其他信息，例如本地文件名称等。</td>
+</tr>
+<tr>
+<td><code>getFileSystemAttributes</code></td>
+<td style="text-align:center">获取文件系统属性</td>
+<td style="text-align:right">此权限允许代码获得文件系统信息（如调用者可用的磁盘使用量或磁盘空间）。这存在潜在危险，因为它泄露了关于系统硬件配置的信息以及一些关于调用者写入文件特权的信息。</td>
+</tr>
+<tr>
+<td><code>readFileDescriptor</code></td>
+<td style="text-align:center">读取文件描述符</td>
+<td style="text-align:right">此权限允许代码读取与文件描述符读取相关的特定文件。如果该文件包含机密数据，则此操作非常危险。</td>
+</tr>
+<tr>
+<td><code>writeFileDescriptor</code></td>
+<td style="text-align:center">写入文件描述符</td>
+<td style="text-align:right">此权限允许代码写入与描述符相关的特定文件。此权限很危险，因为它可能允许恶意代码传播病毒，或者至少也会填满整个磁盘。</td>
+</tr>
+<tr>
+<td><code>loadLibrary.{库名}</code></td>
+<td style="text-align:center">动态链接指定的库</td>
+<td style="text-align:right">允许applet具有加载本机代码库的权限是危险的，因为Java安全架构并未设计成可以防止恶意行为，并且也无法在本机代码的级别上防止恶意行为。</td>
+</tr>
+<tr>
+<td><code>accessClassInPackage.{包名}</code></td>
+<td style="text-align:center">当类加载器调用<code>SecurityManager</code>的<code>checkPackageAccess</code>方法时，通过类加载器的<code>loadClass</code>方法访问指定的包</td>
+<td style="text-align:right">此权限允许代码访问它们通常无法访问的那些包中的类。恶意代码可能利用这些类帮助它们实现破坏系统安全的企图。</td>
+</tr>
+<tr>
+<td><code>defineClassInPackage.{包名}</code></td>
+<td style="text-align:center">当类加载器调用<code>SecurityManager</code>的<code>checkPackageDefinition</code>方法时，通过类加载器的<code>defineClass</code> 方法定义指定的包中的类。</td>
+<td style="text-align:right">此权限允许代码在特定包中定义类。这样做很危险，因为具有此权限的恶意代码可能在受信任的包中定义恶意类，比如<code>java.security</code>或<code>java.lang</code>。</td>
+</tr>
+<tr>
+<td><code>accessDeclaredMembers</code></td>
+<td style="text-align:center">访问类的已声明成员</td>
+<td style="text-align:right">此权限允许代码查询类的公共、受保护、默认（包）访问和私有的字段和或方法。尽管代码可以访问私有和受保护字段和方法名称，但它不能访问私有/受保护字段数据并且不能调用任何私有方法。此外，恶意代码可能使用该信息来更好地定位攻击目标。而且，它可以调用类中的任意公共方法和/或访问公共字段。如果代码不能用这些方法和字段将对象强制转换为类/接口，那么它通常无法调用这些方法和/或访问该字段，而这可能很危险。</td>
+</tr>
+<tr>
+<td><code>queuePrintJob</code></td>
+<td style="text-align:center">打印作业请求的开始</td>
+<td style="text-align:right">这可能向打印机输出敏感信息，或者只是浪费纸张。</td>
+</tr>
+<tr>
+<td><code>getStackTrace</code></td>
+<td style="text-align:center">获取另一个线程的堆栈追踪信息。</td>
+<td style="text-align:right">此权限允许获取另一个线程的堆栈追踪信息。此操作可能允许执行恶意代码监视线程并发现应用程序中的弱点。</td>
+</tr>
+<tr>
+<td><code>setDefaultUncaughtExceptionHandler</code></td>
+<td style="text-align:center">在线程由于未捕获的异常而突然终止时，设置将要使用的默认处理程序</td>
+<td style="text-align:right">此权限允许攻击者注册恶意的未捕获异常处理程序，可能会妨碍线程的终止</td>
+</tr>
+<tr>
+<td><code>Preferences</code></td>
+<td style="text-align:center">表示得到<code>java.util.prefs.Preferences</code>的访问权所需的权限。<code>java.util.prefs.Preferences</code>实现了用户或系统的根，这反过来又允许获取或更新<code>Preferences</code> 持久内部存储中的操作。</td>
+<td style="text-align:right">如果运行此代码的用户具有足够的读/写内部存储的OS特权，则此权限就允许用户读/写优先级内部存储。实际的内部存储可能位于传统的文件系统目录中或注册表中，这取决于平台 OS。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="可配置项详解"><a href="#可配置项详解" class="headerlink" title="可配置项详解"></a>可配置项详解</h3><p>当批量配置的时候，有三种模式：</p>
+<p><code>directory/</code> 表示<code>directory</code>目录下的所有<code>.class</code>文件，不包括<code>.jar</code>文件<br><code>directory/*</code> 表示<code>directory</code>目录下的所有的<code>.class</code>及<code>.jar</code>文件<br><code>directory/-`` 表示directory目录下的所有的</code>.class<code>及</code>.jar`文件，包括子目录</p>
+<p>可以通过<code>${}</code>来引用系统属性，如：</p>
+<p><code>&quot;file:$/*&quot;</code></p>
+<h2 id="问题解决"><a href="#问题解决" class="headerlink" title="问题解决"></a>问题解决</h2><p>　　</p>
+<h3 id="取消安全管理器"><a href="#取消安全管理器" class="headerlink" title="取消安全管理器"></a>取消安全管理器</h3><p>　　</p>
+<h3 id="增加相应权限"><a href="#增加相应权限" class="headerlink" title="增加相应权限"></a>增加相应权限</h3><p>如果没有某项权限则报错信息会提示是请求什么权限：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Exception in thread &quot;main&quot; java.security.AccessControlException: access denied (java.io.FilePermission c:\test.txt write)</div></pre></td></tr></table></figure>
+<p>对<code>c:\test.txt</code>没有写权限。</p>
+<p>最简单的事开放所有权限（不推荐）：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">grant &#123; </div><div class="line">    permission java.security.AllPermission;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/05/09/java的安全机制.md/java的安全机制/" rel="next" title="编写java的安全管理器">
+                <i class="fa fa-chevron-left"></i> 编写java的安全管理器
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/05/09/如何配置Policy文件进行Java安全策略的设置.md/如何配置Policy文件进行Java安全策略的设置/" rel="prev" title="如何配置Policy文件进行Java安全策略的设置">
+                如何配置Policy文件进行Java安全策略的设置 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="hypercomments_widget"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="技术随手记" />
+          <p class="site-author-name" itemprop="name">技术随手记</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+           
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">63</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">40</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">47</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#问题的提出"><span class="nav-number">1.</span> <span class="nav-text">问题的提出</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#阅读源码中关于SecurityManager的代码"><span class="nav-number">1.1.</span> <span class="nav-text">阅读源码中关于SecurityManager的代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#在本机运行正常，在服务器运行报错权限错误："><span class="nav-number">1.2.</span> <span class="nav-text">在本机运行正常，在服务器运行报错权限错误：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SecurityManager应用场景"><span class="nav-number">2.</span> <span class="nav-text">SecurityManager应用场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#管理器配置文件"><span class="nav-number">3.</span> <span class="nav-text">管理器配置文件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#默认配置文件"><span class="nav-number">3.1.</span> <span class="nav-text">默认配置文件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#启用安全管理器"><span class="nav-number">4.</span> <span class="nav-text">启用安全管理器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#参数启用方式"><span class="nav-number">4.1.</span> <span class="nav-text">参数启用方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#编码方式启用"><span class="nav-number">4.2.</span> <span class="nav-text">编码方式启用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#配置文件解析"><span class="nav-number">5.</span> <span class="nav-text">配置文件解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#配置基本原则"><span class="nav-number">5.1.</span> <span class="nav-text">配置基本原则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#默认配置文件解释"><span class="nav-number">5.2.</span> <span class="nav-text">默认配置文件解释</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#第一部分授权："><span class="nav-number">5.2.1.</span> <span class="nav-text">第一部分授权：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#第二部分授权："><span class="nav-number">5.2.2.</span> <span class="nav-text">第二部分授权：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#可配置项详解"><span class="nav-number">5.3.</span> <span class="nav-text">可配置项详解</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#问题解决"><span class="nav-number">6.</span> <span class="nav-text">问题解决</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#取消安全管理器"><span class="nav-number">6.1.</span> <span class="nav-text">取消安全管理器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#增加相应权限"><span class="nav-number">6.2.</span> <span class="nav-text">增加相应权限</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">技术随手记</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+		<script type="text/javascript">
+		_hcwp = window._hcwp || [];
+
+		_hcwp.push({widget:"Bloggerstream", widget_id: 89144, selector:".hc-comment-count", label: "{\%COUNT%\}" });
+
+		
+		_hcwp.push({widget:"Stream", widget_id: 89144, xid: "2017/05/09/java安全管理器SecurityManager.md/java安全管理器SecurityManager/"});
+		
+
+		(function() {
+		if("HC_LOAD_INIT" in window)return;
+		HC_LOAD_INIT = true;
+		var lang = (navigator.language || navigator.systemLanguage || navigator.userLanguage || "en").substr(0, 2).toLowerCase();
+		var hcc = document.createElement("script"); hcc.type = "text/javascript"; hcc.async = true;
+		hcc.src = ("https:" == document.location.protocol ? "https" : "http")+"://w.hypercomments.com/widget/hc/89144/"+lang+"/widget.js";
+		var s = document.getElementsByTagName("script")[0];
+		s.parentNode.insertBefore(hcc, s.nextSibling);
+		})();
+		</script>
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
