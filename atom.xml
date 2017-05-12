@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://jishusuishouji.github.io/"/>
-  <updated>2017-05-09T16:52:44.634Z</updated>
+  <updated>2017-05-11T13:15:42.751Z</updated>
   <id>http://jishusuishouji.github.io/</id>
   
   <author>
@@ -16,11 +16,119 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>Java的类加载机制</title>
+    <title>彻底理解ThreadLocal</title>
+    <link href="http://jishusuishouji.github.io/2017/05/11/java/%E5%BD%BB%E5%BA%95%E7%90%86%E8%A7%A3ThreadLocal/"/>
+    <id>http://jishusuishouji.github.io/2017/05/11/java/彻底理解ThreadLocal/</id>
+    <published>2017-05-11T13:08:23.000Z</published>
+    <updated>2017-05-11T13:15:42.751Z</updated>
+    
+    <summary type="html">
+    
+      彻底理解ThreadLocal
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>用实例揭示notify()和notifyAll()的本质区别</title>
+    <link href="http://jishusuishouji.github.io/2017/05/11/java/%E7%94%A8%E5%AE%9E%E4%BE%8B%E6%8F%AD%E7%A4%BAnotify__%E5%92%8CnotifyAll__%E7%9A%84%E6%9C%AC%E8%B4%A8%E5%8C%BA%E5%88%AB/"/>
+    <id>http://jishusuishouji.github.io/2017/05/11/java/用实例揭示notify__和notifyAll__的本质区别/</id>
+    <published>2017-05-11T12:17:54.000Z</published>
+    <updated>2017-05-11T12:44:55.401Z</updated>
+    
+    <content type="html"><![CDATA[<p><code>notify()</code>和<code>notifyAll()</code>都是<code>Object</code>对象用于通知等待该对象的线程的方法。</p>
+<p><code>notifyAll</code>使所有原来在该对象上等待的线程统统退出<code>wait</code>的状态，变成等待该对象上的锁，一旦该对象被解锁，它们就会去竞争。<br>notify则只是选择一个<code>wait</code>状态线程进行通知，并使它获得该对象上的锁，但不惊动其他同样在等待被该对象<code>notify</code>的线程们，当第一个线程运行完毕以后释放对象上的锁此时如果该对象没有再次使用<code>notify</code>语句，则即便该对象已经空闲，其他<code>wait</code>状态等待的线程由于没有得到该对象的通知，继续处在<code>wait</code>状态，直到这个对象发出一个<code>notify</code>或<code>notifyAll</code>，它们等待的是被<code>notify</code>或<code>notifyAll</code>，而不是锁。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">import java.util.ArrayList;</div><div class="line">import java.util.List;</div><div class="line">import java.util.concurrent.ExecutorService;</div><div class="line">import java.util.concurrent.Executors;</div><div class="line"></div><div class="line">class Cafe &#123;</div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line">class CafeFactory &#123;</div><div class="line">    List&lt;Cafe&gt; finishedCafe = new ArrayList&lt;Cafe&gt;();</div><div class="line"></div><div class="line">    public void addCafe() &#123;</div><div class="line">        try &#123;</div><div class="line">            while (true) &#123;</div><div class="line">                Thread.sleep(5000);// act busy</div><div class="line">                Cafe w = new Cafe();</div><div class="line">                // 也就是说需要5秒钟才能新产生一个Widget，这决定了一定要用notify而不是notifyAll</div><div class="line">                // 因为上面两行代码不是同步的，如果用notifyAll则所有线程都企图冲出wait状态</div><div class="line">                // 第一个线程得到了锁，并取走了Widget（这个过程的时间小于5秒，新的Widget还没有生成）</div><div class="line">                // 并且解开了锁，然后第二个线程获得锁(因为用了notifyAll其他线程不再等待notify语句</div><div class="line">                // ，而是等待finishedWidgets上的锁，一旦锁放开了，他们就会竞争运行)，运行</div><div class="line">                // finishedWidgets.remove(0)，但是由于finishedWidgets现在还是空的，</div><div class="line">                // 于是产生异常</div><div class="line">                // ***********这就是为什么下面的那一句不能用notifyAll而是要用notify</div><div class="line"></div><div class="line">                synchronized (finishedCafe) &#123;</div><div class="line">                    System.out.println(Thread.currentThread() + &quot; Adding cafe:&quot; + w);</div><div class="line">                    finishedCafe.add(w);</div><div class="line">                    finishedCafe.notify(); // 这里只能是notify而不能是notifyAll</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125; catch (InterruptedException e) &#123;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public Cafe getCafe() &#123;</div><div class="line">        synchronized (finishedCafe) &#123;</div><div class="line">            if (finishedCafe.size() == 0) &#123;</div><div class="line">                try &#123;</div><div class="line">                    finishedCafe.wait();</div><div class="line">                &#125; catch (InterruptedException e) &#123;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">            Cafe c = finishedCafe.remove(0);</div><div class="line">            System.out.println(Thread.currentThread() + &quot;Getting cafe:&quot; + c);</div><div class="line">            return c;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line">class AddingCafeTask implements Runnable &#123;</div><div class="line">    private CafeFactory cafeFactory;</div><div class="line"></div><div class="line">    public AddingCafeTask(CafeFactory cafeFactory) &#123;</div><div class="line">        this.cafeFactory = cafeFactory;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    @Override</div><div class="line">    public void run() &#123;</div><div class="line">        cafeFactory.addCafe();</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line">class GetingCafeTask implements Runnable &#123;</div><div class="line">    private CafeFactory cafeFactory;</div><div class="line"></div><div class="line">    public GetingCafeTask(CafeFactory cafeFactory) &#123;</div><div class="line">        this.cafeFactory = cafeFactory;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    @Override</div><div class="line">    public void run() &#123;</div><div class="line">        cafeFactory.getCafe();</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line">public class CafeTest extends Thread &#123;</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line">    public static void main(String[] args) &#123;</div><div class="line">        CafeFactory cafeFactory = new CafeFactory();</div><div class="line"></div><div class="line">        ExecutorService executorService = Executors.newCachedThreadPool();</div><div class="line"></div><div class="line">        executorService.execute(new GetingCafeTask(cafeFactory));</div><div class="line">        executorService.execute(new GetingCafeTask(cafeFactory));</div><div class="line">        executorService.execute(new GetingCafeTask(cafeFactory));</div><div class="line"></div><div class="line">        executorService.execute(new AddingCafeTask(cafeFactory));</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>]]></content>
+    
+    <summary type="html">
+    
+      用实例揭示notify()和notifyAll()的本质区别
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>java8 lambda学习笔记之编译与运行过程</title>
+    <link href="http://jishusuishouji.github.io/2017/05/11/java/java8_lambda%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B9%8B%E7%BC%96%E8%AF%91%E4%B8%8E%E8%BF%90%E8%A1%8C%E8%BF%87%E7%A8%8B/"/>
+    <id>http://jishusuishouji.github.io/2017/05/11/java/java8_lambda学习笔记之编译与运行过程/</id>
+    <published>2017-05-10T16:08:57.000Z</published>
+    <updated>2017-05-10T16:08:57.227Z</updated>
+    
+    <summary type="html">
+    
+      java8 lambda学习笔记之编译与运行过程
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>一个Java类被JVM虚拟机加载的详细流程</title>
     <link href="http://jishusuishouji.github.io/2017/05/10/Java%E7%9A%84%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6.md/Java%E7%9A%84%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/"/>
     <id>http://jishusuishouji.github.io/2017/05/10/Java的类加载机制.md/Java的类加载机制/</id>
     <published>2017-05-09T16:52:35.000Z</published>
-    <updated>2017-05-09T16:52:44.634Z</updated>
+    <updated>2017-05-09T17:13:02.393Z</updated>
+    
+    <content type="html"><![CDATA[<p>类的生命周期：加载、验证、准备、解析、初始化、使用、卸载<br>类加载过程  ：加载、验证、准备、解析、初始化<br>              加载、验证、准备、初始化、解析</p>
+<p>解析阶段可以在初始化之前或之后开始，在之后开始可以实现动态绑定。</p>
+<h2 id="类加载过程五阶段的第一阶段——加载"><a href="#类加载过程五阶段的第一阶段——加载" class="headerlink" title="类加载过程五阶段的第一阶段——加载"></a>类加载过程五阶段的第一阶段——加载</h2><p>1、根据类的全限定名来加载类.class文件的字节流。<br>2、将这个字节流所代表的静态存储结构转化为方法区的运行时数据结构。</p>
+<p>3、在Java堆中生成一个代表这个类的java.lang.Class对象，作为对方法区中这些数据的访问入口。</p>
+<p>注意，这里第1条中的二进制字节流并不只是单纯地从Class文件中获取，比如它还可以从Jar包中获取、从网络中获取（最典型的应用便是Applet）、由其他文件生成（JSP应用）等。</p>
+<p>相对于类加载的其他阶段而言，加载阶段（准确地说，是加载阶段获取类的二进制字节流的动作）是可控性最强的阶段，因为开发人员既可以使用系统提供的类加载器来完成加载，也可以自定义自己的类加载器来完成加载。</p>
+<p>加载阶段完成后，虚拟机外部的 二进制字节流就按照虚拟机所需的格式存储在方法区之中，而且在Java堆中也创建一个java.lang.Class类的对象，这样便可以通过该对象访问方法区中的这些数据。</p>
+<p>说到加载，不得不提到类加载器，下面就具体讲述下类加载器。</p>
+<p>类加载器虽然只用于实现类的加载动作，但它在Java程序中起到的作用却远远不限于类的加载阶段。对于任意一个类，都需要由它的类加载器和这个类本身一同确定其在就Java虚拟机中的唯一性，也就是说，即使两个类来源于同一个Class文件，只要加载它们的类加载器不同，那这两个类就必定不相等。这里的“相等”包括了代表类的Class对象的equals（）、isAssignableFrom（）、isInstance（）等方法的返回结果，也包括了使用instanceof关键字对对象所属关系的判定结果。</p>
+<p>站在Java虚拟机的角度来讲，只存在两种不同的类加载器：</p>
+<p>启动类加载器：它使用C++实现（这里仅限于Hotspot，也就是JDK1.5之后默认的虚拟机，有很多其他的虚拟机是用Java语言实现的），是虚拟机自身的一部分。<br>所有其他的类加载器：这些类加载器都由Java语言实现，独立于虚拟机之外，并且全部继承自抽象类java.lang.ClassLoader，这些类加载器需要由启动类加载器加载到内存中之后才能去加载其他的类。<br>站在Java开发人员的角度来看，类加载器可以大致划分为以下三类：</p>
+<p>启动类加载器：Bootstrap ClassLoader，跟上面相同。它负责加载存放在JDK\jre\lib(JDK代表JDK的安装目录，下同)下，或被-Xbootclasspath参数指定的路径中的，并且能被虚拟机识别的类库（如rt.jar，所有的java.<em>开头的类均被Bootstrap ClassLoader加载）。启动类加载器是无法被Java程序直接引用的。<br>扩展类加载器：Extension ClassLoader，该加载器由sun.misc.Launcher$ExtClassLoader实现，它负责加载JDK\jre\lib\ext目录中，或者由java.ext.dirs系统变量指定的路径中的所有类库（如javax.</em>开头的类），开发者可以直接使用扩展类加载器。<br>应用程序类加载器：Application ClassLoader，该类加载器由sun.misc.Launcher$AppClassLoader来实现，它负责加载用户类路径（ClassPath）所指定的类，开发者可以直接使用该类加载器，如果应用程序中没有自定义过自己的类加载器，一般情况下这个就是程序中默认的类加载器。<br>应用程序都是由这三种类加载器互相配合进行加载的，如果有必要，我们还可以加入自定义的类加载器。因为JVM自带的ClassLoader只是懂得从本地文件系统加载标准的java class文件，因此如果编写了自己的ClassLoader，便可以做到如下几点：</p>
+<p>1）在执行非置信代码之前，自动验证数字签名。</p>
+<p>2）动态地创建符合用户特定需要的定制化构建类。</p>
+<p>3）从特定的场所取得java class，例如数据库中和网络中。</p>
+<p>事实上当使用Applet的时候，就用到了特定的ClassLoader，因为这时需要从网络上加载java class，并且要检查相关的安全信息，应用服务器也大都使用了自定义的ClassLoader技术。</p>
+<p>这几种类加载器的层次关系如下图所示：</p>
+<p>这种层次关系称为类加载器的双亲委派模型。我们把每一层上面的类加载器叫做当前层类加载器的父加载器，当然，它们之间的父子关系并不是通过继承关系来实现的，而是使用组合关系来复用父加载器中的代码。该模型在JDK1.2期间被引入并广泛应用于之后几乎所有的Java程序中，但它并不是一个强制性的约束模型，而是Java设计者们推荐给开发者的一种类的加载器实现方式。</p>
+<p>双亲委派模型的工作流程是：如果一个类加载器收到了类加载的请求，它首先不会自己去尝试加载这个类，而是把请求委托给父加载器去完成，依次向上，因此，所有的类加载请求最终都应该被传递到顶层的启动类加载器中，只有当父加载器在它的搜索范围中没有找到所需的类时，即无法完成该加载，子加载器才会尝试自己去加载该类。</p>
+<p>使用双亲委派模型来组织类加载器之间的关系，有一个很明显的好处，就是Java类随着它的类加载器（说白了，就是它所在的目录）一起具备了一种带有优先级的层次关系，这对于保证Java程序的稳定运作很重要。例如，类java.lang.Object类存放在JDK\jre\lib下的rt.jar之中，因此无论是哪个类加载器要加载此类，最终都会委派给启动类加载器进行加载，这边保证了Object类在程序中的各种类加载器中都是同一个类。</p>
+<p>验证</p>
+<p>验证的目的是为了确保Class文件中的字节流包含的信息符合当前虚拟机的要求，而且不会危害虚拟机自身的安全。不同的虚拟机对类验证的实现可能会有所不同，但大致都会完成以下四个阶段的验证：文件格式的验证、元数据的验证、字节码验证和符号引用验证。</p>
+<p>文件格式的验证：验证字节流是否符合Class文件格式的规范，并且能被当前版本的虚拟机处理，该验证的主要目的是保证输入的字节流能正确地解析并存储于方法区之内。经过该阶段的验证后，字节流才会进入内存的方法区中进行存储，后面的三个验证都是基于方法区的存储结构进行的。<br>元数据验证：对类的元数据信息进行语义校验（其实就是对类中的各数据类型进行语法校验），保证不存在不符合Java语法规范的元数据信息。<br>字节码验证：该阶段验证的主要工作是进行数据流和控制流分析，对类的方法体进行校验分析，以保证被校验的类的方法在运行时不会做出危害虚拟机安全的行为。<br>符号引用验证：这是最后一个阶段的验证，它发生在虚拟机将符号引用转化为直接引用的时候（解析阶段中发生该转化，后面会有讲解），主要是对类自身以外的信息（常量池中的各种符号引用）进行匹配性的校验。<br>准备</p>
+<p>准备阶段是正式为类变量分配内存并设置类变量初始值的阶段，这些内存都将在方法区中分配。对于该阶段有以下几点需要注意：</p>
+<p>1、这时候进行内存分配的仅包括类变量（static），而不包括实例变量，实例变量会在对象实例化时随着对象一块分配在Java堆中。</p>
+<p>2、这里所设置的初始值通常情况下是数据类型默认的零值（如0、0L、null、false等），而不是被在Java代码中被显式地赋予的值。</p>
+<p>假设一个类变量的定义为：</p>
+<p>public static int value = 3；</p>
+<p>那么变量value在准备阶段过后的初始值为0，而不是3，因为这时候尚未开始执行任何Java方法，而把value赋值为3的putstatic指令是在程序编译后，存放于类构造器<clinit>（）方法之中的，所以把value赋值为3的动作将在初始化阶段才会执行。</clinit></p>
+<p>下表列出了Java中所有基本数据类型以及reference类型的默认零值：</p>
+<p>这里还需要注意如下几点：</p>
+<p>对基本数据类型来说，对于类变量（static）和全局变量，如果不显式地对其赋值而直接使用，则系统会为其赋予默认的零值，而对于局部变量来说，在使用前必须显式地为其赋值，否则编译时不通过。<br>对于同时被static和final修饰的常量，必须在声明的时候就为其显式地赋值，否则编译时不通过；而只被final修饰的常量则既可以在声明时显式地为其赋值，也可以在类初始化时显式地为其赋值，总之，在使用前必须为其显式地赋值，系统不会为其赋予默认零值。<br>对于引用数据类型reference来说，如数组引用、对象引用等，如果没有对其进行显式地赋值而直接使用，系统都会为其赋予默认的零值，即null。<br>如果在数组初始化时没有对数组中的各元素赋值，那么其中的元素将根据对应的数据类型而被赋予默认的零值。<br>3、如果类字段的字段属性表中存在ConstantValue属性，即同时被final和static修饰，那么在准备阶段变量value就会被初始化为ConstValue属性所指定的值。</p>
+<p>假设上面的类变量value被定义为：</p>
+<p>public static final int value = 3；</p>
+<p>编译时Javac将会为value生成ConstantValue属性，在准备阶段虚拟机就会根据ConstantValue的设置将value赋值为3。回忆上一篇博文中对象被动引用的第2个例子，便是这种情况。我们可以理解为static final常量在编译期就将其结果放入了调用它的类的常量池中。</p>
+<p>解析</p>
+<p>   解析阶段是虚拟机将常量池中的符号引用转化为直接引用的过程。在Class类文件结构一文中已经比较过了符号引用和直接引用的区别和关联，这里不再赘述。前面说解析阶段可能开始于初始化之前，也可能在初始化之后开始，虚拟机会根据需要来判断，到底是在类被加载器加载时就对常量池中的符号引用进行解析（初始化之前），还是等到一个符号引用将要被使用前才去解析它（初始化之后）。<br>    对同一个符号引用进行多次解析请求时很常见的事情，虚拟机实现可能会对第一次解析的结果进行缓存（在运行时常量池中记录直接引用，并把常量标示为已解析状态），从而避免解析动作重复进行。<br>    解析动作主要针对类或接口、字段、类方法、接口方法四类符号引用进行，分别对应于常量池中的CONSTANT_Class_info、CONSTANT_Fieldref_info、CONSTANT_Methodref_info、CONSTANT_InterfaceMethodref_info四种常量类型。<br>    1、类或接口的解析：判断所要转化成的直接引用是对数组类型，还是普通的对象类型的引用，从而进行不同的解析。<br>    2、字段解析：对字段进行解析时，会先在本类中查找是否包含有简单名称和字段描述符都与目标相匹配的字段，如果有，则查找结束；如果没有，则会按照继承关系从上往下递归搜索该类所实现的各个接口和它们的父接口，还没有，则按照继承关系从上往下递归搜索其父类，直至查找结束，查找流程如下图所示：</p>
+<p>   从下面一段代码的执行结果中很容易看出来字段解析的搜索顺序：<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>class Super{<br>    public static int m = 11;<br>    static{<br>        System.out.println(“执行了super类静态语句块”);<br>    }<br>}</p>
+<p>class Father extends Super{<br>    public static int m = 33;<br>    static{<br>        System.out.println(“执行了父类静态语句块”);<br>    }<br>}</p>
+<p>class Child extends Father{<br>    static{<br>        System.out.println(“执行了子类静态语句块”);<br>    }<br>}</p>
+<p>public class StaticTest{<br>    public static void main(String[] args){<br>        System.out.println(Child.m);<br>    }<br>}<br>执行结果如下：</p>
+<pre><code>执行了super类静态语句块
+执行了父类静态语句块
+33
+</code></pre><p>如果注释掉Father类中对m定义的那一行，则输出结果如下：<br>    执行了super类静态语句块<br>    11<br>   另外，很明显这就是上篇博文中的第1个例子的情况，这里我们便可以分析如下：static变量发生在静态解析阶段，也即是初始化之前，此时已经将字段的符号引用转化为了内存引用，也便将它与对应的类关联在了一起，由于在子类中没有查找到与m相匹配的字段，那么m便不会与子类关联在一起，因此并不会触发子类的初始化。<br>    最后需要注意：理论上是按照上述顺序进行搜索解析，但在实际应用中，虚拟机的编译器实现可能要比上述规范要求的更严格一些。如果有一个同名字段同时出现在该类的接口和父类中，或同时在自己或父类的接口中出现，编译器可能会拒绝编译。如果对上面的代码做些修改，将Super改为接口，并将Child类继承Father类且实现Super接口，那么在编译时会报出如下错误：<br>StaticTest.java:24: 对 m 的引用不明确，Father 中的 变量 m 和 Super 中的 变量 m<br>都匹配<br>                System.out.println(Child.m);<br>                                        ^<br>1 错误<br>    3、类方法解析：对类方法的解析与对字段解析的搜索步骤差不多，只是多了判断该方法所处的是类还是接口的步骤，而且对类方法的匹配搜索，是先搜索父类，再搜索接口。<br>    4、接口方法解析：与类方法解析步骤类似，知识接口不会有父类，因此，只递归向上搜索父接口就行了。<br>初始化</p>
+<p>初始化是类加载过程的最后一步，到了此阶段，才真正开始执行类中定义的Java程序代码。在准备阶段，类变量已经被赋过一次系统要求的初始值，而在初始化阶段，则是根据程序员通过程序指定的主观计划去初始化类变量和其他资源，或者可以从另一个角度来表达：初始化阶段是执行类构造器<clinit>()方法的过程。</clinit></p>
+<p>   这里简单说明下<clinit>（）方法的执行规则:<br>    1、<clinit>（）方法是由编译器自动收集类中的所有类变量的赋值动作和静态语句块中的语句合并产生的，编译器收集的顺序是由语句在源文件中出现的顺序所决定的，静态语句块中只能访问到定义在静态语句块之前的变量，定义在它之后的变量，在前面的静态语句中可以赋值，但是不能访问。<br>    2、<clinit>（）方法与实例构造器<init>（）方法（类的构造函数）不同，它不需要显式地调用父类构造器，虚拟机会保证在子类的<clinit>（）方法执行之前，父类的<clinit>（）方法已经执行完毕。因此，在虚拟机中第一个被执行的<clinit>（）方法的类肯定是java.lang.Object。<br>    3、<clinit>（）方法对于类或接口来说并不是必须的，如果一个类中没有静态语句块，也没有对类变量的赋值操作，那么编译器可以不为这个类生成<clinit>（）方法。<br>    4、接口中不能使用静态语句块，但仍然有类变量（final static）初始化的赋值操作，因此接口与类一样会生成<clinit>（）方法。但是接口鱼类不同的是：执行接口的<clinit>（）方法不需要先执行父接口的<clinit>（）方法，只有当父接口中定义的变量被使用时，父接口才会被初始化。另外，接口的实现类在初始化时也一样不会执行接口的<clinit>（）方法。<br>    5、虚拟机会保证一个类的<clinit>（）方法在多线程环境中被正确地加锁和同步，如果多个线程同时去初始化一个类，那么只会有一个线程去执行这个类的<clinit>（）方法，其他线程都需要阻塞等待，直到活动线程执行<clinit>（）方法完毕。如果在一个类的<clinit>（）方法中有耗时很长的操作，那就可能造成多个线程阻塞，在实际应用中这种阻塞往往是很隐蔽的。<br>    下面给出一个简单的例子，以便更清晰地说明如上规则：<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>class Father{<br>    public static int a = 1;<br>    static{<br>        a = 2;<br>    }<br>}</clinit></clinit></clinit></clinit></clinit></clinit></clinit></clinit></clinit></clinit></clinit></clinit></clinit></init></clinit></clinit></clinit></p>
+<p>class Child extends Father{<br>    public static int b = a;<br>}</p>
+<p>public class ClinitTest{<br>    public static void main(String[] args){<br>        System.out.println(Child.b);<br>    }<br>}<br>执行上面的代码，会打印出2，也就是说b的值被赋为了2。</p>
+<pre><code>我们来看得到该结果的步骤。首先在准备阶段为类变量分配内存并设置类变量初始值，这样A和B均被赋值为默认值0，而后再在调用&lt;clinit&gt;（）方法时给他们赋予程序中指定的值。当我们调用Child.b时，触发Child的&lt;clinit&gt;（）方法，根据规则2，在此之前，要先执行完其父类Father的&lt;clinit&gt;（）方法，又根据规则1，在执行&lt;clinit&gt;（）方法时，需要按static语句或static变量赋值操作等在代码中出现的顺序来执行相关的static语句，因此当触发执行Father的&lt;clinit&gt;（）方法时，会先将a赋值为1，再执行static语句块中语句，将a赋值为2，而后再执行Child类的&lt;clinit&gt;（）方法，这样便会将b的赋值为2.
+如果我们颠倒一下Father类中“public static int a = 1;”语句和“static语句块”的顺序，程序执行后，则会打印出1。很明显是根据规则1，执行Father的&lt;clinit&gt;（）方法时，根据顺序先执行了static语句块中的内容，后执行了“public static int a = 1;”语句。
+另外，在颠倒二者的顺序之后，如果在static语句块中对a进行访问（比如将a赋给某个变量），在编译时将会报错，因为根据规则1，它只能对a进行赋值，而不能访问。
+</code></pre><p>总结</p>
+<pre><code>整个类加载过程中，除了在加载阶段用户应用程序可以自定义类加载器参与之外，其余所有的动作完全由虚拟机主导和控制。到了初始化才开始执行类中定义的Java程序代码（亦及字节码），但这里的执行代码只是个开端，它仅限于&lt;clinit&gt;（）方法。类加载过程中主要是将Class文件（准确地讲，应该是类的二进制字节流）加载到虚拟机内存中，真正执行字节码的操作，在加载完成后才真正开始。
+</code></pre>]]></content>
     
     <summary type="html">
     
@@ -1084,109 +1192,6 @@ stats admin if TRUE
     
     
       <category term="负载均衡" scheme="http://jishusuishouji.github.io/tags/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Java集群--大型网站是怎样解决多用户高并发访问的</title>
-    <link href="http://jishusuishouji.github.io/2017/04/07/jiqun/Java%E9%9B%86%E7%BE%A4--%E5%A4%A7%E5%9E%8B%E7%BD%91%E7%AB%99%E6%98%AF%E6%80%8E%E6%A0%B7%E8%A7%A3%E5%86%B3%E5%A4%9A%E7%94%A8%E6%88%B7%E9%AB%98%E5%B9%B6%E5%8F%91%E8%AE%BF%E9%97%AE%E7%9A%84/"/>
-    <id>http://jishusuishouji.github.io/2017/04/07/jiqun/Java集群--大型网站是怎样解决多用户高并发访问的/</id>
-    <published>2017-04-07T00:06:33.000Z</published>
-    <updated>2017-04-07T00:13:07.645Z</updated>
-    
-    <content type="html"><![CDATA[<p>为了解决大型网站的访问量大、并发量高、海量数据的问题，一般会考虑业务拆分和分布式部署。可以把那些关联不太大的业务独立出来，部署到不同的机器上，从而实现大规模的分布式系统。但这之中也有一个问题，那就是用户如何选择相应的机器的问题，这也被称为访问统一入口问题，而解决的方法是我们可以在集群机器的前面增加负载均衡设备，实现流量分发。<br><img src="/img/负载均衡.png" alt="负载均衡"><br>负载均衡:将负载（工作任务、访问请求等）进行平衡、分摊到多个操作单元（服务器、组件等）上进行执行，是解决高性能，单点故障（高可用，如果你是单机版网络，一旦服务器挂掉了，那么用户就无法请求了，但对于集群来说，一台服务器挂掉了，负载均衡器会把用户的请求发送给其他的服务器进行处理），扩展性（这里主要是指水平伸缩）的终极解决方案。<br>负载均衡设备为Nginx(F5太贵了，不过比较稳定)，这是一款轻量级的Web服务器/反向代理服务器及电子邮件（IMAP/POP3）代理服务器，具有占用内存少、并发能力强等，中国大陆使用nginx网站用户有：百度、网易、新浪、腾讯等。<br>1.nginx的负载均衡配置中默认是采用轮询的方式，这种方式中，每个请求按时间顺序逐一分配到不同的后端服务器，如果后端服务器down掉，能自动剔除，但存在各个服务器的session共享问题。<br>2.另外一种方式是ip_hash:每个请求按访问的ip的hash结果分配，如果访问的IP是固定的，那么在正常情况下，该用户的请求都会分配到后台的同一台服务器去处理，但是如果用户每次请求的IP都不同呢？所以这种方式也同1的方式一样都存在这么一个问题：session在各个服务器上的共享问题。<br>3.如果集群中的服务器的性能不一，可以通过配置各个服务器的权值来实现资源利用率的最大化，即性能好的优先选择</p>
-<p>也许你会问，既然IP可能变化，那么用户用页面请求时的cookie的ID应该是确定的吧！那么我们可以用cookie_id来进行hash，然后在通过负载均衡器分发到对应的服务器上，这样就可以解决session问题了，其实当初本人也有想到这个方案，但最后本人也放弃这个方案了，因为是根据cookid_id确实可以把该用户的请求唯一的分发到那台独一无二的服务器上，那如果这台服务器挂掉了，那么根据这种分发策略，岂不是在这服务器上请求资源的用户都不能访问了。<br>解决服务器共享session问题：使用redis来共享各个服务器的session，并同时通过redis来缓存一些常用的资源，加快用户获得请求资源的速度（memcache不能做到持久化，这样这台服务器一挂掉，那么所有的资源也都没有了）。</p>
-<p>进行集群部署，最好配上数据库的主从部署，因为如果在集群中只分配一个数据库服务器，那么这个系统的瓶颈将会出现在数据库的操作上，虽然redis能减轻这种负担，但对于数据量大的还是有一定影响的，而且数据库的主从部署也可以防止因某个数据库服务器的挂掉而丢失用户的信息。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      Java集群--大型网站是怎样解决多用户高并发访问的
-    
-    </summary>
-    
-      <category term="集群" scheme="http://jishusuishouji.github.io/categories/%E9%9B%86%E7%BE%A4/"/>
-    
-    
-      <category term="集群" scheme="http://jishusuishouji.github.io/tags/%E9%9B%86%E7%BE%A4/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>浅谈web应用的负载均衡、集群、高可用(HA)解决方案</title>
-    <link href="http://jishusuishouji.github.io/2017/04/07/web/%E6%B5%85%E8%B0%88web%E5%BA%94%E7%94%A8%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E3%80%81%E9%9B%86%E7%BE%A4%E3%80%81%E9%AB%98%E5%8F%AF%E7%94%A8_HA_%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/"/>
-    <id>http://jishusuishouji.github.io/2017/04/07/web/浅谈web应用的负载均衡、集群、高可用_HA_解决方案/</id>
-    <published>2017-04-06T23:31:58.000Z</published>
-    <updated>2017-04-07T00:05:49.703Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="1、几个组件"><a href="#1、几个组件" class="headerlink" title="1、几个组件"></a>1、几个组件</h2><h3 id="1-1、apache"><a href="#1-1、apache" class="headerlink" title="1.1、apache"></a>1.1、apache</h3><p>Apache软件基金会开放源代码的跨平台网页服务器，属于老牌的web服务器了，支持基于Ip或者域名的虚拟主机，支持代理服务器，支持安全Socket层(SSL)等等，目前主要用它做静态资源服务器，也可以做代理服务器转发请求(如：图片链等)，结合tomcat等servlet容器。</p>
-<h3 id="1-2、ngnix"><a href="#1-2、ngnix" class="headerlink" title="1.2、ngnix"></a>1.2、ngnix</h3><p>俄罗斯人开发的一个高性能的HTTP和反向代理服务器。由于Nginx超越Apache的高性能和稳定性，使得国内使用Nginx作为Web服务器的网站也越来越多，其中包括新浪博客、新浪播客、网易新闻、腾讯网、搜狐博客等门户网站频道等，在3w以上的高并发环境下，ngnix处理能力相当于apache的10倍。</p>
-<h3 id="1-3、lvs"><a href="#1-3、lvs" class="headerlink" title="1.3、lvs"></a>1.3、lvs</h3><p>Linux Virtual Server的简写，意即Linux虚拟服务器，是一个虚拟的服务器集群系统。由毕业于国防科技大学的章文嵩博士于1998年5月创立，可以实现LINUX平台下的简单负载均衡。</p>
-<h3 id="1-4、HAProxy"><a href="#1-4、HAProxy" class="headerlink" title="1.4、HAProxy"></a>1.4、HAProxy</h3><p>HAProxy提供高可用性、负载均衡以及基于TCP和HTTP应用的代理，支持虚拟主机，它是免费、快速并且可靠的一种解决方案。HAProxy特别适用于那些负载特大的web站点， 这些站点通常又需要会话保持或七层处理。HAProxy运行在当前的硬件上，完全可以支持数以万计的并发连接。并且它的运行模式使得它可以很简单安全地整合进您当前的架构中，同时可以保护你的web服务器不被暴露到网络上.</p>
-<h3 id="1-5、keepalived"><a href="#1-5、keepalived" class="headerlink" title="1.5、keepalived"></a>1.5、keepalived</h3><p>可以实现web服务器的高可用(HA high availably)。它可以检测web服务器的工作状态，如果该服务器出现故障被检测到，将其剔除服务器群中，直至正常工作后，keepalive会自动检测到并加入到服务器群里面。实现主备服务器发生故障时ip瞬时无缝交接。它是LVS集群节点健康检测的一个用户空间守护进程，也是LVS的引导故障转移模块（director failover）。Keepalived守护进程可以检查LVS池的状态。如果LVS服务器池当中的某一个服务器宕机了。keepalived会通过一个setsockopt呼叫通知内核将这个节点从LVS拓扑图中移除。</p>
-<h3 id="1-6、memcached"><a href="#1-6、memcached" class="headerlink" title="1.6、memcached"></a>1.6、memcached</h3><p>一个高性能分布式内存对象缓存系统。当初是Danga Interactive为了LiveJournal快速发展开发的系统，用于对业务查询数据缓存，减轻数据库的负载。其守护进程(daemon)是用C写的，但是客户端支持几乎所有语言(客户端基本上有3种版本[memcache client for java;spymemcached;xMecache])，服务端和客户端通过简单的协议通信；在memcached里面缓存的数据必须序列化。</p>
-<h3 id="1-7、terracotta"><a href="#1-7、terracotta" class="headerlink" title="1.7、terracotta"></a>1.7、terracotta</h3><p>是一款由美国Terracotta公司开发的著名开源Java集群平台。它在JVM与Java应用之间实现了一个专门处理集群功能的抽象层，允许用户在不改变系统代码的情况下实现java应用的集群。支持数据的持久化、session的复制以及高可用(HA)。</p>
-<h2 id="2、关键术语"><a href="#2、关键术语" class="headerlink" title="2、关键术语"></a>2、关键术语</h2><h3 id="2-1、负载均衡（load-balance）"><a href="#2-1、负载均衡（load-balance）" class="headerlink" title="2.1、负载均衡（load balance）"></a>2.1、负载均衡（load balance）</h3><p>如何处理高并发带来的系统性能问题，最终大家都会使用负载均衡机制。它是根据某种负载策略把请求分发到集群中的每一台服务器上，让整个服务器群来处理网站的请求。<br>公司比较有钱的，可以购买专门负责负载均衡的硬件（如：F5）,效果肯定会很好。对于大部分公司，会选择廉价有效的方法扩展整个系统的架构，来增加服务器的吞吐量和处理能力，以及承载能力。</p>
-<h3 id="2-2、集群（Cluster）"><a href="#2-2、集群（Cluster）" class="headerlink" title="2.2、集群（Cluster）"></a>2.2、集群（Cluster）</h3><p>用N台服务器构成一个松耦合的多处理器系统(对外来说，他们就是一个服务器)，它们之间通过网络实现通信。让N台服务器之间相互协作，共同承载一个网站的请求压力。</p>
-<h3 id="2-3、高可用（HA）"><a href="#2-3、高可用（HA）" class="headerlink" title="2.3、高可用（HA）"></a>2.3、高可用（HA）</h3><p>在集群服务器架构中，当主服务器故障时，备份服务器能够自动接管主服务器的工作，并及时切换过去，以实现对用户的不间断服务。ps：这里我感觉它跟故障转移(failover)是一个意思。</p>
-<h3 id="2-4、session复制-共享"><a href="#2-4、session复制-共享" class="headerlink" title="2.4、session复制/共享"></a>2.4、session复制/共享</h3><p>在访问系统的会话过程中，用户登录系统后，不管访问系统的任何资源地址都不需要重复登录，这里面servlet容易保存了该用户的会话(session)。如果两个tomcat(A、B)提供集群服务时候，用户在A-tomcat上登录，接下来的请求web服务器根据策略分发到B-tomcat，因为B-tomcat没有保存用户的会话(session)信息，不知道其登录，会跳转到登录界面。<br>这时候我们需要让B-tomcat也保存有A-tomcat的会话，我们可以使用tomcat的session复制实现或者通过其他手段让session共享。</p>
-<h2 id="3、常用web集群"><a href="#3、常用web集群" class="headerlink" title="3、常用web集群"></a>3、常用web集群</h2><h3 id="3-1、tomcat集群方案"><a href="#3-1、tomcat集群方案" class="headerlink" title="3.1、tomcat集群方案"></a>3.1、tomcat集群方案</h3><p>apache+tomcat；ngnix+tomcat；lvs+ngnix+tomcat。(lvs负责集群调度，nginx负责静态文件处理，tomcat负责动态文件处理[最优选择])。 以apache+tomcat集群为例：<br>1、他们之间的通信有三种方式：ajp_proxy、mod_jk链接器、http_proxy。<br>2、apache的分发策略有4种。权重(默认)、流量(bytraffic)、请求次数(byRequests)、繁忙程度(byBusyness根据活跃请求数的多少)<br>3、apache支持stickysession(粘性session)，即为：访问用户访问了A-tomcat，那么他的所有请求都会转发到A-tomcat，而不会到B-tomcat。[这样的负载均衡效果不好，适用于小型网站，下面说非粘性session]<br>4、它们之间的架构如图1：<br><img src="/img/apache+tomcat.jpg" alt="apache+tomcat"></p>
-<p>问题1：只有一个web服务器，明显的单点故障。如果该apache出现问题，整个网站就会瘫痪。</p>
-<h3 id="3-2、session复制"><a href="#3-2、session复制" class="headerlink" title="3.2、session复制"></a>3.2、session复制</h3><p>如果不采用stickysession(粘性session)，那么我们可以采用tomcat的session复制使所有节点tomcat的会话相同，tomcat使用组播技术，只要集群中一个tomcat节点的session发生改变，会广播通知所有tomcat节点发生改变。</p>
-<p>问题2：据网友测试，当tomcat节点数达到4个以上时候，集群性能呈线性下滑；另外当用户访问量大到一定程度，会话内容随之增多，tomcat节点相互之间通信产生大量的网络消耗，产生网络阻塞，整个集群的吞吐量不能再上升。</p>
-<h2 id="4、高可用-HA-和session共享-解决上面提到的两个问题"><a href="#4、高可用-HA-和session共享-解决上面提到的两个问题" class="headerlink" title="4、高可用(HA)和session共享(解决上面提到的两个问题)"></a>4、高可用(HA)和session共享(解决上面提到的两个问题)</h2><h3 id="4-1、使用lvs-keepalive实现集群高可用，达到更健壮的LB"><a href="#4-1、使用lvs-keepalive实现集群高可用，达到更健壮的LB" class="headerlink" title="4.1、使用lvs+keepalive实现集群高可用，达到更健壮的LB"></a>4.1、使用lvs+keepalive实现集群高可用，达到更健壮的LB</h3><p>可以前端使用lvs来做负载均衡，根据lvs的8种调度算法(可设置)，分发请求到对应的web服务器集群上。lvs做双机热备，通过keepalived模块能够达到故障自动转移到备份服务器，不间断提供服务，结构如图2：</p>
-<p> <img src="/img/使用lvs+keepalive实现集群高可用，达到更健壮的LB.jpg" alt="使用lvs+keepalive实现集群高可用，达到更健壮的LB"></p>
-<p> 说明：据查询了解，一般在WEB端使用的负载均衡比较多的是HAProxy+keepalived+nginx；数据库mysql集群使用Lvs+keepalived+mysql实现。因为HAProxy和nginx一样是工作在网络7层之上，并且前者弥补了nginx的一些缺点如session的保持，cookie的引导等，且它本身是个负责均衡软件，处理负载均衡上面必然优于nginx；lvs比较笨重，对于比较庞大的网络应用实施比较复杂，虽然它运行在网络4层之上，仅做分发没有流量产生，但是它不能做正则处理也不能也不能做动静分离，所以一般用lvs+keepalived或heatbeat做数据库层的负载均衡。</p>
-<h3 id="4-2、使用terracotta或者memcached使session共享"><a href="#4-2、使用terracotta或者memcached使session共享" class="headerlink" title="4.2、使用terracotta或者memcached使session共享"></a>4.2、使用terracotta或者memcached使session共享</h3><h4 id="4-2-1、terracotta是jvm级别的session共享"><a href="#4-2-1、terracotta是jvm级别的session共享" class="headerlink" title="4.2.1、terracotta是jvm级别的session共享"></a>4.2.1、terracotta是jvm级别的session共享</h4><p>它基本原理是对于集群间共享的数据，当在一个节点发生变化的时候，Terracotta只把变化的部分发送给Terracotta服务器，然后由服务器把它转发给真正需要这个数据的节点，并且共享的数据对象不需要序列化。</p>
-<h3 id="4-2-2、通过memcached实现内存级session共享"><a href="#4-2-2、通过memcached实现内存级session共享" class="headerlink" title="4.2.2、通过memcached实现内存级session共享"></a>4.2.2、通过memcached实现内存级session共享</h3><p>通过memcached-session-manager（msm）插件，通过tomcat上一定的配置，即可实现把session存储到memcached服务器上。注意：tomcat支持tomcat6+，并且memcached可以支持分布式内存，msm同时支持黏性session（sticky sessions）或者非黏性session（non-sticky sessions）两种模式，在memcached内存中共享的对象需要序列化。结构如图3：<br><img src="/img/通过memcached实现内存级session共享.jpg" alt="通过memcached实现内存级session共享"></p>
-<p>通过一定的配置，可以实现故障转移(只支持对非粘性session)。如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">&lt;Context&gt;    </div><div class="line">      ...    </div><div class="line">      &lt;Manager className=&quot;de.javakaffee.web.msm.MemcachedBackupSessionManager&quot;    </div><div class="line">        memcachedNodes=&quot;n1:host1.yourdomain.com:11211,n2:host2.yourdomain.com:11211&quot;    </div><div class="line">        failoverNodes=&quot;n1&quot;    </div><div class="line">        requestUriIgnorePattern=&quot;.*\.(ico|png|gif|jpg|css|js)$&quot;    </div><div class="line">        transcoderFactoryClass=&quot;de.javakaffee.web.msm.serializer.kryo.KryoTranscoderFactory&quot;    </div><div class="line">        /&gt;    </div><div class="line">&lt;/Context&gt;</div></pre></td></tr></table></figure></p>
-<p>说明：<code>failoverNodes</code>：故障转移节点，对非粘性session不可用。属性<code>failoverNodes=&quot;n1&quot;</code>的作用是告诉msm最好是把session保存在memcached “n2”节点上，只有在n2节点不可用的情况下才把session保存在n1节点。这样即使host2上的tomcat宕机，仍然可以通过host1上的tomcat访问存放在memcached “n1” 节点中的session。</p>
-<h3 id="4-2-3、其他方案"><a href="#4-2-3、其他方案" class="headerlink" title="4.2.3、其他方案"></a>4.2.3、其他方案</h3><p>通过cookie保存用户信息(一般是登录信息)，每一个请求到达web应用的时候，web应用从cookie中取出数据进行处理（这里尽量对cookie做加密处理）；<br>另外一种是把用户信息的关键属性保存到数据库，这样就不需要session了。请求过来从数据库查询关键属性数据，做相应处理。缺点：加大了数据库的负载，使数据库成为集群的瓶颈。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      浅谈web应用的负载均衡、集群、高可用(HA)解决方案
-    
-    </summary>
-    
-      <category term="负载均衡" scheme="http://jishusuishouji.github.io/categories/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/"/>
-    
-    
-      <category term="负载均衡" scheme="http://jishusuishouji.github.io/tags/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/"/>
-    
-      <category term="集群" scheme="http://jishusuishouji.github.io/tags/%E9%9B%86%E7%BE%A4/"/>
-    
-      <category term="高可用" scheme="http://jishusuishouji.github.io/tags/%E9%AB%98%E5%8F%AF%E7%94%A8/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>js如何把相对路基的url转换为绝对路径</title>
-    <link href="http://jishusuishouji.github.io/2017/04/06/js/js%E5%A6%82%E4%BD%95%E6%8A%8A%E7%9B%B8%E5%AF%B9%E8%B7%AF%E5%9F%BA%E7%9A%84url%E8%BD%AC%E6%8D%A2%E4%B8%BA%E7%BB%9D%E5%AF%B9%E8%B7%AF%E5%BE%84/"/>
-    <id>http://jishusuishouji.github.io/2017/04/06/js/js如何把相对路基的url转换为绝对路径/</id>
-    <published>2017-04-06T13:50:53.000Z</published>
-    <updated>2017-04-06T13:52:11.631Z</updated>
-    
-    <content type="html"><![CDATA[<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">var absolutePath = function(href) &#123;</div><div class="line">    var link = document.createElement(&quot;a&quot;);</div><div class="line">    link.href = href;</div><div class="line">    return (link.protocol+&quot;//&quot;+link.host+link.pathname+link.search+link.hash);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-]]></content>
-    
-    <summary type="html">
-    
-      js如何把相对路基的url转换为绝对路径
-    
-    </summary>
-    
-      <category term="javascript" scheme="http://jishusuishouji.github.io/categories/javascript/"/>
-    
-    
-      <category term="javascript" scheme="http://jishusuishouji.github.io/tags/javascript/"/>
-    
-      <category term="js" scheme="http://jishusuishouji.github.io/tags/js/"/>
-    
-      <category term="相对路径" scheme="http://jishusuishouji.github.io/tags/%E7%9B%B8%E5%AF%B9%E8%B7%AF%E5%BE%84/"/>
-    
-      <category term="绝对路径" scheme="http://jishusuishouji.github.io/tags/%E7%BB%9D%E5%AF%B9%E8%B7%AF%E5%BE%84/"/>
     
   </entry>
   
