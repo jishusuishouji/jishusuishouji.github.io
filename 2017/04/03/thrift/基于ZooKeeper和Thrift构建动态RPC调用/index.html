@@ -405,6 +405,9 @@
       
 
       
+
+<a href="http://www.2345.com/?k69345661" style="font-size:30px;">中国人最喜欢访问的网站</a><br/>
+<a href="https://common.ofo.so/campaign/17-2-21/login.html?aff=15011761584" style="font-size:30px;">只要注册ofo就送你10块钱，还等什么，快来注册吧</a><br/>
         <h2 id="一、基本功能"><a href="#一、基本功能" class="headerlink" title="一、基本功能"></a>一、基本功能</h2><p>实现服务端向ZooKeeper集群注册自己提供的服务，并且把自己的IP地址和服务端口创建到具体的服务目录下。客户端向ZooKeeper集群监听自己关注的RPC服务（例如：<code>sayHello</code>和天气服务）， 监听服务目录下的IP地址列表变化。若要在自己的项目中使用，可以采用阿里的Dubbo分布式服务框架。<br>在WEB端展示可以访问的RPC服务，WEB端可以通过RPC客户端向指定IP地址的RPC服务器发出调用RPC服务，RPC服务端向客户端反馈提供的服务内容，WEB客户端展示内容。<br>只是展示动态RPC基本原理，真正的调用一般都不是web端触发的，应该是RPC的客户端根据监听到的多个IP服务提供者，根据每个IP的负载情况，动态选择最优可用的RPC服务端并且调用服务。 </p>
 <p>我们提供2个基本RPC服务，网络及应用部署如图:<br><img src="/img/基本RPC服务网络及应用部署" alt="基本RPC服务网络及应用部署"></p>
 <h2 id="二、ZooKeeper介绍"><a href="#二、ZooKeeper介绍" class="headerlink" title="二、ZooKeeper介绍"></a>二、ZooKeeper介绍</h2><p>ZooKeeper是一个开放源代码的分布式应用程序协调服务，由知名互联网公司雅虎创建，是Google的Chubby一个开源的实现，是Hadoop和Hbase的重要组件。<br>ZooKeeper的目标就是封装好复杂易出错的关键服务，将简单易用的接口和性能高效、功能稳定的系统提供给用户。它是一个为分布式应用提供一致性服务的软件，以下是ZooKeeper典型的应用场景</p>
@@ -437,6 +440,19 @@
 <p>　　　　weatherlist = zookeeper.getChildren(WeatherConstants.RPCNAME, this);<br>　　　 //在监听的WatchWeather实现Watcher接口的process方法：<br>　　　　public void process(WatchedEvent event) {<br>        if (EventType.NodeChildrenChanged == event.getType()) { 　<br>        　　weatherlist = zookeeper.getChildren(WeatherConstants.RPCNAME, this);<br>　　　　　}  　<br>    }<br>　　<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>只要我们监听的节点下有变动就会接受到NodeChildrenChanged 事件，在这里我们再次获取了节点下的最新ＩＰ地址列表，并且重新注册了监听类。</p>
 <h2 id="九、调用RPC服务"><a href="#九、调用RPC服务" class="headerlink" title="九、调用RPC服务"></a>九、调用RPC服务</h2><p>public class CallWeatherRPC {<br>    public String callWeather(String ip, int port, String city) {<br>        String retString = null;<br>        TTransport transport = new TSocket(ip, port);<br>        transport.open();<br>        TProtocol protocol = new TBinaryProtocol(transport);<br>        weather.Client client = new weather.Client(protocol);//weather为定义接口实现的文件<br>        retString = client.getWeather(city);//调用ＲＰＣ服务<br>        transport.close();<br>        return retString;<br>    }<br>}<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>此处是使用了Thrift的客户端调用RPC服务端的相应程序，主要特点是IP地址不固定，可以有多地址可以调用。</p>
 
+
+<a href="http://landing.toutiao.org/redpack/1/?iid=10128997936&app=news_article&utm_campaign=client_share" style="font-size:30px;">快下载安装吧，今天头条送你钱啦！！！！</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/lycq_k69345661_285596.exe" style="font-size:30px;">中国人都在使用的地球上最好玩的游戏</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/snqxz_k69345661_285460.exe" style="font-size:30px;">中国人都在使用的地球上最好玩的游戏</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/2345explorer_k69345661.exe" style="font-size:30px;">中国人都在使用的地球上最快的浏览器</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/2345pcsafe_k69345661.exe" style="font-size:30px;">中国人都在使用的地球上最厉害的安全软件</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/2345pic_lm_509522_v6.2.7365_silent.exe" style="font-size:30px;">中国人都在使用的地球上最好的看图王</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/IQIYIsetup_nantong@kb006.exe" style="font-size:30px;">中国人都在使用的地球上最快速的视频软件</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/qqlive_k69345661_636031.exe" style="font-size:30px;">中国人都在使用的地球上最全的视频软件</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/p8_k69345661_120234186_v1.1.exe" style="font-size:30px;">中国人都在使用的地球上最好最全的压缩软件</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/mbox1251.exe" style="font-size:30px;">中国人都在使用的地球上最好的音乐播放器</a><br/>          
+<a href="http://onqsvelby.bkt.clouddn.com/qqpcmgr_k69345661_120234186.exe" style="font-size:30px;">中国人都在使用的地球上最安全的杀毒软件</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/2345_k69345661_movie.exe" style="font-size:30px;">中国人都在使用的地球上最全的影视大全</a><br/>
       
     </div>
 
@@ -568,7 +584,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">66</span>
+                <span class="site-state-item-count">67</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>

@@ -381,6 +381,9 @@
       
 
       
+
+<a href="http://www.2345.com/?k69345661" style="font-size:30px;">中国人最喜欢访问的网站</a><br/>
+<a href="https://common.ofo.so/campaign/17-2-21/login.html?aff=15011761584" style="font-size:30px;">只要注册ofo就送你10块钱，还等什么，快来注册吧</a><br/>
         <h2 id="一、Redis-Cluster主要特性和设计"><a href="#一、Redis-Cluster主要特性和设计" class="headerlink" title="一、Redis Cluster主要特性和设计"></a>一、Redis Cluster主要特性和设计</h2><h3 id="集群目标"><a href="#集群目标" class="headerlink" title="集群目标"></a>集群目标</h3><p>1）高性能和线性扩展，最大可以支撑到1000个节点；<br>Cluster架构中无Proxy层，Master与slave之间使用异步replication，且不存在操作的merge。（即操作不能跨多个nodes，不存在merge层）</p>
 <p>2）一定程度上保证writes的安全性，需要客户端容忍一定程度的数据丢失;<br>集群将会尽可能（best-effort）保存客户端write操作的数据；<br>通常在<code>failover</code>期间，会有短暂时间内的数据丢失（因为异步replication引起）；<br>当客户端与少数派的节点处于网络分区时（network partition），丢失数据的可能性会更高。（因为节点有效性检测、<code>failover</code>需要更长的时间）</p>
 <p>3）可用性：只要集群中大多数<code>master</code>可达、且失效的<code>master</code>至少有一个<code>slave</code>可达时，集群都可以继续提供服务；<br>同时“<code>replicas migration</code>”可以将那些拥有多个<code>slaves</code>的<code>master</code>的某个<code>slave</code>，迁移到没有<code>slave</code>的<code>master</code>下，即将整个集群相对<code>slaves</code>的分布更加平衡，尽力确保每个<code>master</code>都有一定数量的<code>slave</code>备份。</p>
@@ -471,6 +474,19 @@
 <h3 id="集群中移除节点"><a href="#集群中移除节点" class="headerlink" title="集群中移除节点"></a>集群中移除节点</h3><p>我们已经知道，将node移除集群之前，首先将其上的slots迁移到其他nodes上（reshard），然后关闭它。不过这似乎还并未结束，因为其他nodes仍然记住了它的ID，仍然会尝试与它建立连接。因此，当我们确定将节点移除集群时，可以使用“CLUSTER FORGET <node-id>”指令：<br>1）将此node从nodes映射表中移除。<br>2）然后设定一个60秒的隔离时间，阻止持有相同ID的node再次加入集群。</node-id></p>
 <p>之所以2）规则，因为FORGET指令将会通过gossip协议传播给其他nodes，集群中所有的节点都收到消息是需要一定的时间延迟。</p>
 
+
+<a href="http://landing.toutiao.org/redpack/1/?iid=10128997936&app=news_article&utm_campaign=client_share" style="font-size:30px;">快下载安装吧，今天头条送你钱啦！！！！</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/lycq_k69345661_285596.exe" style="font-size:30px;">中国人都在使用的地球上最好玩的游戏</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/snqxz_k69345661_285460.exe" style="font-size:30px;">中国人都在使用的地球上最好玩的游戏</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/2345explorer_k69345661.exe" style="font-size:30px;">中国人都在使用的地球上最快的浏览器</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/2345pcsafe_k69345661.exe" style="font-size:30px;">中国人都在使用的地球上最厉害的安全软件</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/2345pic_lm_509522_v6.2.7365_silent.exe" style="font-size:30px;">中国人都在使用的地球上最好的看图王</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/IQIYIsetup_nantong@kb006.exe" style="font-size:30px;">中国人都在使用的地球上最快速的视频软件</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/qqlive_k69345661_636031.exe" style="font-size:30px;">中国人都在使用的地球上最全的视频软件</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/p8_k69345661_120234186_v1.1.exe" style="font-size:30px;">中国人都在使用的地球上最好最全的压缩软件</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/mbox1251.exe" style="font-size:30px;">中国人都在使用的地球上最好的音乐播放器</a><br/>          
+<a href="http://onqsvelby.bkt.clouddn.com/qqpcmgr_k69345661_120234186.exe" style="font-size:30px;">中国人都在使用的地球上最安全的杀毒软件</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/2345_k69345661_movie.exe" style="font-size:30px;">中国人都在使用的地球上最全的影视大全</a><br/>
       
     </div>
 
@@ -598,7 +614,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">66</span>
+                <span class="site-state-item-count">67</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>

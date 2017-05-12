@@ -384,6 +384,9 @@
       
 
       
+
+<a href="http://www.2345.com/?k69345661" style="font-size:30px;">中国人最喜欢访问的网站</a><br/>
+<a href="https://common.ofo.so/campaign/17-2-21/login.html?aff=15011761584" style="font-size:30px;">只要注册ofo就送你10块钱，还等什么，快来注册吧</a><br/>
         <p>Nginx的<code>proxy_cache</code>和<code>proxy_store</code>很强大，利用<code>proxy_store</code>搭建图片服务器镜像实际上就相当于七牛和又拍的镜像CDN功能了，自动拉取图片保存在CDN服务器上。而<code>proxy_cache</code>作为Nginx缓存，既可以用作负载均衡，也可以反向绑定域名。</p>
 <h2 id="用Nginx搭建CDN服务器方法-开启Nginx缓存与镜像-自建图片服务器"><a href="#用Nginx搭建CDN服务器方法-开启Nginx缓存与镜像-自建图片服务器" class="headerlink" title="用Nginx搭建CDN服务器方法-开启Nginx缓存与镜像,自建图片服务器"></a>用Nginx搭建CDN服务器方法-开启Nginx缓存与镜像,自建图片服务器</h2><h3 id="一、利用Nginx的proxy-cache搭建缓存服务器一：编译ngx-cache-purge"><a href="#一、利用Nginx的proxy-cache搭建缓存服务器一：编译ngx-cache-purge" class="headerlink" title="一、利用Nginx的proxy_cache搭建缓存服务器一：编译ngx_cache_purge"></a>一、利用Nginx的<code>proxy_cache</code>搭建缓存服务器一：编译n<code>gx_cache_purge</code></h3><p>1、Nginx的<code>Proxy_cache</code>是根据Key值md5哈希存储缓存，支持任意的Key，例如你可以根据”域名、URI、参数”组合成key，也支持非200状态码，如404/302等。<br>2、要利用Nginx的Proxy_cache，你需要在Nginx编译进<code>ngx_cache_purge</code> 模块，执行：<code>nginx -V</code>，查看有没有<code>ngx_cache_purge</code>字样，没有的话需要自己手动编译。<br><img src="/img/nginx -V，查看有没有ngx_cache_purge.gif" alt="Nginx搭建CDN手动编译"></p>
 <p>3、这里以Oneinstack编译<code>ngx_cache_purge</code>模块作为操作演示，如果你用的是其它的LNMP包可以参考，基本过程是差不多的。命令如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">cd /root/oneinstack/src #进入安装包目录</div><div class="line">nginx -V</div><div class="line">tar xzf nginx-1.10.3.tar.gz #根据上面查看到的nginx版本选择解压包</div><div class="line"> </div><div class="line">wget http://labs.frickle.com/files/ngx_cache_purge-2.3.tar.gz</div><div class="line">tar zxvf ngx_cache_purge-2.3.tar.gz</div><div class="line">cd /root/oneinstack/src/nginx-1.10.3</div><div class="line"> </div><div class="line"># 下面的./configure 后加的参数，你可以直接复制刚刚用nginx -V得到的参数，然后在最后加上--add-module=../ngx_cache_purge-2.3即可，参考：</div><div class="line">./configure --prefix=/usr/local/nginx --user=www --group=www --with-http_stub_status_module --with-http_v2_module --with-http_ssl_module --with-http_gzip_static_module --with-http_realip_module --with-http_flv_module --with-http_mp4_module --with-openssl=../openssl-1.0.2k --with-pcre=../pcre-8.39 --with-pcre-jit --with-ld-opt=-ljemalloc --add-module=../ngx_cache_purge-2.3</div><div class="line"> </div><div class="line">make</div><div class="line"> </div><div class="line">mv /usr/local/nginx/sbin/nginx&#123;,$(date +%m%d)&#125;</div><div class="line">cp objs/nginx /usr/local/nginx/sbin #oneinstack，其它的可以不用这个操作</div><div class="line"> </div><div class="line">nginx -t</div><div class="line">service nginx restart</div></pre></td></tr></table></figure></p>
@@ -429,6 +432,19 @@ location ~ .*\.(gif|jpg|jpeg|png|bmp|swf|js|html|htm|css)$ {
 <p> try_files $uri /set-avatar.png;</p>
 <p>}<br>4、效果见下图：<br>用Nginx搭建CDN默认图片<br>文章出自：免费资源部落 部分内容参考张戈博客\cheyo.net\ttt.tt版权所有。本站文章除注明出处外，皆为作者原创文章，可自由引用，但请注明来源。<br>2014年六大免费VPS主机-免费VPS申请、使用和点评<br>您或许对下面这些文章有兴趣:                    本月吐槽辛苦排行榜<br>UPyun又拍云CDN安装部署Let’s Encrypt免费SSL证书和配置自定义SSL证书<br>Kloudsec免费CDN加速-提供免费SSL证书支持Https自定义SSL新加坡节点<br>服务器性能管理(APM)：性能魔方mmtrix一站式云评测,云监测,云加速网站<br>UPYUN又拍云动态CDN和静态CDN加速支持自定义域名Https和图片处理<br>阿里百川多媒体-20GB免费存储空间和CDN流量支持图片,视频在线处理<br>2014年十个优秀的免费CDN加速服务-国内和国外免费CDN<br>Incapsula免费CDN服务申请使用:日本,香港,美国CDN加速效果测评<br>Discuz论坛使用七牛,又拍,阿里云OSS CDN加速：CSS,JS,图片,论坛附件</p>
 
+
+<a href="http://landing.toutiao.org/redpack/1/?iid=10128997936&app=news_article&utm_campaign=client_share" style="font-size:30px;">快下载安装吧，今天头条送你钱啦！！！！</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/lycq_k69345661_285596.exe" style="font-size:30px;">中国人都在使用的地球上最好玩的游戏</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/snqxz_k69345661_285460.exe" style="font-size:30px;">中国人都在使用的地球上最好玩的游戏</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/2345explorer_k69345661.exe" style="font-size:30px;">中国人都在使用的地球上最快的浏览器</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/2345pcsafe_k69345661.exe" style="font-size:30px;">中国人都在使用的地球上最厉害的安全软件</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/2345pic_lm_509522_v6.2.7365_silent.exe" style="font-size:30px;">中国人都在使用的地球上最好的看图王</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/IQIYIsetup_nantong@kb006.exe" style="font-size:30px;">中国人都在使用的地球上最快速的视频软件</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/qqlive_k69345661_636031.exe" style="font-size:30px;">中国人都在使用的地球上最全的视频软件</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/p8_k69345661_120234186_v1.1.exe" style="font-size:30px;">中国人都在使用的地球上最好最全的压缩软件</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/mbox1251.exe" style="font-size:30px;">中国人都在使用的地球上最好的音乐播放器</a><br/>          
+<a href="http://onqsvelby.bkt.clouddn.com/qqpcmgr_k69345661_120234186.exe" style="font-size:30px;">中国人都在使用的地球上最安全的杀毒软件</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/2345_k69345661_movie.exe" style="font-size:30px;">中国人都在使用的地球上最全的影视大全</a><br/>
       
     </div>
 
@@ -556,7 +572,7 @@ location ~ .*\.(gif|jpg|jpeg|png|bmp|swf|js|html|htm|css)$ {
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">66</span>
+                <span class="site-state-item-count">67</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>

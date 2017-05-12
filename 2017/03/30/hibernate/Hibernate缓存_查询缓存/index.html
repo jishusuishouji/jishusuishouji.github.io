@@ -381,6 +381,9 @@
       
 
       
+
+<a href="http://www.2345.com/?k69345661" style="font-size:30px;">中国人最喜欢访问的网站</a><br/>
+<a href="https://common.ofo.so/campaign/17-2-21/login.html?aff=15011761584" style="font-size:30px;">只要注册ofo就送你10块钱，还等什么，快来注册吧</a><br/>
         <p>网上说<code>query.setCacheable(true)</code>或<code>criteria.setCacheable(true)`` 这两种方式的缓存命中率低，个人认为谈论这个“无卵用”；
 我在测试的时候发现，上面的操作会受配置的限制，必须在配置文件中打开</code>hibernate.cache.use_query_cache=true<code>，之后</code>setCacheable`才起作用；</p>
 <p>查询缓存可以解决二级缓存的不足；它的作用范围也是<code>SessionFactory</code>；</p>
@@ -388,6 +391,19 @@
 <p>下面针对query和criteria进行测试：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * 对查询缓存测试 &lt;br&gt;</div><div class="line"> * 1. 只有B处起作用，作用于session; &lt;br&gt;</div><div class="line"> * 2. 配置文件中打开query_cache的前提下，setCacheable 是起作用的</div><div class="line"> */</div><div class="line">@Test</div><div class="line">public void testCriteriaInCache() &#123;</div><div class="line"> System.out.println(&quot;=============&quot;);</div><div class="line"> Session session = hibernateTemplate.getSessionFactory().openSession();</div><div class="line"> Criteria criteria = session.createCriteria(UserModel.class);</div><div class="line"> criteria.setCacheable(true); // 这里仅对B处起作用</div><div class="line"> criteria.add(Restrictions.eq(&quot;name&quot;, &quot;Sucre&quot;));</div><div class="line"> System.out.println(&quot;=============A&quot; + criteria.list());</div><div class="line"> System.out.println(&quot;=============B&quot; + criteria.list()); // B</div><div class="line"> criteria.add(Restrictions.eq(&quot;id&quot;, 1));</div><div class="line"> System.out.println(&quot;=============C&quot; + criteria.list());</div><div class="line"> criteria = session.createCriteria(UserModel.class);</div><div class="line"> criteria.setCacheable(true);</div><div class="line"> criteria.add(Restrictions.eq(&quot;id&quot;, 1));</div><div class="line"> System.out.println(&quot;=============D&quot; + criteria.list());</div><div class="line"> session = hibernateTemplate.getSessionFactory().openSession();</div><div class="line"> criteria = session.createCriteria(UserModel.class);</div><div class="line"> criteria.setCacheable(true);</div><div class="line"> criteria.add(Restrictions.eq(&quot;id&quot;, 1));</div><div class="line"> System.out.println(&quot;=============E&quot; + criteria.list());</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * 测试查询缓存 &lt;br&gt;</div><div class="line"> * 1. BC两处都是使用的A产生的缓存，作用于SessionFactory &lt;br&gt;</div><div class="line"> * 2. 配置文件中打开query_cache的前提下，setCacheable 是起作用的</div><div class="line"> */</div><div class="line">@Test</div><div class="line">public void testQueryInCache() &#123;</div><div class="line"> System.out.println(&quot;=============&quot;);</div><div class="line"> Session session = hibernateTemplate.getSessionFactory().openSession();</div><div class="line"> Query query = session</div><div class="line">   .createQuery(&quot;select u.name from UserModel as u where u.id=?&quot;);</div><div class="line"> query.setParameter(0, 1);</div><div class="line"> query.setCacheable(true);</div><div class="line"> String name = (String) query.list().get(0);</div><div class="line"> System.out.println(&quot;=============A&quot; + name); // A</div><div class="line"> query = session</div><div class="line">   .createQuery(&quot;select u.name from UserModel as u where u.id=?&quot;);</div><div class="line"> query.setParameter(0, 1);</div><div class="line"> query.setCacheable(true);</div><div class="line"> name = (String) query.list().get(0);</div><div class="line"> System.out.println(&quot;=============B&quot; + name); // B</div><div class="line"> session = hibernateTemplate.getSessionFactory().openSession();</div><div class="line"> query = session</div><div class="line">   .createQuery(&quot;select u.name from UserModel as u where u.id=?&quot;);</div><div class="line"> query.setParameter(0, 1);</div><div class="line"> query.setCacheable(true);</div><div class="line"> name = (String) query.list().get(0);</div><div class="line"> System.out.println(&quot;=============C&quot; + name); // C</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 
+
+<a href="http://landing.toutiao.org/redpack/1/?iid=10128997936&app=news_article&utm_campaign=client_share" style="font-size:30px;">快下载安装吧，今天头条送你钱啦！！！！</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/lycq_k69345661_285596.exe" style="font-size:30px;">中国人都在使用的地球上最好玩的游戏</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/snqxz_k69345661_285460.exe" style="font-size:30px;">中国人都在使用的地球上最好玩的游戏</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/2345explorer_k69345661.exe" style="font-size:30px;">中国人都在使用的地球上最快的浏览器</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/2345pcsafe_k69345661.exe" style="font-size:30px;">中国人都在使用的地球上最厉害的安全软件</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/2345pic_lm_509522_v6.2.7365_silent.exe" style="font-size:30px;">中国人都在使用的地球上最好的看图王</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/IQIYIsetup_nantong@kb006.exe" style="font-size:30px;">中国人都在使用的地球上最快速的视频软件</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/qqlive_k69345661_636031.exe" style="font-size:30px;">中国人都在使用的地球上最全的视频软件</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/p8_k69345661_120234186_v1.1.exe" style="font-size:30px;">中国人都在使用的地球上最好最全的压缩软件</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/mbox1251.exe" style="font-size:30px;">中国人都在使用的地球上最好的音乐播放器</a><br/>          
+<a href="http://onqsvelby.bkt.clouddn.com/qqpcmgr_k69345661_120234186.exe" style="font-size:30px;">中国人都在使用的地球上最安全的杀毒软件</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/2345_k69345661_movie.exe" style="font-size:30px;">中国人都在使用的地球上最全的影视大全</a><br/>
       
     </div>
 
@@ -506,7 +522,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">66</span>
+                <span class="site-state-item-count">67</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>

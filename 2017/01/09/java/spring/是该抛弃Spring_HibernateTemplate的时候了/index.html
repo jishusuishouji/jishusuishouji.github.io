@@ -381,12 +381,28 @@
       
 
       
+
+<a href="http://www.2345.com/?k69345661" style="font-size:30px;">中国人最喜欢访问的网站</a><br/>
+<a href="https://common.ofo.so/campaign/17-2-21/login.html?aff=15011761584" style="font-size:30px;">只要注册ofo就送你10块钱，还等什么，快来注册吧</a><br/>
         <p>在spring2.0之前，我们在使用hibernate和spring的时候，都会被<code>HibernateTemplate</code>为我们提供benefits（资源和事务管理以及把那个“丑陋”的checked exception转换为runtime exception-DataAccessException ）而折服，在项目中不由自主、不假思索地使用它和那个经典的callback方法。而如今，hibernate3.0.1+ 、spring 2.0+版本以后，我们可以在数据访问层直接使用hinberate的session API(例如<code>SessionFactory.getCurrentSession</code>)，不并担心session和transaction management。至于error handling可以通过spring的@Repository annotation和post processor-PersistenceExceptionTranslationPostProcessor来解决。让我们来看一些代码片段：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">&lt;bean id=&quot;sessionFactory&quot; class=&quot;org.springframework.orm.hibernate3.  </div><div class="line">LocalSessionFactoryBean&quot;&gt;  </div><div class="line">&lt;!-- the properties setting--&gt;  </div><div class="line">&lt;/bean&gt;  </div><div class="line">   </div><div class="line">&lt;bean id=&quot;accountRepo&quot; class=&quot;com.mycompany.HibernateAccountRepository&quot;&gt;  </div><div class="line">    &lt;constructor-arg ref=&quot;sessionFactory&quot;&gt;&lt;/constructor-arg&gt;  </div><div class="line">&lt;/bean&gt;  </div><div class="line">&lt;bean class=&quot;org.springframework.dao.annotation. PersistenceExceptionTranslationPostProcessor&quot;/&gt;</div></pre></td></tr></table></figure></p>
 <p>数据访问层代码片段：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">@Repository  </div><div class="line">public class HibernateAccountRepository implements AccountRepository &#123;  </div><div class="line">   </div><div class="line">    private SessionFactory factory;  </div><div class="line">   </div><div class="line">    public HibernateAccountRepository(SessionFactory factory) &#123;  </div><div class="line">        this.factory = factory;  </div><div class="line">    &#125;  </div><div class="line">   </div><div class="line">    public Account loadAccount(String username) &#123;  </div><div class="line">        return (Account)factory.getCurrentSession()</div><div class="line">                  .createQuery(&quot;from Account acc where acc.name = :name&quot;)  </div><div class="line">                  .setParameter(&quot;name&quot;, &quot;thethirdpart&quot;).uniqueResult();  </div><div class="line">    &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 <p>在xml配置文件里面通过配置的post processor会自动检测<code>@Repository</code>标注的bean并为该bean打开exception转换功能。    </p>
 <p>如果不支持annotations，可以通过AOP来实现，更方便<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&lt;bean id=&quot;persistenceExceptionInterceptor&quot;  </div><div class="line">class=&quot;org.springframework.dao.support.PersistenceExceptionTranslationInterceptor&quot;/&gt;  </div><div class="line">&lt;aop:config&gt;  </div><div class="line">    &lt;aop:advisor pointcut=&quot;execution(* *..*Repository+.*(..))&quot;  </div><div class="line">                          advice-ref=&quot;persistenceExceptionInterceptor&quot; /&gt;  </div><div class="line">&lt;/aop:config&gt;</div></pre></td></tr></table></figure></p>
 <p>总结，我们应该选择哪种方式呢？还是那句话，根据不同的情况来做最正确的选择。但我建议是丢弃template，而直接使用hibernate的API，毕竟灵活性更大，更何况遇到复杂的情况我们始终得面对hibernate的API。spring并不强制你做任何事情，记得它是一个非侵入性的framework。</p>
 
+
+<a href="http://landing.toutiao.org/redpack/1/?iid=10128997936&app=news_article&utm_campaign=client_share" style="font-size:30px;">快下载安装吧，今天头条送你钱啦！！！！</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/lycq_k69345661_285596.exe" style="font-size:30px;">中国人都在使用的地球上最好玩的游戏</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/snqxz_k69345661_285460.exe" style="font-size:30px;">中国人都在使用的地球上最好玩的游戏</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/2345explorer_k69345661.exe" style="font-size:30px;">中国人都在使用的地球上最快的浏览器</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/2345pcsafe_k69345661.exe" style="font-size:30px;">中国人都在使用的地球上最厉害的安全软件</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/2345pic_lm_509522_v6.2.7365_silent.exe" style="font-size:30px;">中国人都在使用的地球上最好的看图王</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/IQIYIsetup_nantong@kb006.exe" style="font-size:30px;">中国人都在使用的地球上最快速的视频软件</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/qqlive_k69345661_636031.exe" style="font-size:30px;">中国人都在使用的地球上最全的视频软件</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/p8_k69345661_120234186_v1.1.exe" style="font-size:30px;">中国人都在使用的地球上最好最全的压缩软件</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/mbox1251.exe" style="font-size:30px;">中国人都在使用的地球上最好的音乐播放器</a><br/>          
+<a href="http://onqsvelby.bkt.clouddn.com/qqpcmgr_k69345661_120234186.exe" style="font-size:30px;">中国人都在使用的地球上最安全的杀毒软件</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/2345_k69345661_movie.exe" style="font-size:30px;">中国人都在使用的地球上最全的影视大全</a><br/>
       
     </div>
 
@@ -507,7 +523,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">66</span>
+                <span class="site-state-item-count">67</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>

@@ -381,6 +381,9 @@
       
 
       
+
+<a href="http://www.2345.com/?k69345661" style="font-size:30px;">中国人最喜欢访问的网站</a><br/>
+<a href="https://common.ofo.so/campaign/17-2-21/login.html?aff=15011761584" style="font-size:30px;">只要注册ofo就送你10块钱，还等什么，快来注册吧</a><br/>
         <p>安全管理器<code>SecurityManager</code>核心方法<code>checkPerssiom</code>,而该方法又调用<code>AccessController</code>的<code>checkPerssiom</code>方法，访问控制器<code>AccessController</code>的栈检查机制会遍历整个<code>PerssiomCollection</code>来判断具体拥有什么权限,一旦发现栈中一个权限不允许会抛出异常，否则简单的返回。</p>
 <h2 id="编写java的安全管理器"><a href="#编写java的安全管理器" class="headerlink" title="编写java的安全管理器"></a>编写java的安全管理器</h2><h3 id="定义一个类继承自SecurityManger并重写checkRead方法"><a href="#定义一个类继承自SecurityManger并重写checkRead方法" class="headerlink" title="定义一个类继承自SecurityManger并重写checkRead方法"></a>定义一个类继承自<code>SecurityManger</code>并重写<code>checkRead</code>方法</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">package com.test.security.manager;</div><div class="line"></div><div class="line">public class MySecurityManager extends SecurityManager &#123;</div><div class="line"></div><div class="line">    @Override</div><div class="line">    public void checkRead(String fileFullPath) &#123;</div><div class="line">        // super.checkRead(fileFullPath);</div><div class="line">        if (fileFullPath.endsWith(&quot;test&quot;)) &#123;</div><div class="line">            throw new SecurityException(&quot;你没有读取的本文件的权限&quot;);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <h3 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">package com.test.security.manager;</div><div class="line"></div><div class="line">import java.io.FileInputStream;</div><div class="line">import java.io.IOException;</div><div class="line"></div><div class="line">import org.junit.Test;</div><div class="line"></div><div class="line">public class MySecurityManagerTest &#123;</div><div class="line">    @Test</div><div class="line">    public void testCheckReadString() &#123;</div><div class="line">        System.setSecurityManager(new MySecurityManager());</div><div class="line">        try &#123;</div><div class="line">            FileInputStream fis = new FileInputStream(&quot;test&quot;);</div><div class="line">        &#125; catch (IOException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
@@ -390,6 +393,19 @@
 <p>先会执行<code>SecurityManager security = System.getSecurityManager();</code>，然后再调用<code>security</code>的<code>checkRead</code>方法。</p>
 <p>联想一下，在使用java的<code>File</code>时会<code>new File(&quot;test&quot;).setWritable(Boolean.TRUE, Boolean.TRUE);</code>，这可以指定创建文件的权限，这里就是使用了安全管理器来设置权限。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">public boolean setWritable(boolean writable, boolean ownerOnly) &#123;</div><div class="line">    SecurityManager security = System.getSecurityManager();</div><div class="line">    if (security != null) &#123;</div><div class="line">        security.checkWrite(path);</div><div class="line">    &#125;</div><div class="line">    if (isInvalid()) &#123;</div><div class="line">        return false;</div><div class="line">    &#125;</div><div class="line">    return fs.setPermission(this, FileSystem.ACCESS_WRITE, writable, ownerOnly);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 
+
+<a href="http://landing.toutiao.org/redpack/1/?iid=10128997936&app=news_article&utm_campaign=client_share" style="font-size:30px;">快下载安装吧，今天头条送你钱啦！！！！</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/lycq_k69345661_285596.exe" style="font-size:30px;">中国人都在使用的地球上最好玩的游戏</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/snqxz_k69345661_285460.exe" style="font-size:30px;">中国人都在使用的地球上最好玩的游戏</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/2345explorer_k69345661.exe" style="font-size:30px;">中国人都在使用的地球上最快的浏览器</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/2345pcsafe_k69345661.exe" style="font-size:30px;">中国人都在使用的地球上最厉害的安全软件</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/2345pic_lm_509522_v6.2.7365_silent.exe" style="font-size:30px;">中国人都在使用的地球上最好的看图王</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/IQIYIsetup_nantong@kb006.exe" style="font-size:30px;">中国人都在使用的地球上最快速的视频软件</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/qqlive_k69345661_636031.exe" style="font-size:30px;">中国人都在使用的地球上最全的视频软件</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/p8_k69345661_120234186_v1.1.exe" style="font-size:30px;">中国人都在使用的地球上最好最全的压缩软件</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/mbox1251.exe" style="font-size:30px;">中国人都在使用的地球上最好的音乐播放器</a><br/>          
+<a href="http://onqsvelby.bkt.clouddn.com/qqpcmgr_k69345661_120234186.exe" style="font-size:30px;">中国人都在使用的地球上最安全的杀毒软件</a><br/>
+<a href="http://onqsvelby.bkt.clouddn.com/2345_k69345661_movie.exe" style="font-size:30px;">中国人都在使用的地球上最全的影视大全</a><br/>
       
     </div>
 
@@ -517,7 +533,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">66</span>
+                <span class="site-state-item-count">67</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
